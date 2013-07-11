@@ -1,0 +1,136 @@
+@media (min-width: 768px) {
+	.profile{
+		text-align:right;
+	}
+	.info{
+		text-align:left;
+	}
+}
+@media (max-width: 767px) {
+	.profile{
+		text-align:center;
+	}
+	.info{
+		text-align:center;
+	}
+}
+
+body{
+	font: normal 13px Roboto,arial,sans-serif;
+	overflow:auto
+}
+h1{
+	color:white;
+	font-weight:normal;
+}
+
+.img-circle{
+	-webkit-border-radius:500px;
+	-moz-border-radius:500px;
+	border-radius:500px
+}
+
+.menu{
+	background-color: rgba(0,0,0,0.6);
+	height: 60px;
+	width:100%;
+	z-index:1;
+	opacity:1;
+	position:fixed;
+	top:0;
+	left:0;
+}
+.menu-content{
+	
+}
+.cover{
+	width:100%;
+	height:auto;
+	position:relative;
+}
+.cover-img{
+	width:100%;
+	height:auto;
+	min-height:256px;
+	min-width:426px;
+	border:0;
+}
+.profile-img{
+	width:120px;
+	height:120px;
+	margin-right:15px;
+	
+}
+.profile-bar{
+	background: url('//ssl.gstatic.com/s2/oz/images/local/map_gradient.png');
+	background: -webkit-linear-gradient(transparent 0%,rgba(0,0,0,0.3) 30%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.7) 100%);
+	background: linear-gradient(transparent 0%,rgba(0,0,0,0.3) 30%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.7) 100%);
+	bottom:0;
+	width:100%;
+	position: absolute;
+}
+.timer{
+	float:right;
+	display: inline-block;
+	font-size: 13px;
+	color:white;
+	margin:0px 0px 0px 1em;
+	height:60px;
+	line-height:60px;
+}
+.banner{
+	float:left;
+	display: inline-block;
+	font-size: 26px;
+	color:white;
+	margin:0px 0px 0px 1em;
+	height:60px;
+	line-height:60px;
+}
+.sign-out{
+	float:right;
+	display: inline-block;
+	color:white;
+	margin:0px 1em 0px 1em;
+	height:60px;
+	text-align:center;
+	padding:
+}
+.sign-out-btn{
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	background-color: rgba(0,0,0,.7);
+	background-image: none;
+	color: #fff;
+	cursor: pointer;
+	font-size: 14px;
+	font-weight:bold;
+	outline: none;
+	padding: 3px 8px;
+	width:85px;
+	height:20px;
+	border: 1px solid rgba(0,0,0,.15);
+	margin: 15px 0 0 20px;
+}
+#name{
+	margin:1.2em 0px 0px 0px;
+}
+#email{
+	color:lightgray;
+	margin:0.3em 0px 0px 0px;
+}
+#time{
+	color:lightgray;
+	margin:0.3em 0px 0px 0px;
+}
+.center{
+	text-align:center;
+}
+.right{
+	text-align:right;
+}
+.left{
+	text-align:left;
+}

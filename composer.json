@@ -10,9 +10,13 @@
 			"app/commands",
 			"app/controllers",
 			"app/models",
+			"app/libraries",
+			"app/libraries/google/Google_Client.php",
+			"app/libraries/google/contrib/Google_Oauth2Service.php",
 			"app/database/migrations",
 			"app/database/seeds",
 			"app/tests/TestCase.php"
+			
 		]
 	},
 	"scripts": {
