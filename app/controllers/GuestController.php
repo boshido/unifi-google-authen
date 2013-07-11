@@ -9,6 +9,7 @@ class GuestController extends Controller {
 	 */
 	public function getIndex()
     {
+
 		$unifi = new Unifi();
 		$id = Input::get('id');
 		$ap = Input::get('ap');
@@ -17,116 +18,115 @@ class GuestController extends Controller {
 		$url = Input::get('url');
 		
 		if($id!=null){
-			$chk = md5(uniqid(rand(), true));
 			Session::put('id', $id);     //user's mac address
 			Session::put('ap', $ap);       //AP mac
 			Session::put('ssid',$ssid);   //ssid the user is on (POST 2.3.2)    	
 			Session::put('time',$t);		//time the user attempted a request of the portal      	
 			Session::put('ref_url',$url);	//url the user attempted to reach   	
-			Session::put('auth_code',$chk);				//key to use to check if the user used this form or not
 														// -- prevents them from simply going to /authorized.php on their own
-			$this->getGoogleAuth();
-			return Redirect::to('guest/google-auth')->with('auth_code',$chk);
+			
+			return Redirect::action('GuestController@getGoogleAuth');
 		}
     }
 	
 	public function getGoogleAuth(){
 	
 		$code = Input::get('code');
-		$auth_code = Input::get('auth_code');
 		
 		$client = new Google_Client();
 		$client->setApplicationName("FITM Wifi Authentication Application");
-		// Visit https://code.google.com/apis/console?api=plus to generate your
-		// oauth2_client_id, oauth2_client_secret, and to register your oauth2_redirect_uri.
 		$client->setApprovalPrompt("auto");
 		$client->setAccessType('offline');
 
 		$oauth2 = new Google_Oauth2Service($client);
-		
-		
+
 		if ($code != null) { // when finished google authentication
 			$client->authenticate($_GET['code']);
-			Session::put('token') = $client->getAccessToken();
+			Session::put('token',$client->getAccessToken());
+			var_dump($client->getAccessToken());
 			if(Session::has('id')){
+				$newaccesstoken = json_decode($client->getAccessToken());
+				if(isset($newaccesstoken->refresh_token)){
+					$refresh_token = $newaccesstoken->refresh_token;
+					
+				}
+				$user = $oauth2->userinfo->get();
+				$email = filter_var($user['email'], FILTER_SANITIZE_EMAIL);
+				$db = Database::Connect();
+				$user = $db->user;
+				$find = array('mac'=>'c8:3d:97:6c:32:08');
+				$set =  array('$set'=>array('fitm'=>$email));
+				$user->update($find,$set);
+				
 				$unifi = new Unifi();
-				$unifi->sendAuthorization($_SESSION['id'], (12*60)); //authorizing user for 12 hours(12*60)
+				$unifi->sendAuthorization(Session::get('id'), (12*60)); //authorizing user for 12 hours(12*60)
 			}
 		}
-
-		if (isset($_SESSION['token'])) {
-		 $client->setAccessToken($_SESSION['token']);
-		 /*if($client->isAccessTokenExpired()) {
-			$client->authenticate();
-			$newaccesstoken = json_decode($client->getAccessToken());
-			$client->refreshToken($newaccesstoken->refresh_token);
-		 }*/
+		if (Session::has('token')) {
+			$client->setAccessToken(Session::get('token'));
 		}
-
 		if ($client->getAccessToken()) {
-			return Redirect::to('guest/userinfo');
+			//return Redirect::to('guest/userinfo');
 		} 
 		else {
+			$chk = md5(uniqid(rand(), true));
+			Session::put('auth_code',$chk);				//key to use to check if the user used this form or not
 			$auth_url = $client->createAuthUrl();
-			return View::make('login', array('auth_url' => $auth_url,'auth_code'=>$auth_code));
-		}
-		
+			return View::make('login', array('auth_url' => $auth_url,'auth_code'=>$chk));
+		}		
 		
 	}
 	
-	public function postGoogleRedirect(){
+	public function getGoogleRedirect(){
 		$auth_code =Input::get('auth_code');
 		$auth_url = Input::get('auth_url');
 		if(Session::has('auth_code') && Session::has('id')){
 			if(Session::get('auth_code') == $auth_code){
 				$unifi = new Unifi();
-				$unifi->sendAuthorization($_SESSION['id'], 1); // authorizing 1 minutes for going through google authentication
+				$unifi->sendAuthorization(Session::get('id'), 1); // authorizing 1 minutes for going through google authentication
 				Session::forget('auth_code');
 			}
 		}
-		return Redirect::to($auth_url);
+		return View::make('loading', array('auth_url' => $auth_url));
 	}
 	
-	public function getLogout(){
-		/*if (isset($_REQUEST['logout'])) {
-		  unset($_SESSION['token']);
-		  $client->revokeToken();
-		}*/
+	public function getSignout(){
+	
+		Session::flush();
+		return Redirect::action('GuestController@getGoogleAuth');
 	}	
 	
 	public function getUserinfo(){
 		$unifi = new Unifi();
 		//var_dump($unifi->getUser('c8:3d:97:6c:32:08')); //a
 		$client = new Google_Client();
-		$client->setApplicationName("FITM Wifi Authentication Application");
-		// Visit https://code.google.com/apis/console?api=plus to generate your
-		// oauth2_client_id, oauth2_client_secret, and to register your oauth2_redirect_uri.
-		//$client->setScopes('');
 		$client->setApprovalPrompt("auto");
 		$client->setAccessType('offline');
 		
 		$oauth2 = new Google_Oauth2Service($client);
-
-		if (isset($_SESSION['token'])) {
-			$client->setAccessToken($_SESSION['token']);
+		
+		if (Session::has('token')) {
+			$client->setAccessToken(Session::get('token'));
+			var_dump(Session::get('token'));
 			if($client->isAccessTokenExpired()) {
 				$client->authenticate();
 				$newaccesstoken = json_decode($client->getAccessToken());
-				$client->refreshToken($newaccesstoken->refresh_token);
+
+				//$client->refreshToken($newaccesstoken->refresh_token);
 			}
 		}
 		
 		if ($client->getAccessToken()) {
-			$user = $oauth2->userinfo->get();
+			//$user = $oauth2->userinfo->get();
 			// These fields are currently filtered through the PHP sanitize filters.
 			// See http://www.php.net/manual/en/filter.filters.sanitize.php
-			$name = $user['name'];
+			/*$name = $user['name'];
 			$email = filter_var($user['email'], FILTER_SANITIZE_EMAIL);
 			$img = isset($user['picture']) ? $user['picture'] : '/img/photo.jpg';
 
 			// The access token may have been updated lazily.
-			$_SESSION['token'] = $client->getAccessToken();
-			return View::make('user',array('name'=>$name,'email'=>$email,'img'=>$img));
+			Session::put('token',$client->getAccessToken());
+			return View::make('user',array('name'=>$name,'email'=>$email,'img'=>$img));*/
 		} 
 	}
 	protected function setupLayout()
