@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>FITM Wifi Authorization</title>
+		<title>FITM 2.0 Wifi User Info</title>
 		
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -20,12 +20,17 @@
 		<link href="/css/pure-min.css" rel="stylesheet" media="screen"/>
 		<link href="/css/grids-min.css" rel="stylesheet" media="screen">
 		<link href="/css/overide.css" rel="stylesheet" media="screen">
+		<style>
+			html{
+				background-color:lightgray;
+			}
+		</style>
 	</head>
 	<body>
 		<div class="menu">
 			<div class="menu-content">
-				<div class="banner">FITM</div>
-				<div class="sign-out"><div class="sign-out-btn" >Sign Out</div></div>
+				<div class="banner">fitm</div>
+				<div class="sign-out"><div class="menu-btn" id="sign-out">Sign Out</div></div>
 				<div class="timer"><span>Time Remain :</span>11:00:00</div>
 			</div>	
 		</div>	
@@ -65,7 +70,7 @@
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"></script>
 		<script>
 			$(document).ready(function(){
-				$('.sign-out-btn').click(function(){
+				$('#sign-out').click(function(){
 					window.location.href ="{{action('GuestController@getSignout')}}";
 				});
 			});

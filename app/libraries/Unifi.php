@@ -45,6 +45,22 @@ class Unifi{
 		return $value;
 	}
 	
+	public function sendUnAuthorization($id)
+	{
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		$data = json_encode(array(
+			'cmd'=>'unauthorize-guest',
+			'mac'=>$id));
+
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/stamgr');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.$data);
+		$value = curl_exec ($ch);
+		$ch = $this->sendLogout($ch);
+		return $value;
+	}
+	
 	public function getUser($id)
 	{
 		$ch = curl_init();

@@ -25,39 +25,58 @@ class GuestController extends Controller {
 			Session::put('ref_url',$url);	//url the user attempted to reach   	
 														// -- prevents them from simply going to /authorized.php on their own
 			
-			return Redirect::action('GuestController@getGoogleAuth');
+			return Redirect::action('GuestController@getSignin');
 		}
     }
 	
-	public function getGoogleAuth(){
+	public function getSignin(){
 	
 		$code = Input::get('code');
-		
 		$client = new Google_Client();
 		$client->setApplicationName("FITM Wifi Authentication Application");
 		$client->setApprovalPrompt("auto");
 		$client->setAccessType('offline');
-
 		$oauth2 = new Google_Oauth2Service($client);
-
+		
+		if(!Session::has('id')){// when no id redirect user to outside network
+			//return '<script>window.location.href ="http://www.google.co.th/";</script>';
+		}
+		
 		if ($code != null) { // when finished google authentication
 			$client->authenticate($_GET['code']);
 			Session::put('token',$client->getAccessToken());
-			var_dump($client->getAccessToken());
+			
 			if(Session::has('id')){
-				$newaccesstoken = json_decode($client->getAccessToken());
-				if(isset($newaccesstoken->refresh_token)){
-					$refresh_token = $newaccesstoken->refresh_token;
-					
-				}
-				$user = $oauth2->userinfo->get();
-				$email = filter_var($user['email'], FILTER_SANITIZE_EMAIL);
 				$db = Database::Connect();
+				$userinfo = $oauth2->userinfo->get();
+				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
+				
 				$user = $db->user;
-				$find = array('mac'=>'c8:3d:97:6c:32:08');
-				$set =  array('$set'=>array('fitm'=>$email));
+				$find = array('mac'=>Session::get('id'));
+				$set =  array('$set'=>array('email'=>$email));
 				$user->update($find,$set);
 				
+				$accesstoken = json_decode($client->getAccessToken());
+				if(isset($accesstoken->refresh_token)){					// Store refresh token with userinfo
+					$google_id = $userinfo['id'];
+					$fname = $userinfo['given_name'];
+					$lname = $userinfo['family_name'];
+					
+					$refresh_token = $accesstoken->refresh_token;
+					$token = $db->token;
+					$find = array('google_id'=>$google_id);
+					$set = array('$set'=>array('fname'=>$fname,'lname'=>$lname,'email'=>$email,'refresh_token'=>$refresh_token));
+					$token->update($find,$set,array("upsert" => true));
+					
+					Session::put('refresh_token',$refresh_token);
+				}
+				else{	// Retrieve refresh token from database
+					$google_id = $userinfo['id'];
+					$token = $db->token;
+					$find = array('google_id'=>$google_id);
+					$result = $token->findOne($find);
+					Session::put('refresh_token',$result['refresh_token']);
+				}
 				$unifi = new Unifi();
 				$unifi->sendAuthorization(Session::get('id'), (12*60)); //authorizing user for 12 hours(12*60)
 			}
@@ -66,13 +85,15 @@ class GuestController extends Controller {
 			$client->setAccessToken(Session::get('token'));
 		}
 		if ($client->getAccessToken()) {
-			//return Redirect::to('guest/userinfo');
+			return Redirect::to('guest/userinfo');
 		} 
 		else {
-			$chk = md5(uniqid(rand(), true));
-			Session::put('auth_code',$chk);				//key to use to check if the user used this form or not
+			if(!Session::has('auth_code')){
+				$chk = md5(uniqid(rand(), true));
+				Session::put('auth_code',$chk);				//key to use to check if the user used this form or not
+			}
 			$auth_url = $client->createAuthUrl();
-			return View::make('login', array('auth_url' => $auth_url,'auth_code'=>$chk));
+			return View::make('login', array('auth_url' => $auth_url,'auth_code'=>Session::get('auth_code')));
 		}		
 		
 	}
@@ -85,15 +106,26 @@ class GuestController extends Controller {
 				$unifi = new Unifi();
 				$unifi->sendAuthorization(Session::get('id'), 1); // authorizing 1 minutes for going through google authentication
 				Session::forget('auth_code');
+				return View::make('loading', array('auth_url' => $auth_url));
 			}
 		}
-		return View::make('loading', array('auth_url' => $auth_url));
+		
 	}
 	
 	public function getSignout(){
-	
+		/*if(Session::has('token')){
+			$client = new Google_Client();
+			$client->setApprovalPrompt("auto");
+			$client->setAccessType('offline');
+			$client->setAccessToken(Session::get('token'));
+			$client->revokeToken();
+				
+		}*/
+		$unifi = new Unifi();
+		$unifi->sendUnAuthorization(Session::get('id'));
+		
 		Session::flush();
-		return Redirect::action('GuestController@getGoogleAuth');
+		return Redirect::action('GuestController@getSignin');
 	}	
 	
 	public function getUserinfo(){
@@ -104,29 +136,24 @@ class GuestController extends Controller {
 		$client->setAccessType('offline');
 		
 		$oauth2 = new Google_Oauth2Service($client);
-		
 		if (Session::has('token')) {
 			$client->setAccessToken(Session::get('token'));
-			var_dump(Session::get('token'));
 			if($client->isAccessTokenExpired()) {
-				$client->authenticate();
-				$newaccesstoken = json_decode($client->getAccessToken());
-
-				//$client->refreshToken($newaccesstoken->refresh_token);
+				$client->refreshToken(Session::get('refresh_token'));
 			}
 		}
 		
 		if ($client->getAccessToken()) {
-			//$user = $oauth2->userinfo->get();
+			$user = $oauth2->userinfo->get();
 			// These fields are currently filtered through the PHP sanitize filters.
 			// See http://www.php.net/manual/en/filter.filters.sanitize.php
-			/*$name = $user['name'];
+			$name = $user['name'];
 			$email = filter_var($user['email'], FILTER_SANITIZE_EMAIL);
 			$img = isset($user['picture']) ? $user['picture'] : '/img/photo.jpg';
 
 			// The access token may have been updated lazily.
 			Session::put('token',$client->getAccessToken());
-			return View::make('user',array('name'=>$name,'email'=>$email,'img'=>$img));*/
+			return View::make('user',array('name'=>$name,'email'=>$email,'img'=>$img));
 		} 
 	}
 	protected function setupLayout()

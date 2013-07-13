@@ -1,3 +1,10 @@
+@font-face {
+  font-family: 'Oswald';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Oswald Regular'), local('Oswald-Regular'), url(/font/Oswald-Regular.woff) format('woff');
+}
+
 @media (min-width: 768px) {
 	.profile{
 		text-align:right;
@@ -14,8 +21,8 @@
 		text-align:center;
 	}
 }
-
 body{
+	
 	font: normal 13px Roboto,arial,sans-serif;
 	overflow:auto
 }
@@ -78,16 +85,19 @@ h1{
 	height:60px;
 	line-height:60px;
 }
+
 .banner{
+	font-family:'Oswald',arial,sans-serif;
+	
 	float:left;
 	display: inline-block;
 	font-size: 26px;
-	color:white;
+	color:#F47063;
 	margin:0px 0px 0px 1em;
 	height:60px;
 	line-height:60px;
 }
-.sign-out{
+.sign-out,.help{
 	float:right;
 	display: inline-block;
 	color:white;
@@ -96,7 +106,7 @@ h1{
 	text-align:center;
 	padding:
 }
-.sign-out-btn{
+.menu-btn{
 	-webkit-border-radius: 3px;
 	border-radius: 3px;
 	-webkit-box-shadow: none;
