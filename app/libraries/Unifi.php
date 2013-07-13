@@ -84,6 +84,7 @@ class Unifi{
 	}
 	
 	public function getHistory(){
+		/*
 		$ch = curl_init();
 		$ch = $this->sendLogin($ch);
 		
@@ -98,7 +99,7 @@ class Unifi{
 		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.$data);
 		$value = curl_exec ($ch);
 		$ch = $this->sendLogout($ch);
-		return $value;
+		return $value;*/
 	}
 	
 	public function sendLogin($ch){

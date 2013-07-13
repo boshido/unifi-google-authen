@@ -1,4 +1,8 @@
-<!doctype html>
+<?php
+echo $_SERVER['REMOTE_ADDR'];
+
+?>
+<!DOCTYPE html>
 <html>
 	<head>
 		<title>FITM 2.0 Wifi Authentication</title>
