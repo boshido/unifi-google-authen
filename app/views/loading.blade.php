@@ -129,7 +129,7 @@
 				ctx.font = size + 'px Melbourne-Bold';
 				ctx.textAlign = 'center';
 				ctx.textBaseline = 'middle';
-				ctx.fillText(this.target_ + '%', r, r);
+				ctx.fillText(this.target_ , r, r);
 
 				requestAnimationFrame(this.render_.bind(this));
 			};

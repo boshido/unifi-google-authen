@@ -31,7 +31,6 @@
 		<div class="menu">
 			<div class="menu-content">
 				<div class="banner">fitm</div>
-				
 				<div class="sign-out"><div class="menu-btn" id="sign-out">Sign Out</div></div>
 				<div class="timer"><span>Time Remain :</span>11:00:00</div>
 			</div>	
@@ -44,7 +43,7 @@
 			</div>
 			<div class="shadow-fade">
 			</div>
-			<div class="profile-bar">
+			<div class="bar">
 				<div class="pure-g-r" style="padding:10px 10px 20px 10px">
 					<div class="pure-u-2-5 profile">
 						<img src="<?php echo $img; ?>" class="img-circle profile-img" ></img>

@@ -58,20 +58,17 @@ h1{
 	top:0;
 	left:0;
 }
-.menu-content{
-	
-}
 .cover{
 	width:100%;
 	height:auto;
 	position:relative;
 }
+
 .cover-img{
 	width:100%;
 	height:auto;
 	min-height:350px;
 	min-width:525px;
-	
 	border:0;
 }
 .profile-img{
@@ -88,10 +85,13 @@ h1{
 	height:153px;
 	position: absolute;
 }
-.profile-bar{
-	//background: -webkit-linear-gradient(transparent 0%,rgba(0,0,0,0.3) 30%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.7) 100%);
-	//background: linear-gradient(transparent 0%,rgba(0,0,0,0.3) 30%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.7) 100%);
-	bottom:0;
+.bar{
+	bottom:0px;
+	width:100%;
+	position: absolute;
+}
+.bar.login{
+	top:33%;
 	width:100%;
 	position: absolute;
 }
@@ -104,7 +104,6 @@ h1{
 	height:60px;
 	line-height:60px;
 }
-
 .banner{
 	font-family:'Oswald',arial,sans-serif;
 	
@@ -153,6 +152,18 @@ h1{
 #time{
 	color:lightgray;
 	margin:0.3em 0px 0px 0px;
+}
+.overlay{
+	background-color:white;
+	height:100%;
+	width:100%;
+	position:fixed;
+	top:0px;
+	z-index:999999;
+	text-align:center;
+}
+.message{
+	color:#F47063;
 }
 .center{
 	text-align:center;

@@ -7,6 +7,16 @@ class GuestController extends Controller {
 	 *
 	 * @return void
 	 */
+	public function __construct()
+    {
+        $this->beforeFilter('auth');
+
+        //$this->beforeFilter('auth', array('on' => 'post'));
+
+        //$this->afterFilter('log', array('only' =>
+                           // array('fooAction', 'barAction')));
+    }
+	
 	public function getIndex()
     {
 
@@ -38,19 +48,8 @@ class GuestController extends Controller {
 		$client->setAccessType('offline');
 		$oauth2 = new Google_Oauth2Service($client);
 		$unifi = new Unifi();
-		if(!Session::has('id')){// when no id redirect user to outside network
-			//$info1 = $unifi->getUser(array('all'=>true));
-			//var_dump($info1);
-			$info = $unifi->getUser(array('ip'=> $_SERVER['REMOTE_ADDR']));
-			if($info){
-				Session::put('id', $info->mac);     				// user's mac address
-				Session::put('ap', $info->ap_mac);   				// AP mac
-				Session::put('ssid',$info->essid);   				// ssid the user is on (POST 2.3.2)    	
-				//Session::put('time',null);
-				Session::put('ref_url','http://www.google.co.th');	// url the user attempted to reach
-			}
-		}
 		
+		// Google Authentication Flow
 		if ($code != null) { // when finished google authentication
 			$client->authenticate($_GET['code']);
 			Session::put('token',$client->getAccessToken());
@@ -71,6 +70,7 @@ class GuestController extends Controller {
 				$token->update($find,$set,array("upsert" => true));
 					
 				Session::put('refresh_token',$refresh_token);
+				$cookie = Cookie::forever('refresh_token', $refresh_token);
 			}
 			else{	// Retrieve refresh token from database
 				$google_id = $userinfo['id'];
@@ -78,6 +78,7 @@ class GuestController extends Controller {
 				$find = array('google_id'=>$google_id);
 				$result = $token->findOne($find);
 				Session::put('refresh_token',$result['refresh_token']);
+				$cookie = Cookie::forever('refresh_token', $result['refresh_token']);
 			}
 			
 			if(Session::has('id')){ // when user has mac address
@@ -88,20 +89,41 @@ class GuestController extends Controller {
 				$set =  array('$set'=>array('email'=>$email));
 				$user->update($find,$set);
 				
-				$unifi->sendAuthorization(Session::get('id'), (12*60)); //authorizing user for 12 hours(12*60)
+				$unifi->sendAuthorization(Session::get('id'), 360); //authorizing user for 6 hours(6*60)
 			}
+			return Redirect::to('guest/userinfo')->withCookie($cookie);
 		}
 
-		if ($client->getAccessToken()) {
+		//if ($client->getAccessToken()) {
+		// Normal Flow
+		if (Session::has('refresh_token')) { 
 			return Redirect::to('guest/userinfo');
 		} 
-		else {
+		else {	
+			$auth_url = $client->createAuthUrl();
+			$parameter = array('auth_url' => $auth_url);
+			
 			if(!Session::has('auth_code')){
 				$chk = md5(uniqid(rand(), true));
-				Session::put('auth_code',$chk);				//key to use to check if the user used this form or not
+				Session::put('auth_code',$chk);		// key for checking user that used this form or not
 			}
-			$auth_url = $client->createAuthUrl();
-			return View::make('login', array('auth_url' => $auth_url,'auth_code'=>Session::get('auth_code')));
+			$parameter['auth_code'] = Session::get('auth_code');
+			
+			if(!Session::has('id')){ // when user doesn't has mac address
+				$info = $unifi->getUser(array('ip'=> $_SERVER['REMOTE_ADDR']));
+				if($info){
+					Session::put('id', $info->mac);     				// user's mac address
+					Session::put('ap', $info->ap_mac);   				// AP mac
+					Session::put('ssid',$info->essid);   				// ssid the user is on (POST 2.3.2)    	
+					//Session::put('time',null);
+					Session::put('ref_url','http://www.google.co.th');	// url the user attempted to reach
+				}
+				else{
+					$parameter['init'] = true;
+				}
+			}
+			
+			return  Response::view('login', $parameter);
 		}		
 		
 	}
@@ -112,11 +134,15 @@ class GuestController extends Controller {
 		if(Session::has('auth_code') && Session::has('id')){
 			if(Session::get('auth_code') == $auth_code){
 				$unifi = new Unifi();
-				$unifi->sendAuthorization(Session::get('id'), 1); // authorizing 1 minutes for going through google authentication
+				$unifi->sendAuthorization(Session::get('id'), 3); // authorizing 1 minutes for going through google authentication
 				Session::forget('auth_code');
+				return Response::view('loading', array('url' => $auth_url,'second'=>2));
 			}
 		}
-		return View::make('loading', array('url' => $auth_url,'second'=>2));
+		else{
+			return Redirect::action('GuestController@getSignin');
+		}
+		
 	}
 	
 	public function getSignout(){
@@ -131,41 +157,61 @@ class GuestController extends Controller {
 		$unifi = new Unifi();
 		$unifi->sendUnAuthorization(Session::get('id'));
 		
+		$cookie = Cookie::forget('refresh_token');
 		Session::flush();
-		return View::make('loading', array('url' => action('GuestController@getSignin'),'second'=>7));
+		
+		return Response::view('loading', array('url' => action('GuestController@getSignin'),'second'=>3))->withCookie($cookie);
 	}	
 	
 	public function getUserinfo(){
-		$unifi = new Unifi();
-		//var_dump($unifi->getUser('c8:3d:97:6c:32:08')); //a
-		$client = new Google_Client();
-		$client->setApprovalPrompt("auto");
-		$client->setAccessType('offline');
-		
-		$oauth2 = new Google_Oauth2Service($client);
-		if (Session::has('token')) {
-			$client->setAccessToken(Session::get('token'));
-			if($client->isAccessTokenExpired()) {
-				$client->refreshToken(Session::get('refresh_token'));
+		if(Session::has('refresh_token')){
+			$unifi = new Unifi();
+			$client = new Google_Client();
+			$client->setApprovalPrompt("auto");
+			$client->setAccessType('offline');
+			$client->refreshToken(Session::get('refresh_token'));
+			$oauth2 = new Google_Oauth2Service($client);
+			if (Session::has('token')) {
+				$client->setAccessToken(Session::get('token'));
+				if($client->isAccessTokenExpired()) {
+					
+				}
 			}
-		}
-		
-		if ($client->getAccessToken()) {
-			$user = $oauth2->userinfo->get();
-			// These fields are currently filtered through the PHP sanitize filters.
-			// See http://www.php.net/manual/en/filter.filters.sanitize.php
-			$name = $user['name'];
-			$email = filter_var($user['email'], FILTER_SANITIZE_EMAIL);
-			$img = isset($user['picture']) ? $user['picture'] : '/img/photo.jpg';
+			
+			if ($client->getAccessToken()) {
+				$user = $oauth2->userinfo->get();
+				// These fields are currently filtered through the PHP sanitize filters.
+				// See http://www.php.net/manual/en/filter.filters.sanitize.php
+				$name = $user['name'];
+				$email = filter_var($user['email'], FILTER_SANITIZE_EMAIL);
+				$img = isset($user['picture']) ? $user['picture'] : '/img/photo.jpg';
 
-			// The access token may have been updated lazily.
-			Session::put('token',$client->getAccessToken());
-			return View::make('user',array('name'=>$name,'email'=>$email,'img'=>$img));
+				// The access token may have been updated lazily.
+				Session::put('token',$client->getAccessToken());
+				return Response::view('user',array('name'=>$name,'email'=>$email,'img'=>$img));
+			}
 		}
 		else{
 			return Redirect::action('GuestController@getSignin');
 		}
 	}
+	
+	public function getInitinfo(){
+		$unifi = new Unifi();
+		$info = $unifi->getUser(array('ip'=> $_SERVER['REMOTE_ADDR']));
+		if($info){
+			Session::put('id', $info->mac);     				// user's mac address
+			Session::put('ap', $info->ap_mac);   				// AP mac
+			Session::put('ssid',$info->essid);   				// ssid the user is on (POST 2.3.2)    	
+			Session::put('ref_url','http://www.google.co.th');	// url the user attempted to reach
+			$response['status'] = true;
+		}
+		else{
+			$response['status'] = false;
+		}
+		return Response::json($response);
+	}
+	
 	protected function setupLayout()
 	{
 		if ( ! is_null($this->layout))
