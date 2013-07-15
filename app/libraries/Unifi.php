@@ -61,26 +61,60 @@ class Unifi{
 		return $value;
 	}
 	
-	public function getUser($id)
+	public function getUser($array)
 	{
-		$ch = curl_init();
-		$ch = $this->sendLogin($ch);
-		echo $id;
-		// Send user to authorize and the time allowed
-		
-		// Send the command to the API
-		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/stat/sta');
-		$json = curl_exec ($ch);
-		$json = json_decode($json);
-		foreach($json->data as $key => $user){
-			if($user->mac == $id){
-				$value = json_encode($user);
-				break;
+		if(isset($array['mac']) || isset($array['ip']) || isset($array['all'])){
+			$ch = curl_init();
+			$ch = $this->sendLogin($ch);
+			// Send user to authorize and the time allowed
+			// Send the command to the API
+			curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/stat/sta');
+			$json = curl_exec ($ch);
+			$json = json_decode($json);
+			$value = false;
+			if(isset($array['all'])){
+				foreach($json->data as $key => $user){
+					$value[] = $user;
+				}
 			}
+			else if(isset($array['mac'])&& isset($array['ip'])){
+				foreach($json->data as $key => $user){
+					if(isset($user->mac) && isset($user->ip)){
+						if($user->mac == $array['mac'] && $user->ip == $array['ip']){
+							$value = $user;
+							break;
+						}
+					}
+				}
+			}
+			else if(isset($array['mac'])){
+				foreach($json->data as $key => $user){
+					if(isset($user->mac)){
+						if($user->mac == $array['mac']){
+							$value = $user;
+							break;
+						}
+					}
+				}
+			}
+			else if(isset($array['ip'])){
+				foreach($json->data as $key => $user){
+					if(isset($user->ip)){
+						if($user->ip == $array['ip']){
+							$value = $user;
+							break;
+						}
+					}
+				}
+			}
+			
+			$ch = $this->sendLogout($ch);
+			
+			return $value;
 		}
-		$ch = $this->sendLogout($ch);
-		
-		return $value;
+		else{
+			return false;
+		}
 	}
 	
 	public function getHistory(){

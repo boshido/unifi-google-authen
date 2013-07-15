@@ -1,5 +1,5 @@
 <?php
-echo $_SERVER['REMOTE_ADDR'];
+//echo $_SERVER['REMOTE_ADDR'];
 
 ?>
 <!DOCTYPE html>
@@ -8,6 +8,18 @@ echo $_SERVER['REMOTE_ADDR'];
 		<title>FITM 2.0 Wifi Authentication</title>
 		<meta charset="utf-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<script>
+			if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
+			  var msViewportStyle = document.createElement("style");
+			  msViewportStyle.appendChild(
+				document.createTextNode(
+				  "@-ms-viewport{width:auto!important}"
+				)
+			  );
+			  document.getElementsByTagName("head")[0].
+				appendChild(msViewportStyle);
+			}
+		</script>
 		<style>
 			
 			@media (max-width: 320px) 
@@ -91,7 +103,7 @@ echo $_SERVER['REMOTE_ADDR'];
 			  @endif
 			</form>	
 		</div>
-		<script src="http://yui.yahooapis.com/3.10.3/build/yui/yui-min.js"></script>
+		
 		<script>
 		</script>
 	</body>

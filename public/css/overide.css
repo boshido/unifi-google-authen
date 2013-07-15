@@ -1,10 +1,15 @@
+@-webkit-viewport{width:device-width}
+@-moz-viewport{width:device-width}
+@-ms-viewport{width:device-width}
+@-o-viewport{width:device-width}
+@viewport{width:device-width}
+
 @font-face {
   font-family: 'Oswald';
   font-style: normal;
   font-weight: 400;
   src: local('Oswald Regular'), local('Oswald-Regular'), url(/font/Oswald-Regular.woff) format('woff');
 }
-
 @media (min-width: 768px) {
 	.profile{
 		text-align:right;
@@ -21,10 +26,15 @@
 		text-align:center;
 	}
 }
+@media (max-width: 480px) { 
+	.hidden-phone{
+		display:none;
+	}
+}
 body{
 	
 	font: normal 13px Roboto,arial,sans-serif;
-	overflow:auto
+	overflow:auto;
 }
 h1{
 	color:white;
@@ -35,6 +45,7 @@ h1{
 	-webkit-border-radius:500px;
 	-moz-border-radius:500px;
 	border-radius:500px
+	
 }
 
 .menu{
@@ -58,8 +69,9 @@ h1{
 .cover-img{
 	width:100%;
 	height:auto;
-	min-height:256px;
-	min-width:426px;
+	min-height:350px;
+	min-width:525px;
+	
 	border:0;
 }
 .profile-img{
@@ -68,10 +80,17 @@ h1{
 	margin-right:15px;
 	
 }
-.profile-bar{
-	background: url('//ssl.gstatic.com/s2/oz/images/local/map_gradient.png');
+.shadow-fade{
 	background: -webkit-linear-gradient(transparent 0%,rgba(0,0,0,0.3) 30%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.7) 100%);
 	background: linear-gradient(transparent 0%,rgba(0,0,0,0.3) 30%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.7) 100%);
+	bottom:0;
+	width:100%;
+	height:153px;
+	position: absolute;
+}
+.profile-bar{
+	//background: -webkit-linear-gradient(transparent 0%,rgba(0,0,0,0.3) 30%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.7) 100%);
+	//background: linear-gradient(transparent 0%,rgba(0,0,0,0.3) 30%,rgba(0,0,0,0.5) 50%,rgba(0,0,0,0.7) 100%);
 	bottom:0;
 	width:100%;
 	position: absolute;
@@ -104,7 +123,7 @@ h1{
 	margin:0px 1em 0px 1em;
 	height:60px;
 	text-align:center;
-	padding:
+	
 }
 .menu-btn{
 	-webkit-border-radius: 3px;
@@ -125,7 +144,7 @@ h1{
 	margin: 15px 0 0 20px;
 }
 #name{
-	margin:1.2em 0px 0px 0px;
+	margin:1.0em 0px 0px 0px;
 }
 #email{
 	color:lightgray;
@@ -143,4 +162,13 @@ h1{
 }
 .left{
 	text-align:left;
+}
+.shadow{
+	-moz-box-shadow: 3px 3px 4px #000;
+	-webkit-box-shadow: 3px 3px 4px #000;
+	box-shadow: 3px 3px 4px #000;
+	/* For IE 8 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000')";
+	/* For IE 5.5 - 7 */
+	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
 }

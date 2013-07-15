@@ -14,5 +14,5 @@ Route::controller('unifi', 'UnifiController');
 Route::controller('guest', 'GuestController');
 Route::get('/', function()
 {
-	return View::make('hello');
+	return Redirect::action('GuestController@getSignin');
 });

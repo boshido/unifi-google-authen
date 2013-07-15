@@ -18,10 +18,10 @@ class GuestController extends Controller {
 		$url = Input::get('url');
 		
 		if($id!=null){
-			Session::put('id', $id);     //user's mac address
-			Session::put('ap', $ap);       //AP mac
-			Session::put('ssid',$ssid);   //ssid the user is on (POST 2.3.2)    	
-			Session::put('time',$t);		//time the user attempted a request of the portal      	
+			Session::put('id', $id);     	//user's mac address
+			Session::put('ap', $ap);       	//AP mac
+			Session::put('ssid',$ssid);   	//ssid the user is on (POST 2.3.2)    	
+			//Session::put('time',$t);		//time the user attempted a request of the portal      	
 			Session::put('ref_url',$url);	//url the user attempted to reach   	
 														// -- prevents them from simply going to /authorized.php on their own
 			
@@ -37,53 +37,61 @@ class GuestController extends Controller {
 		$client->setApprovalPrompt("auto");
 		$client->setAccessType('offline');
 		$oauth2 = new Google_Oauth2Service($client);
-		
+		$unifi = new Unifi();
 		if(!Session::has('id')){// when no id redirect user to outside network
-			//return '<script>window.location.href ="http://www.google.co.th/";</script>';
+			//$info1 = $unifi->getUser(array('all'=>true));
+			//var_dump($info1);
+			$info = $unifi->getUser(array('ip'=> $_SERVER['REMOTE_ADDR']));
+			if($info){
+				Session::put('id', $info->mac);     				// user's mac address
+				Session::put('ap', $info->ap_mac);   				// AP mac
+				Session::put('ssid',$info->essid);   				// ssid the user is on (POST 2.3.2)    	
+				//Session::put('time',null);
+				Session::put('ref_url','http://www.google.co.th');	// url the user attempted to reach
+			}
 		}
 		
 		if ($code != null) { // when finished google authentication
 			$client->authenticate($_GET['code']);
 			Session::put('token',$client->getAccessToken());
+			$userinfo = $oauth2->userinfo->get();					// get user infomation
+			$db = Database::Connect();								// mongodb connect
 			
-			if(Session::has('id')){
-				$db = Database::Connect();
-				$userinfo = $oauth2->userinfo->get();
+			$accesstoken = json_decode($client->getAccessToken());
+			if(isset($accesstoken->refresh_token)){					// store refresh token with userinfo
+				$google_id = $userinfo['id'];
+				$fname = $userinfo['given_name'];
+				$lname = $userinfo['family_name'];
 				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
 				
+				$refresh_token = $accesstoken->refresh_token;
+				$token = $db->token;
+				$find = array('google_id'=>$google_id);
+				$set = array('$set'=>array('fname'=>$fname,'lname'=>$lname,'email'=>$email,'refresh_token'=>$refresh_token));
+				$token->update($find,$set,array("upsert" => true));
+					
+				Session::put('refresh_token',$refresh_token);
+			}
+			else{	// Retrieve refresh token from database
+				$google_id = $userinfo['id'];
+				$token = $db->token;
+				$find = array('google_id'=>$google_id);
+				$result = $token->findOne($find);
+				Session::put('refresh_token',$result['refresh_token']);
+			}
+			
+			if(Session::has('id')){ // when user has mac address
+				
+				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);	
 				$user = $db->user;
 				$find = array('mac'=>Session::get('id'));
 				$set =  array('$set'=>array('email'=>$email));
 				$user->update($find,$set);
 				
-				$accesstoken = json_decode($client->getAccessToken());
-				if(isset($accesstoken->refresh_token)){					// Store refresh token with userinfo
-					$google_id = $userinfo['id'];
-					$fname = $userinfo['given_name'];
-					$lname = $userinfo['family_name'];
-					
-					$refresh_token = $accesstoken->refresh_token;
-					$token = $db->token;
-					$find = array('google_id'=>$google_id);
-					$set = array('$set'=>array('fname'=>$fname,'lname'=>$lname,'email'=>$email,'refresh_token'=>$refresh_token));
-					$token->update($find,$set,array("upsert" => true));
-					
-					Session::put('refresh_token',$refresh_token);
-				}
-				else{	// Retrieve refresh token from database
-					$google_id = $userinfo['id'];
-					$token = $db->token;
-					$find = array('google_id'=>$google_id);
-					$result = $token->findOne($find);
-					Session::put('refresh_token',$result['refresh_token']);
-				}
-				$unifi = new Unifi();
 				$unifi->sendAuthorization(Session::get('id'), (12*60)); //authorizing user for 12 hours(12*60)
 			}
 		}
-		if (Session::has('token')) {
-			$client->setAccessToken(Session::get('token'));
-		}
+
 		if ($client->getAccessToken()) {
 			return Redirect::to('guest/userinfo');
 		} 
@@ -106,10 +114,9 @@ class GuestController extends Controller {
 				$unifi = new Unifi();
 				$unifi->sendAuthorization(Session::get('id'), 1); // authorizing 1 minutes for going through google authentication
 				Session::forget('auth_code');
-				return View::make('loading', array('auth_url' => $auth_url));
 			}
 		}
-		
+		return View::make('loading', array('url' => $auth_url,'second'=>2));
 	}
 	
 	public function getSignout(){
@@ -125,7 +132,7 @@ class GuestController extends Controller {
 		$unifi->sendUnAuthorization(Session::get('id'));
 		
 		Session::flush();
-		return Redirect::action('GuestController@getSignin');
+		return View::make('loading', array('url' => action('GuestController@getSignin'),'second'=>7));
 	}	
 	
 	public function getUserinfo(){
@@ -154,7 +161,10 @@ class GuestController extends Controller {
 			// The access token may have been updated lazily.
 			Session::put('token',$client->getAccessToken());
 			return View::make('user',array('name'=>$name,'email'=>$email,'img'=>$img));
-		} 
+		}
+		else{
+			return Redirect::action('GuestController@getSignin');
+		}
 	}
 	protected function setupLayout()
 	{
