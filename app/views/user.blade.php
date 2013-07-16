@@ -39,7 +39,7 @@
 			<div class="pure-u-1" style="overflow:hidden;">
 				<?php //print_r($user); ?>
 				<!--<img class="cover-img" alt="Cover photo" src="https://lh6.googleusercontent.com/-0J9hpa4mLeM/UbMLzcWV0jI/AAAAAAAAAMQ/v9em9XOWv6g/s1907-fcrop64=1,00000000ffffadab/rod-luff-fantasy-painting-art-bird-nest-head-nature-elf-beautiful.jpg"> -->
-				<img class="cover-img" alt="Cover photo" src="{{asset('/img/bg.jpg')}}">
+				<img class="cover-img" alt="Cover photo" src="/img/bg{{rand(1,4)}}.jpg">
 			</div>
 			<div class="shadow-fade">
 			</div>

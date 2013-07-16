@@ -18,7 +18,7 @@
 		</script>
 		<style>
 			html {
-				background: url(/img/bg2.jpg) no-repeat center center fixed; 
+				background: url(/img/bg{{rand(1,4)}}.jpg) no-repeat center center fixed; 
 				  -webkit-background-size: cover;
 				  -moz-background-size: cover;
 				  -o-background-size: cover;
@@ -87,7 +87,7 @@
 			<img src="/img/photo.jpg" class="img-circle profile-img" ></img>
 			<form action="/guest/google-redirect" method="get" >
 				@if(isset($auth_url))
-				<input class="btn" type="image" src="{{asset('/img/sign-in-with-fitm.png')}}" alt="Sign in with FITM 2.0"  style="width:246px;height:54px;"/>
+				<input class="btn" type="image" src="/img/sign-in-with-fitm.png" alt="Sign in with FITM 2.0"  style="width:246px;height:54px;"/>
 				<input type="hidden" name="auth_url" value="{{$auth_url}}">
 				<input type="hidden" name="auth_code" value="{{$auth_code}}">
 				@endif

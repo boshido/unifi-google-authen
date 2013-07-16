@@ -159,7 +159,7 @@ h1{
 	width:100%;
 	position:fixed;
 	top:0px;
-	z-index:999999;
+	z-index:2;
 	text-align:center;
 }
 .message{
