@@ -24,16 +24,22 @@
 		<link href="/css/overide.css" rel="stylesheet" media="screen">
 	</head>
 	<body >
+		<div style="float:left;position:relative;" >
+            <img id="red_light" src="/img/traffic_red.png" style="opacity:0;">
+            <img id="green_light" src="/img/traffic_green.png" style="position:absolute; left: 0px; top: 0px;">
+        </div>
 		
 		<div class="overlay" >
 			<div id="loading" style="width:200px;height:200px;position:relative;margin:100px auto 10px auto" ></div>
 			<h1 class="message" >Please wait.</h1>
-		</div>
+		</div> 
 
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"></script>
 		<script src="/js/heartcode-canvasloader-min.js" type="text/javascript"></script>
+		<script src="/js/online.js" type="text/javascript"></script>
 		<script>
 			var cl = new CanvasLoader('loading');
+			
 			$(document).ready(function(){
 				cl.setColor('#F47063'); // default is '#000000'
 				cl.setShape('spiral'); // default is 'oval'
@@ -43,7 +49,13 @@
 				cl.setSpeed(1); // default is 2
 				cl.setFPS(25); // default is 24
 				cl.show(); // Hidden by default
-				setTimeout(function(){ window.location.href ="{{$url}}"; },{{$second}}*1000)
+				@if($flag=='signin')
+				window.onLineHandler = function(){
+					window.location.href ="{{$url}}";
+				};
+				@else
+					setTimeout(function(){ window.location.href ="{{$url}}"; },3000);
+				@endif			
 			});	
 		</script>
 	</body>

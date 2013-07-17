@@ -7,7 +7,7 @@ class Unifi{
     {
        	$this->data['unifiServer'] = "https://192.168.0.2:8443"; // Unifi Controller IP
 		$this->data['unifiUser'] = "admin";
-		$this->data['unifiPass'] = "admin";
+		$this->data['unifiPass'] = "intlab";
     }
 	
     public function __get($member) {

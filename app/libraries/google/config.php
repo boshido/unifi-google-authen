@@ -24,12 +24,12 @@ $apiConfig = array(
     'application_name' => 'FITM Wifi Authentication Application',
 
     // OAuth2 Settings, you can get these keys at https://code.google.com/apis/console
-    'oauth2_client_id' => '422391959017.apps.googleusercontent.com',
-    'oauth2_client_secret' => 'tnjC0gxvopE27-IXWxZFcxk3',
+    'oauth2_client_id' => '255353714074-lrv1ni4nujj39f9j4hs26m4cg3fkbvhr.apps.googleusercontent.com',
+    'oauth2_client_secret' => '2-erec_7lC_1bisTI6QRELqe',
     'oauth2_redirect_uri' => 'http://fitmwifi.ap01.aws.af.cm/auth',
 
     // The developer key, you get this at https://code.google.com/apis/console
-    'developer_key' => '422391959017@developer.gserviceaccount.com',
+    'developer_key' => '255353714074-lrv1ni4nujj39f9j4hs26m4cg3fkbvhr@developer.gserviceaccount.com',
   
     // Site name to show in the Google's OAuth 1 authentication screen.
     'site_name' => 'www.example.org',

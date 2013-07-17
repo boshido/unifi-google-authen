@@ -136,7 +136,7 @@ class GuestController extends Controller {
 				$unifi = new Unifi();
 				$unifi->sendAuthorization(Session::get('id'), 3); // authorizing 1 minutes for going through google authentication
 				Session::forget('auth_code');
-				return Response::view('loading', array('url' => $auth_url,'second'=>2));
+				return Response::view('loading', array('url' => $auth_url,'flag'=>'signin'));
 			}
 		}
 		else{
@@ -160,7 +160,7 @@ class GuestController extends Controller {
 		$cookie = Cookie::forget('refresh_token');
 		Session::flush();
 		
-		return Response::view('loading', array('url' => action('GuestController@getSignin'),'second'=>3))->withCookie($cookie);
+		return Response::view('loading', array('url' => action('GuestController@getSignin'),'flag'=>'signout'))->withCookie($cookie);
 	}	
 	
 	public function getUserinfo(){
@@ -220,3 +220,4 @@ class GuestController extends Controller {
 	}
 
 }
+
