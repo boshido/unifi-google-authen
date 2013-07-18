@@ -31,7 +31,6 @@
 
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"></script>
 		<script src="/js/heartcode-canvasloader-min.js" type="text/javascript"></script>
-		<script src="/js/online.js" type="text/javascript"></script>
 		<script>
 			var cl = new CanvasLoader('loading');
 			

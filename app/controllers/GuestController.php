@@ -1,5 +1,4 @@
 <?php
-
 class GuestController extends Controller {
 
 	/**
@@ -119,7 +118,7 @@ class GuestController extends Controller {
 					Session::put('ref_url','http://www.google.co.th');	// url the user attempted to reach
 				}
 				else{
-					$parameter['init'] = true;
+					//$parameter['init'] = true;
 				}
 			}
 			
@@ -140,9 +139,9 @@ class GuestController extends Controller {
 			}
 		}
 		else{
-			return Redirect::action('GuestController@getSignin');
+			//return Redirect::action('GuestController@getSignin');
 		}
-		
+		return Response::view('loading', array('url' => $auth_url,'flag'=>'signin'));
 	}
 	
 	public function getSignout(){
@@ -170,11 +169,12 @@ class GuestController extends Controller {
 			$client->setApprovalPrompt("auto");
 			$client->setAccessType('offline');
 			$oauth2 = new Google_Oauth2Service($client);
-			if($client->isAccessTokenExpired()) {
-				$client->refreshToken(Session::get('refresh_token'));
-			}
+
 			if (Session::has('token')) {
 				$client->setAccessToken(Session::get('token'));
+			}
+			if($client->isAccessTokenExpired()) {
+				$client->refreshToken(Session::get('refresh_token'));
 			}
 			
 			if ($client->getAccessToken()) {

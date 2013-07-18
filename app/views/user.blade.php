@@ -60,7 +60,12 @@
 			<div style="width:186px;height:67px;background-color:white;text-align:center;line-height:67px;margin:50px auto 0px auto;" class="shadow" >
 				<h1 style="color:#F47063;" >Comming Soon</h1>
 			</div>
+			
 		</div>
+		<div class="card">
+			<canvas id="myChart" width="310" height="300"></canvas>
+		</div>
+		
 		<!--
 		<div class="pure-g">
 			<div class="pure-u-1-3">
@@ -77,12 +82,79 @@
 			</div>
 		</div>-->
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"></script>
+		<script src="/js/chart.js" type="text/javascript"></script>
 		<script>
+			var mac = 'c8:3d:97:6c:32:08';
 			$(document).ready(function(){
 				$('#sign-out').click(function(){
 					window.location.href ="{{action('GuestController@getSignout')}}";
 				});
+				check();
 			});
+			
+			function check(){
+			var tomorrow = new Date();
+			tomorrow.setDate(tomorrow.getDate()-3);
+			
+				var request = $.ajax({
+						url: "{{action('UnifiController@getHistoryDate')}}",
+						type: "get",
+						dataType: "json",
+						data:{
+							mac:mac,
+							at:parseInt(tomorrow.getTime()/1000),
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					console.log(response);
+				
+					var graph = {
+							date:[],
+							data:{
+									tx:[],
+									rx:[]
+								}
+							};
+					for(var y in response){
+						
+						var d = new Date(response[y].date*1000);
+						var curr_date = d.getDate();
+						var curr_month = d.getMonth() + 1; //Months are zero based
+						var curr_year = d.getFullYear()+43-2000;
+						
+						graph.date[y] = curr_date+'/'+curr_month+'/'+curr_year;
+						graph.data.tx[y] = response[y].tx_bytes/1024/1024;
+						graph.data.rx[y] = response[y].rx_bytes/1024/1024;
+						
+					}
+					var data = {
+						labels : graph.date,
+						datasets : [
+							{
+								fillColor : "rgba(57, 213, 167,0.5)",
+								strokeColor : "rgba(57, 213, 167,1)",
+								data : graph.data.tx
+							},
+							{
+								fillColor : "rgba(248, 148, 34,0.5)",
+								strokeColor : "rgba(248, 148, 34,1)",
+								data : graph.data.rx
+							}
+						]
+					}
+					
+					var ctx = $("#myChart").get(0).getContext("2d");
+					var myNewChart = new Chart(ctx).Bar(data);
+					
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+			}
 		</script>
 	</body>
 	

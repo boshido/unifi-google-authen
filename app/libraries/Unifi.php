@@ -1,5 +1,5 @@
 <?php
-//Need Curl Enabled
+//Need Curl enabled and add extension=php_mongo.dll to your php.ini
 class Unifi{
 	private $data = array();
 
@@ -115,25 +115,6 @@ class Unifi{
 		else{
 			return false;
 		}
-	}
-	
-	public function getHistory(){
-		/*
-		$ch = curl_init();
-		$ch = $this->sendLogin($ch);
-		
-		// Send user to authorize and the time allowed
-		$data = json_encode(array(
-			'cmd'=>'authorize-guest',
-			'mac'=>$id,
-			'minutes'=>$minutes));
-
-		// Send the command to the API
-		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/stamgr');
-		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.$data);
-		$value = curl_exec ($ch);
-		$ch = $this->sendLogout($ch);
-		return $value;*/
 	}
 	
 	public function sendLogin($ch){
