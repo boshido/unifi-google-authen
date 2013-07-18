@@ -134,7 +134,7 @@
 					}
 					else{
 						console.log(count);
-						if(count<15){
+						if(count<100){
 							setTimeout(initial,1000);
 						}
 						else{

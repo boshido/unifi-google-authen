@@ -24,11 +24,6 @@
 		<link href="/css/overide.css" rel="stylesheet" media="screen">
 	</head>
 	<body >
-		<div style="float:left;position:relative;" >
-            <img id="red_light" src="/img/traffic_red.png" style="opacity:0;">
-            <img id="green_light" src="/img/traffic_green.png" style="position:absolute; left: 0px; top: 0px;">
-        </div>
-		
 		<div class="overlay" >
 			<div id="loading" style="width:200px;height:200px;position:relative;margin:100px auto 10px auto" ></div>
 			<h1 class="message" >Please wait.</h1>
@@ -50,13 +45,32 @@
 				cl.setFPS(25); // default is 24
 				cl.show(); // Hidden by default
 				@if($flag=='signin')
-				window.onLineHandler = function(){
-					window.location.href ="{{$url}}";
-				};
+					setTimeout(check,1000);
 				@else
 					setTimeout(function(){ window.location.href ="{{$url}}"; },3000);
-				@endif			
+				@endif
 			});	
+			
+			function check(){
+				var serializedData = "";
+				serializedData += "&_rand="+encodeURIComponent(Math.random());
+				var request = $.ajax({
+						url: "http://fitmwifi.ap01.aws.af.cm/server/online.php",
+						type: "get",
+						data:serializedData
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					console.log(response+' '+textStatus+' '+jqXHR);
+					window.location.href ="{{$url}}";
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+					setTimeout(check,1000);
+				});
+				request.always(function () {
+					
+				});
+			}
 		</script>
 	</body>
 </html>

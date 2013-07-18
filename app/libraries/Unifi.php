@@ -5,7 +5,7 @@ class Unifi{
 
     function __construct()
     {
-       	$this->data['unifiServer'] = "https://192.168.0.2:8443"; // Unifi Controller IP
+       	$this->data['unifiServer'] = "https://127.0.0.1:8443"; // Unifi Controller IP
 		$this->data['unifiUser'] = "admin";
 		$this->data['unifiPass'] = "intlab";
     }

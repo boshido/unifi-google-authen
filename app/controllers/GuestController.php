@@ -170,11 +170,11 @@ class GuestController extends Controller {
 			$client->setApprovalPrompt("auto");
 			$client->setAccessType('offline');
 			$oauth2 = new Google_Oauth2Service($client);
+			if($client->isAccessTokenExpired()) {
+				$client->refreshToken(Session::get('refresh_token'));
+			}
 			if (Session::has('token')) {
 				$client->setAccessToken(Session::get('token'));
-				if($client->isAccessTokenExpired()) {
-					$client->refreshToken(Session::get('refresh_token'));
-				}
 			}
 			
 			if ($client->getAccessToken()) {
