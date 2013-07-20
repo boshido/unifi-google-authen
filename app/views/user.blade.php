@@ -56,16 +56,22 @@
 				</div>
 			</div>
 		</div>
-		<div style="height:200px;text-align:center;">
-			<div style="width:186px;height:67px;background-color:white;text-align:center;line-height:67px;margin:50px auto 0px auto;" class="shadow" >
-				<h1 style="color:#F47063;" >Comming Soon</h1>
-			</div>
-			
-		</div>
-		<div class="card">
-			<canvas id="myChart" width="310" height="300"></canvas>
-		</div>
 		
+		<div class="container">
+			<div class="card">
+				<div class="pure-g" style="margin-top:5px;">
+					<div class="pure-u-1-2 center" style="height:30px;line-height:30px">
+						<div class="box-label" style="background:rgba(28, 184, 65,0.5);border-color:rgba(28, 184, 65,1);"></div>
+						Download		
+					</div>					
+					<div class="pure-u-1-2 center" style="height:30px;line-height:30px">
+						<div class="box-label" style="background:rgba(248, 148, 34,0.5);border-color:rgba(248, 148, 34,1);"></div>
+						Upload
+					</div>
+				</div>
+				<canvas id="myChart" width="310" height="300"></canvas>
+			</div>
+		</div>
 		<!--
 		<div class="pure-g">
 			<div class="pure-u-1-3">
@@ -86,8 +92,12 @@
 		<script>
 			var mac = 'c8:3d:97:6c:32:08';
 			$(document).ready(function(){
+				
 				$('#sign-out').click(function(){
 					window.location.href ="{{action('GuestController@getSignout')}}";
+				});
+				$(window).resize(function() {
+					console.log($(this).width()+' '+$(this).height());
 				});
 				check();
 			});
@@ -124,16 +134,42 @@
 						var curr_year = d.getFullYear()+43-2000;
 						
 						graph.date[y] = curr_date+'/'+curr_month+'/'+curr_year;
-						graph.data.tx[y] = response[y].tx_bytes/1024/1024;
-						graph.data.rx[y] = response[y].rx_bytes/1024/1024;
-						
+						graph.data.tx[y] = response[y].tx_bytes;
+						graph.data.rx[y] = response[y].rx_bytes;
 					}
+					var max = Math.max(Math.max.apply(Math, graph.data.tx),Math.max.apply(Math, graph.data.rx));
+					var label;
+					if(parseInt(max/1073741824) > 0){
+						for(var y in graph.data.tx){
+							graph.data.tx[y] = graph.data.tx[y] / 1073741824;
+							graph.data.rx[y] = graph.data.rx[y] / 1073741824;
+						}
+						label = '<%=value%> GB';
+					}
+					else if(parseInt(max / 1048576) > 0){
+						for(var y in graph.data.tx){
+							graph.data.tx[y] = graph.data.tx[y] / 1048576;
+							graph.data.rx[y] = graph.data.rx[y] / 1048576;
+						}
+						label = '<%=value%> MB';
+					}					
+					else if(parseInt(max / 1024) > 0){
+						for(var y in graph.data.tx){
+							graph.data.tx[y] = graph.data.tx[y] / 1024;
+							graph.data.rx[y] = graph.data.rx[y] / 1024;
+						}
+						label = '<%=value%> KB';
+					}
+					else{
+						label = '<%=value%> Bytes';
+					}
+					
 					var data = {
 						labels : graph.date,
 						datasets : [
 							{
-								fillColor : "rgba(57, 213, 167,0.5)",
-								strokeColor : "rgba(57, 213, 167,1)",
+								fillColor : "rgba(28, 184, 65,0.5)",
+								strokeColor : "rgba(28, 184, 65,1)",
 								data : graph.data.tx
 							},
 							{
@@ -145,7 +181,7 @@
 					}
 					
 					var ctx = $("#myChart").get(0).getContext("2d");
-					var myNewChart = new Chart(ctx).Bar(data);
+					var myNewChart = new Chart(ctx).Bar(data,{scaleShowLabels : true,scaleLabel : label});
 					
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
