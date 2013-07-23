@@ -72,17 +72,28 @@
 					<div class="icon" aria-hidden="true" data-icon="&#xe004;"></div>
 				</div>
 			</div>
-			<div class="card" id="home">
-				<h3 >Home</h3>
-	
+			<div class="card" id="session">
+				<h3 >Active Session</h3>
+				<table class="pure-table pure-table-horizontal">
+					<thead style="background:rgba(144, 213, 255,0.5);">
+						<tr >
+							<th class="center" >Device Name</th>
+							<th class="center" >Start Time</th>
+							<th class="center" >End Time</th>
+						</tr>
+					</thead>
+					<tbody>
+							
+					</tbody>
+				</table>
 			</div>
 			<div class="card" id="history">
-				<h3>History</h3>
+				<h3>Login History</h3>
 				<table class="pure-table pure-table-horizontal">
 					<thead style="background:rgba(244, 112, 99,0.5);">
 						<tr >
 							<th class="center" >Time</th>
-							<th class="center" >Host Name</th>
+							<th class="center" >Device Name</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -91,7 +102,7 @@
 				</table>
 			</div>
 			<div class="card" id="stat-daily">
-				<h3>Daily Statistic</h3>
+				<h3>Device Daily Statistic</h3>
 				<div class="pure-g" id="stat-daily">
 					<div class="pure-u-1-2 center" style="height:30px;line-height:30px">
 						<div class="box-label" style="background:rgba(28, 184, 65,0.5);border-color:rgba(28, 184, 65,1);"></div>
@@ -105,7 +116,7 @@
 				<canvas id="daily" width="310" height="300"></canvas>
 			</div>
 			<div class="card" id="stat-summary">
-				<h3>Summary Statistic</h3>
+				<h3>Device Summary Statistic</h3>
 				<div class="pure-g" style="margin-top:5px;">
 					<div class="pure-u-1-2 center" style="height:30px;line-height:30px">
 						<div class="box-label" style="background:rgba(28, 184, 65,0.5);border-color:rgba(28, 184, 65,1);"></div>
@@ -135,9 +146,11 @@
 					console.log($(this).width()+' '+$(this).height());
 				});
 				renderTime();
+				session();
+				history();
 				daily();
 				summary();
-				history();
+				
 			});
 			
 			function renderTime() {
@@ -346,7 +359,38 @@
 					
 				});
 			}
-
+			
+			function session(){
+				var request = $.ajax({
+						url: "{{action('UnifiController@getActiveSession')}}",
+						type: "get",
+						dataType: "json",
+						data:{
+							google_id:google_id,
+							limit:10,
+							sort:'start',
+							sort_type:-1,
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					for(var y in response){
+						var r = $('<tr></tr>');
+						var hostname = $('<td></td>').html(response[y].hostname).appendTo(r);
+						$('<td></td>').html(getTime(response[y].start*1000)).appendTo(r);
+						$('<td></td>').html(getTime(response[y].end*1000)).appendTo(r);
+						//var mac = $('<td></td>').html(response[y].mac).appendTo(r);
+						
+						$('#session table > tbody').append(r);
+					}
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+			}
 			function getDate(parameter){
 				var d = new Date(parameter); //Unix Timestamp millisecond
 				var curr_date = d.getDate();

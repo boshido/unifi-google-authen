@@ -12,6 +12,32 @@ class UnifiController extends Controller {
 		$unifi = new Unifi();
 		
     }
+	public function getActiveSession()
+	{
+		$google_id = Input::get('google_id');
+		$limit = Input::get('limit');
+		$sort = Input::get('sort');
+		$sort_type = Input::get('sort_type') != null ? (int)Input::get('sort_type') : 1;
+
+		$db = Database::Connect();
+		$guest = $db->guest;
+		$result = array();
+		$time = time();
+		
+		$find = array('google_id' => $google_id,'$and'=>array(array('start'=>array('$lte'=>$time)),array('end'=>array('$gte'=>$time))));
+		if($limit != null) $cursor = $guest->find($find)->limit($limit);
+		else $cursor = $guest->find($find);
+		
+		if($sort != null){
+			$cursor->sort(array($sort=>$sort_type));
+		}
+		foreach($cursor as $key => $value){
+			$value['_id'] = (string)$value['_id'];
+			$result[] =$value;
+		}
+		
+		return Response::json($result);
+	}
 	
 	public function getHistory()
 	{

@@ -182,7 +182,6 @@ class GuestController extends Controller {
 	public function getUserinfo(){
 		$unifi = new Unifi();
 		$guest = $unifi->getCurrentGuest(Session::get('id'));
-		//if(Session::has('refresh_token')){
 		if($guest && Session::has('refresh_token')){
 			
 			$client = new Google_Client();
