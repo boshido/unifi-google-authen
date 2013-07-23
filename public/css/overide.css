@@ -206,7 +206,7 @@ h1{
 	width:100%;
 	position:fixed;
 	top:0px;
-	z-index:2;
+	z-index:7;
 	text-align:center;
 }
 .message{

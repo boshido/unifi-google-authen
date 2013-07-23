@@ -61,7 +61,7 @@ class Unifi{
 		return $value;
 	}
 	
-	public function getGuest($mac)
+	public function getCurrentGuest($mac)
 	{
 		
 		$ch = curl_init();
@@ -78,7 +78,7 @@ class Unifi{
 		$time = time();
 		if($json != null){
 			foreach($json->data as $key => $user){
-				if($user->mac == $mac && $user->start < $time && $time < $user->end){
+				if($user->mac == $mac && $user->start <= $time && $time <= $user->end){
 					$value = $user;
 					break;
 				}
@@ -87,6 +87,19 @@ class Unifi{
 		$ch = $this->sendLogout($ch);
 		
 		return $value;
+	}
+	
+	public function setCurrentGuest($mac,$data){
+	
+		$db = Database::Connect();
+		$guest = $db->guest;
+		$result = array();
+		$time = time();
+		
+		$find = array('mac' => $mac,'$and'=>array(array('start'=>array('$lte'=>$time)),array('end'=>array('$gte'=>$time))));
+		$set = array('$set'=>$data);
+		$cursor = $guest->update($find,$set);
+
 	}
 	
 	public function getUser($array)

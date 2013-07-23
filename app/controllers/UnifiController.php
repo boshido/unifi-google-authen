@@ -21,12 +21,12 @@ class UnifiController extends Controller {
 		$sort_type = Input::get('sort_type') != null ? (int)Input::get('sort_type') : 1;
 
 		$db = Database::Connect();
-		$log = $db->log;
+		$guest = $db->guest;
 		$result = array();
 		
 		$find = array('google_id' => $google_id);
-		if($limit != null) $cursor = $log->find($find)->limit($limit);
-		else $cursor = $log->find($find);
+		if($limit != null) $cursor = $guest->find($find)->limit($limit);
+		else $cursor = $guest->find($find);
 		
 		if($sort != null){
 			$cursor->sort(array($sort=>$sort_type));

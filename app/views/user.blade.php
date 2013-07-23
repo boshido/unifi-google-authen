@@ -119,21 +119,7 @@
 				<canvas id="summary" width="310" height="300"></canvas>
 			</div>
 		</div>
-		<!--
-		<div class="pure-g">
-			<div class="pure-u-1-3">
-				<div class="l-box">
-					<h3>Thirds</h3>
-					<p>This cell will be a grid even on mobile devices.</p>
-				 </div>
-			</div>
-			<div class="pure-u-1-3">
-				<div class="l-box">
-					<h3>Thirds</h3>
-					<p>This cell will be a grid even on mobile devices.</p>
-				 </div>
-			</div>
-		</div>-->
+		
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"></script>
 		<script src="/js/chart.js" type="text/javascript"></script>
 		<script>
@@ -338,7 +324,7 @@
 						data:{
 							google_id:google_id,
 							limit:10,
-							sort:'timestamp',
+							sort:'start',
 							sort_type:-1,
 							_rand:encodeURIComponent(Math.random())
 						}
@@ -346,7 +332,7 @@
 				request.done(function (response, textStatus, jqXHR){
 					for(var y in response){
 						var r = $('<tr></tr>');
-						var c_time = $('<td></td>').html(getDate(response[y].timestamp*1000)+" "+getTime(response[y].timestamp*1000)).css('width','100px').appendTo(r);
+						var c_time = $('<td></td>').html(getDate(response[y].start*1000)+" "+getTime(response[y].start*1000)).css('width','100px').appendTo(r);
 						var hostname = $('<td></td>').html(response[y].hostname).appendTo(r);
 						//var mac = $('<td></td>').html(response[y].mac).appendTo(r);
 						

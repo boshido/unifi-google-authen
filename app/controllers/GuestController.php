@@ -47,20 +47,22 @@ class GuestController extends Controller {
 		$client->setAccessType('offline');
 		$oauth2 = new Google_Oauth2Service($client);
 		$unifi = new Unifi();
+		$db = Database::Connect(); 									// mongodb connect
+		$guest = $unifi->getCurrentGuest(Session::get('id'));
 		
 		// Google Authentication Flow
 		if ($code != null) { // when finished google authentication
 			$client->authenticate($_GET['code']);
 			Session::put('token',$client->getAccessToken());
 			$userinfo = $oauth2->userinfo->get();					// get user infomation
-			$db = Database::Connect();								// mongodb connect
+											
+			$google_id = $userinfo['id'];
+			$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
+			$fname = $userinfo['given_name'];
+			$lname = $userinfo['family_name'];
 			
 			$accesstoken = json_decode($client->getAccessToken());
-			if(isset($accesstoken->refresh_token)){					// store refresh token with userinfo
-				$google_id = $userinfo['id'];
-				$fname = $userinfo['given_name'];
-				$lname = $userinfo['family_name'];
-				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
+			if(isset($accesstoken->refresh_token)){					// store refresh token with userinfo 
 				
 				$refresh_token = $accesstoken->refresh_token;
 				$token = $db->token;
@@ -70,8 +72,7 @@ class GuestController extends Controller {
 				Session::put('refresh_token',$refresh_token);
 				$cookie_refresh = Cookie::forever('refresh_token', $refresh_token);
 			}
-			else{	// Retrieve refresh token from database
-				$google_id = $userinfo['id'];
+			else{	// retrieve refresh token from database
 				$token = $db->token;
 				$find = array('google_id'=>$google_id);
 				$result = $token->findOne($find);
@@ -80,27 +81,40 @@ class GuestController extends Controller {
 			}
 			
 			if(Session::has('id')){ // when user has mac address	
-				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);	
+					
 				$user = $db->user;
 				$find = array('mac'=>Session::get('id'));
-				$set =  array('$set'=>array('email'=>$email));
+				$set = array('$set'=>array('email'=>$email));
 				$user->update($find,$set);
+				$data = $user->findOne($find);
 				$unifi->sendAuthorization(Session::get('id'), 360); //authorizing user for 6 hours(6*60)
 				$cookie_id = Cookie::forever('id',Session::get('id'));
 				
-				// Log
-				$logdata = $unifi->getUser(array('mac'=> Session::get('id')));
-				$log = $db->log;
-				$log->insert(array('timestamp'=>time(),'google_id'=>$userinfo['id'],'email'=>$userinfo['email'],'mac'=>$logdata->mac,'hostname'=>$logdata->hostname,'ip'=>$logdata->ip));
+				$unifi->setCurrentGuest(Session::get('id'),array('google_id'=>$google_id,'email'=>$email,'hostname'=>$data['hostname']));
 			}
 			
 			return Redirect::to('guest/userinfo')->withCookie($cookie_refresh)->withCookie($cookie_id);
 		}
 
-		//if ($client->getAccessToken()) {
-		// Normal Flow
-		if (Session::has('refresh_token')) { 
-			return Redirect::to('guest/userinfo');
+		// Normal Flow	
+		if($guest){
+			if(!Session::has('refresh_token')){
+				$token = $db->token;
+				$user = $db->user;
+				
+				$find = array('google_id'=>$guest->google_id);
+				$result = $token->findOne($find);
+				Session::put('refresh_token',$result['refresh_token']);
+				$cookie_refresh = Cookie::forever('refresh_token', $result['refresh_token']);
+				
+				$find = array('mac'=>$guest->mac);
+				$data = $user->findOne($find);
+				$cookie_id = Cookie::forever('id',Session::get('id'));
+				return Redirect::to('guest/userinfo')->withCookie($cookie_refresh)->withCookie($cookie_id);
+			}
+			else{
+				return Redirect::to('guest/userinfo');
+			} 
 		} 
 		else {	
 			$auth_url = $client->createAuthUrl();
@@ -122,7 +136,7 @@ class GuestController extends Controller {
 					Session::put('ref_url','http://www.google.co.th');	// url the user attempted to reach
 				}
 				else{
-					//$parameter['init'] = true;
+					$parameter['init'] = true;
 				}
 			}
 			
@@ -143,9 +157,8 @@ class GuestController extends Controller {
 			}
 		}
 		else{
-			//return Redirect::action('GuestController@getSignin');
+			return Redirect::action('GuestController@getSignin');
 		}
-		return Response::view('loading', array('url' => $auth_url,'flag'=>'signin'));
 	}
 	
 	public function getSignout(){
@@ -168,9 +181,9 @@ class GuestController extends Controller {
 	
 	public function getUserinfo(){
 		$unifi = new Unifi();
-		$guest = $unifi->getGuest(Session::get('id'));
+		$guest = $unifi->getCurrentGuest(Session::get('id'));
 		//if(Session::has('refresh_token')){
-		if($guest){
+		if($guest && Session::has('refresh_token')){
 			
 			$client = new Google_Client();
 			$client->setApprovalPrompt("auto");
