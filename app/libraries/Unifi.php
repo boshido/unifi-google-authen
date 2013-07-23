@@ -61,6 +61,34 @@ class Unifi{
 		return $value;
 	}
 	
+	public function getGuest($mac)
+	{
+		
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		$data = json_encode(array("within"=>"24"));
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/stat/guest');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.$data);
+		$json = curl_exec ($ch);
+		
+		$value = false;
+		$json = json_decode($json);
+		$time = time();
+		if($json != null){
+			foreach($json->data as $key => $user){
+				if($user->mac == $mac && $user->start < $time && $time < $user->end){
+					$value = $user;
+					break;
+				}
+			}
+		}
+		$ch = $this->sendLogout($ch);
+		
+		return $value;
+	}
+	
 	public function getUser($array)
 	{
 		if(isset($array['mac']) || isset($array['ip']) || isset($array['all'])){

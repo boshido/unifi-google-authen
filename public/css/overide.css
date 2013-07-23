@@ -8,14 +8,26 @@
   font-family: 'Oswald';
   font-style: normal;
   font-weight: 400;
-  src: local('Oswald Regular'), local('Oswald-Regular'), url(/font/Oswald-Regular.woff) format('woff');
+  src: local('Oswald Regular'), local('Oswald-Regular'), url(/fonts/Oswald-Regular.woff) format('woff');
 }
+
 @media (min-width: 768px) {
 	.profile{
 		text-align:right;
 	}
 	.info{
 		text-align:left;
+	}
+	.card{
+		height:390px;
+		width:310px;
+		margin:15px 15px;
+	}
+	.sub-menu{
+		top:-50px;
+	}
+	.container{
+		padding:30px 0px;
 	}
 }
 @media (max-width: 767px) {
@@ -25,12 +37,24 @@
 	.info{
 		text-align:center;
 	}
+	.sub-menu{
+		top:0px;
+	}
+	.card{
+		width:100%;
+	}
+	.container{
+		padding:45px 0px;
+	}
+
 }
+
 @media (max-width: 480px) { 
 	.hidden-phone{
-		display:none;
+		display:none!important;
 	}
 }
+
 body{
 	
 	font: normal 13px Roboto,arial,sans-serif;
@@ -52,7 +76,7 @@ h1{
 	background-color: rgba(0,0,0,0.6);
 	height: 60px;
 	width:100%;
-	z-index:1;
+	z-index:6;
 	opacity:1;
 	position:fixed;
 	top:0;
@@ -62,6 +86,7 @@ h1{
 	width:100%;
 	height:auto;
 	position:relative;
+	z-index:5;
 }
 
 .cover-img{
@@ -106,7 +131,6 @@ h1{
 }
 .banner{
 	font-family:'Oswald',arial,sans-serif;
-	
 	float:left;
 	display: inline-block;
 	font-size: 26px;
@@ -155,8 +179,8 @@ h1{
 }
 
 .container{
-	width:100%;
-	margin:100px 100px 100px 100px;
+	text-align:center;
+	position:relative;
 }
 .card{
 	display:inline-block;
@@ -169,6 +193,11 @@ h1{
 	border-bottom-width: 2px;
 	border-top-width: 0;
 	vertical-align: top;
+	overflow:hidden;
+}
+
+.card table{
+	width:100%;
 }
 
 .overlay{
@@ -201,10 +230,54 @@ h1{
 	/* For IE 5.5 - 7 */
 	filter: progid:DXImageTransform.Microsoft.Shadow(Strength=4, Direction=135, Color='#000000');
 }
+
+.sub-menu{
+
+	z-index:1;
+	opacity:1;
+	position:absolute;
+	left:50%;
+
+	margin-left:-87px;
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+}
 .box-label{
 	width:25px;
 	height:25px;
 	display:inline-block;
 	border-style:solid;
 	border-width:2px;
+}
+.menu-box{
+	width:40px;
+	height:40px;
+	display:inline-block;
+	cursor:pointer;
+	background-color:#333230;
+	color:white;
+	border-style:solid;
+	border-width:1px;
+	line-height:40px;
+	border-color:#2B2B2B;
+	float:left;
+	-o-transition:.5s;
+	-ms-transition:.5s;
+	-moz-transition:.5s;
+	-webkit-transition:.5s;
+	transition:.5s;
+}
+.menu-box:hover{
+	background-color:#F47063;
+	border-color:#F47063;
+}
+
+.hide{
+  -webkit-transition: all 0.3s ease-out;  /* Chrome 1-25, Safari 3.2+ */
+     -moz-transition: all 0.3s ease-out;  /* Firefox 4-15 */
+       -o-transition: all 0.3s ease-out;  /* Opera 10.50–12.00 */
+          transition: all 0.3s ease-out;  /* Chrome 26, Firefox 16+, IE 10+, Opera 12.10+ */
 }

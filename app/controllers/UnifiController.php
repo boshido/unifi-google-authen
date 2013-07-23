@@ -15,6 +15,32 @@ class UnifiController extends Controller {
 	
 	public function getHistory()
 	{
+		$google_id = Input::get('google_id');
+		$limit = Input::get('limit');
+		$sort = Input::get('sort');
+		$sort_type = Input::get('sort_type') != null ? (int)Input::get('sort_type') : 1;
+
+		$db = Database::Connect();
+		$log = $db->log;
+		$result = array();
+		
+		$find = array('google_id' => $google_id);
+		if($limit != null) $cursor = $log->find($find)->limit($limit);
+		else $cursor = $log->find($find);
+		
+		if($sort != null){
+			$cursor->sort(array($sort=>$sort_type));
+		}
+		foreach($cursor as $key => $value){
+			$value['_id'] = (string)$value['_id'];
+			$result[] =$value;
+		}
+		
+		return Response::json($result);
+	}
+	
+	public function getStat()
+	{
 		$mac = Input::get('mac');
 		$limit = Input::get('limit');
 		$sort = Input::get('sort');
@@ -40,9 +66,8 @@ class UnifiController extends Controller {
 		return Response::json($result);
 	}
 	
-	public function getHistoryDate()
+	public function getStatDaily()
 	{	
-		date_default_timezone_set("Asia/Bangkok");
 		$mac = Input::get('mac');
 		$at = Input::get('at') != null ? strtotime("midnight", Input::get('at')) : strtotime("midnight", time());
 		$to = Input::get('to') != null ? strtotime("tomorrow", Input::get('to'))- 1 : strtotime("tomorrow", time())- 1; 
@@ -73,6 +98,21 @@ class UnifiController extends Controller {
 		foreach($tmp as $key => $value){
 			$result[] = $value;
 		}
+		
+		return Response::json($result);
+	}
+	
+	public function getStatSummary()
+	{	
+		$type = Input::get('type');
+		$data = Input::get('data');
+		$db = Database::Connect();
+		$stat = $db->stat;
+		$result = array();
+		
+		$find = array($type => $data);
+		$result = $stat->findOne($find);
+		$result['_id']=(string)$result['_id'];
 		
 		return Response::json($result);
 	}

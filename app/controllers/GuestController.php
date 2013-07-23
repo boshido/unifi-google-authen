@@ -66,10 +66,9 @@ class GuestController extends Controller {
 				$token = $db->token;
 				$find = array('google_id'=>$google_id);
 				$set = array('$set'=>array('fname'=>$fname,'lname'=>$lname,'email'=>$email,'refresh_token'=>$refresh_token));
-				$token->update($find,$set,array("upsert" => true));
-					
+				$token->update($find,$set,array("upsert" => true));	
 				Session::put('refresh_token',$refresh_token);
-				$cookie = Cookie::forever('refresh_token', $refresh_token);
+				$cookie_refresh = Cookie::forever('refresh_token', $refresh_token);
 			}
 			else{	// Retrieve refresh token from database
 				$google_id = $userinfo['id'];
@@ -77,20 +76,25 @@ class GuestController extends Controller {
 				$find = array('google_id'=>$google_id);
 				$result = $token->findOne($find);
 				Session::put('refresh_token',$result['refresh_token']);
-				$cookie = Cookie::forever('refresh_token', $result['refresh_token']);
+				$cookie_refresh = Cookie::forever('refresh_token', $result['refresh_token']);
 			}
 			
-			if(Session::has('id')){ // when user has mac address
-				
+			if(Session::has('id')){ // when user has mac address	
 				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);	
 				$user = $db->user;
 				$find = array('mac'=>Session::get('id'));
 				$set =  array('$set'=>array('email'=>$email));
 				$user->update($find,$set);
-				
 				$unifi->sendAuthorization(Session::get('id'), 360); //authorizing user for 6 hours(6*60)
+				$cookie_id = Cookie::forever('id',Session::get('id'));
+				
+				// Log
+				$logdata = $unifi->getUser(array('mac'=> Session::get('id')));
+				$log = $db->log;
+				$log->insert(array('timestamp'=>time(),'google_id'=>$userinfo['id'],'email'=>$userinfo['email'],'mac'=>$logdata->mac,'hostname'=>$logdata->hostname,'ip'=>$logdata->ip));
 			}
-			return Redirect::to('guest/userinfo')->withCookie($cookie);
+			
+			return Redirect::to('guest/userinfo')->withCookie($cookie_refresh)->withCookie($cookie_id);
 		}
 
 		//if ($client->getAccessToken()) {
@@ -156,20 +160,24 @@ class GuestController extends Controller {
 		$unifi = new Unifi();
 		$unifi->sendUnAuthorization(Session::get('id'));
 		
-		$cookie = Cookie::forget('refresh_token');
+		$cookie_refresh = Cookie::forget('refresh_token');
 		Session::flush();
 		
-		return Response::view('loading', array('url' => action('GuestController@getSignin'),'flag'=>'signout'))->withCookie($cookie);
+		return Response::view('loading', array('url' => action('GuestController@getSignin'),'flag'=>'signout'))->withCookie($cookie_refresh);
 	}	
 	
 	public function getUserinfo(){
-		if(Session::has('refresh_token')){
-			$unifi = new Unifi();
+		$unifi = new Unifi();
+		$guest = $unifi->getGuest(Session::get('id'));
+		//if(Session::has('refresh_token')){
+		if($guest){
+			
 			$client = new Google_Client();
 			$client->setApprovalPrompt("auto");
 			$client->setAccessType('offline');
 			$oauth2 = new Google_Oauth2Service($client);
-
+			
+			
 			if (Session::has('token')) {
 				$client->setAccessToken(Session::get('token'));
 			}
@@ -179,15 +187,18 @@ class GuestController extends Controller {
 			
 			if ($client->getAccessToken()) {
 				$user = $oauth2->userinfo->get();
+				
 				// These fields are currently filtered through the PHP sanitize filters.
 				// See http://www.php.net/manual/en/filter.filters.sanitize.php
+				$google_id = $user['id'];
 				$name = $user['name'];
 				$email = filter_var($user['email'], FILTER_SANITIZE_EMAIL);
 				$img = isset($user['picture']) ? $user['picture'] : '/img/photo.jpg';
-
+				$login_at = date("d/m/y H:i:s",$guest->start);
+				$login_at = substr_replace($login_at,(int)date("y",$guest->start)+43,6,2);
 				// The access token may have been updated lazily.
 				Session::put('token',$client->getAccessToken());
-				return Response::view('user',array('name'=>$name,'email'=>$email,'img'=>$img));
+				return Response::view('user',array('google_id'=>$google_id,'name'=>$name,'email'=>$email,'img'=>$img,'remain_time'=>$guest->end - time(),'login_at'=>$login_at));
 			}
 		}
 		else{

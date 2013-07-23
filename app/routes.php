@@ -10,6 +10,7 @@
 | and give it the Closure to execute when that URI is requested.
 |
 */
+date_default_timezone_set("Asia/Bangkok");
 
 Route::controller('unifi', 'UnifiController');
 Route::controller('guest', 'GuestController');
@@ -20,9 +21,12 @@ Route::get('/', function()
 
 Route::filter('auth', function()
 {	
-	$cookie = Cookie::get('refresh_token');
 	if(!Session::has('refresh_token')){
 		$cookie = Cookie::get('refresh_token');
 		Session::put('refresh_token',$cookie);	
+	}
+	if(!Session::has('id')){
+		$cookie = Cookie::get('id');
+		Session::put('id',$cookie);	
 	}
 });
