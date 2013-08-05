@@ -17,14 +17,15 @@
 			}
 		</script>
 		<style>
+			<?php  $back_num=rand(1,4); ?>
 			html {
-				background: url(/img/bg{{rand(1,4)}}.jpg) no-repeat center center fixed; 
+				background: url(/img/bg{{$back_num}}.jpg) no-repeat center center fixed; 
 				  -webkit-background-size: cover;
 				  -moz-background-size: cover;
 				  -o-background-size: cover;
 				  background-size: cover;
-				  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg3.jpg', sizingMethod='scale');
-				  -ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg3.jpg', sizingMethod='scale')";
+				  filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg{{$back_num}}.jpg', sizingMethod='scale');
+				  -ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg{{$back_num}}.jpg', sizingMethod='scale')";
 			}
 			.btn{
 				//filter: blur(3px); 
@@ -65,7 +66,7 @@
 			}
 
 		</style>
-		<link href="/css/pure-min.css" rel="stylesheet" media="screen"/>
+		<link href="/css/pure-min.css" rel="stylesheet" media="screen">
 		<link href="/css/grids-min.css" rel="stylesheet" media="screen">
 		<link href="/css/overide.css" rel="stylesheet" media="screen">
 	</head>
@@ -93,8 +94,8 @@
 				@endif
 			</form>	
 		</div>
-		<script src="/js/jquery-2.0.3.js" type="text/javascript"></script>
-		<script src="/js/heartcode-canvasloader-min.js" type="text/javascript"></script>
+		<script src="/js/jquery-2.0.3.js" type="text/javascript"> </script>
+		<script src="/js/heartcode-canvasloader-min.js" type="text/javascript"> </script>
 		<script>
 			var init = {{isset($init) ? 'true' : 'false'}};
 			var request,count=0;
