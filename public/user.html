@@ -27,10 +27,27 @@
 			@-o-viewport{width:device-width}
 			@viewport{width:device-width}
 			@font-face {
+			  font-family: 'Open Sans';
+			  font-style: normal;
+			  font-weight: 400;
+			  src: local('Open Sans'), local('OpenSans'), url(/fonts/OpenSans.woff) format('woff');
+			}
+			@font-face {
 			  font-family: 'Oswald';
 			  font-style: normal;
 			  font-weight: 400;
 			  src: local('Oswald Regular'), local('Oswald-Regular'), url(/fonts/Oswald-Regular.woff) format('woff');
+			}
+			@media (max-width: 1024px) { 
+				.container > .inner{
+					margin-left:0px!important;
+				}
+				.user-profile{
+					text-align:center!important;
+				}
+				.user-profile > img{
+					margin-right:0px!important;
+				}
 			}
 			@media (min-width:768px) {
 
@@ -38,6 +55,7 @@
 			@media (min-width:601px) and (max-width:767px) {
 
 			}
+			
 			@media (max-width: 600px) { 
 				.hidden-phone{
 					display:none!important;
@@ -68,19 +86,28 @@
 					margin:0px!important;
 					padding:30px 0px 30px 0px!important;
 				}
+				.timer{
+					padding:0px 0px!important;
+					text-align:center;
+					left:0px!important;
+					height:40px;
+					width:100%;
+					line-height:40px;
+					margin-left:0px!important;
+					font-size:1.0rem!important;
+				}
 			}
 			
+			html{
+				font-family: 'Open Sans',arial,sans-serif;
+				width:100%;
+				height:100%;
+			}
 			body{
-				font-family: Roboto,arial,sans-serif;
-				font-weight:normal;
-				font-size:62.5%;
-				background: url(/img/bg1.jpg) no-repeat center center fixed; 
-				-webkit-background-size: cover;
-				-moz-background-size: cover;
-				-o-background-size: cover;
-				background-size: cover;
-				filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg1.jpg', sizingMethod='scale');
-				-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg1.jpg', sizingMethod='scale')";
+				width:100%;
+				height:100%;
+				background-color:#ecf0f1;
+				
 			}
 			header{
 				background-color:rgba(0,0,0,1);
@@ -94,11 +121,52 @@
 				cursor:pointer;
 			}
 			h1{
-				font-size:2.0rem;
+				
 				color:#2ACFE8;
 			}			
 			h5{
-				font-size:0.8rem;
+				font-weight:normal;
+				margin:0.3em 0px 0px 0px;
+			}
+			dl {
+				margin-bottom:10px;
+			}
+			 
+			dl dt {
+				color:#0096CC;
+				float:left; 
+				font-weight:bold; 
+				margin-right:5px; 
+				padding:5px;  
+				width:80px; 
+				text-align:right;
+			}
+			 
+			dl dd {
+				margin:2px auto;
+				padding:5px 0;
+				overflow:hidden;
+			}
+			
+			#name{
+				margin:0.3em 0px 0px 0px;
+			}
+			#email{
+				color:lightgray;
+				margin:0.3em 0px 0px 0px;
+			}
+			#time{
+				color:lightgray;
+				margin:0.3em 0px 0px 0px;
+			}
+			#home{
+				background: url(/img/bg1.jpg) no-repeat center center fixed; 
+				-webkit-background-size: cover;
+				-moz-background-size: cover;
+				-o-background-size: cover;
+				background-size: cover;
+				filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg1.jpg', sizingMethod='scale');
+				-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg1.jpg', sizingMethod='scale')";
 				
 			}
 			
@@ -106,10 +174,9 @@
 				margin-top:40px;
 			}
 			.navicon{
-				position:absolute;
+				position:fixed;
 				left:200px;
 				top:0px;
-				margin-top:px;
 				background-color:rgba(255,255,255,0.7);
 				width:40px;
 				height:40px;
@@ -132,14 +199,47 @@
 			.navicon:hover{
 				background-color:rgba(255,255,255,1);
 			}
+			.signout{
+				position:fixed;
+				right:0px;
+				top:0px;
+				background-color:rgba(255,255,255,0.7);
+				width:40px;
+				height:40px;
+				text-align:center;
+				line-height:40px;
+				cursor:pointer;
+				z-index:4;
+				font-size:20px;
+				-webkit-transition: all .3s;
+				-moz-transition: all .3s;
+				-ms-transition: all .3s;
+				-o-transition: all .3s;
+				transition: all .3s;
+			}
+			.signout:hover{
+				background-color:rgba(255,255,255,1);
+			}
+			.timer{
+				position:fixed;
+				top:0px;
+				padding:5px;
+				left:50%;
+				margin-left:-85px;
+				font-size:0.8rem;
+				color:white;
+				background-color:rgba(0, 0, 0,0.7);
+				z-index:3;
+				
+			}
 			
 			.navigator{
 				width:200px;
 				height:100%;
-				position:absolute;
+				position:fixed;
 				top:0px;
 				left:0px;
-				background-color:rgba(0,0,0,0.6);
+				background-color:rgba(20,20,20,1);
 				z-index:4;
 				-webkit-transition: all .3s;
 				-moz-transition: all .3s;
@@ -180,12 +280,12 @@
 				background-color:#20AA2B;
 			}			
 			.navigator > ul > li.yellow.selected{
-				background-color:#F0AF00;
+				background-color:#f1c40f;
 			}			
 			.navigator > ul > li.pink.selected{
 				background-color:#FF7560;
 			}
-			
+
 			.navigator > ul > li.blue .label{
 				background-color:#0096CC;
 			}			
@@ -193,12 +293,12 @@
 				background-color:#20AA2B;
 			}			
 			.navigator > ul > li.yellow .label{
-				background-color:#F0AF00;
+				background-color:#f1c40f;
 			}			
 			.navigator > ul > li.pink .label{
 				background-color:#FF7560;
 			}
-			
+
 			.navigator > ul > li > a{
 				display:block;
 				width:100%;
@@ -206,13 +306,13 @@
 				color:white;
 				text-decoration: none;
 			}	
-			
+
 			.label{
-				width:12px;
+				width:10px;
 				height:100%;
 				display:block;
 				float:left;
-				margin-right:30px;
+				margin-right:10px;
 				
 			}
 			.label.blue{
@@ -222,13 +322,17 @@
 				background-color:#20AA2B;
 			}				
 			.label.yellow{
-				background-color:#F0AF00;
+				background-color:#f1c40f;
 			}	
 			.label.pink{
 				background-color:#FF7560;
 			}				
 			.icon{
 				margin-right:10px;
+				margin-left:10px;
+			}			
+			.icon.remove{
+				color:red;
 			}
 						
 			.container{
@@ -237,11 +341,14 @@
 				position:absolute;
 				left:0px;
 				top:0px;
+				z-index:2;
 			}
-			#welcome {
-				
+			.container > .inner{
+				width:auto;
+				height:auto;
+				position:relative;
+				margin-left:200px;
 			}
-			
 			.img-circle{
 				-webkit-border-radius:500px;
 				-moz-border-radius:500px;
@@ -249,12 +356,17 @@
 				-moz-box-shadow: 0 0 5px rgba(0,0,0,0.5);
 				-webkit-box-shadow: 0 0 5px rgba(0,0,0,0.5);
 				box-shadow: 0 0 5px rgba(0,0,0,0.5);
+				
 			}
 			.profile-img{
 				width:180px;
 				height:180px;
-				
 			}
+			.mini-profile-img{
+				width:100px;
+				height:100px;
+			}
+			
 			.profile{
 				position:absolute;
 				left:50%;
@@ -277,39 +389,60 @@
 				border-radius:500px;
 				background-color:rgba(0, 0, 0,0.7);
 			}
-			.info .content{
+			.info > .content{
 				margin:60px 0px 0px 0px;
 			}
-			.timer{
-				position:absolute;
-				top:0px;
-				width:auto;
-				padding:5px;
-				left:50%;
-				margin-left:-85px;
-				font-size:0.8rem;
-				color:white;
-				background-color:rgba(0, 0, 0,0.7);
-				z-index:5px;
+			
+			.inner > .title{
+				font-size:30px;
+				color:#FFFFFF;
+				background-color:rgba(20, 20, 20,1);
+				line-height:210px;
+				height:160px;
+				text-align:center;
+				border-bottom:solid;
+				border-color:#20AA2B;
+				
 			}
-			#name{
-				margin:0.3em 0px 0px 0px;
+			.inner > .content{
+				margin:100px 5px 0px 5px;
+				
 			}
-			#email{
-				color:lightgray;
-				margin:0.3em 0px 0px 0px;
+			
+			.text-left{
+				text-align:left;
+			}			
+			.text-center{
+				text-align:center;
+			}			
+			.text-right{
+				text-align:right;
 			}
-			#time{
-				color:lightgray;
-				margin:0.3em 0px 0px 0px;
+			.pure-g-r{
+				margin-top:10px;
 			}
-
+			.user-profile{
+				text-align:right;
+			}
+			.user-profile > img{
+				margin-right:30px;
+			}
+			.chart{
+				width:100%;
+				height:400px;
+			}
 		</style>
 	</head>
 	<body>
 		
 		<div class="navicon toggle">
 			<img src="/img/navicon-bg.png" width="20px">
+		</div>
+		<div class="timer">
+			<span class="icon" aria-hidden="true" data-icon="&#xe002;" alt="Home"></span><span>Time Remain : </span><span id="time-remain">00:00:00</span>
+		</div>
+		<div class="signout">
+			<span aria-hidden="true" data-icon="&#xe005;" alt="Signout"></span>
 		</div>
 		<div class="navigator hidden">
 			<header >
@@ -320,34 +453,279 @@
 					<a href="#home"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe001;" alt="Home"></span>หน้าหลัก </a>
 				</li>				
 				<li class="green">
-					<a href="#user"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home"></span>ผู้ใช้งาน </a>
+					<a href="#user"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home"></span>ข้อมูลผู้ใช้ </a>
 				</li>				
 				<li class="yellow">
 					<a href="#statistic"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe000;" alt="Home"></span>สถิติ </a>
 				</li>				
-				<li class="pink">
-					<a href="#history"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="Home"></span>ประวัติการใช้ </a>
-				</li>
+				<!--<li class="pink">
+					<a href="#history"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="Home"></span>ประวัติการใช้</a>
+				</li>-->
 			</ul>
 		</div>
-		<div class="timer">
-			<span class="icon" aria-hidden="true" data-icon="&#xe002;" alt="Home"></span><span>Time Remain : </span><span id="time-remain">11:00:00</span>
-		</div>
+
 		<div class="container" id="home" style="display:none">
+			
 			<div class="profile">
 				<img src="https://lh6.googleusercontent.com/-o9gQg39pkKE/UbMLWFDfaNI/AAAAAAAAAL0/BznT0ODt85o/s416-no/daughter-of-crows_sml2.jpg" class="img-circle profile-img" ></img>
 			</div>			
 			<div class="info">
 				<div class="content">
 					<h1 id="name" >Watchrapong Agsonchu</h1>
-					<h5 id="email" >Email : 5366263621@fitm.kmutnb.ac.th</h5>
-					<h5 id="time" >Login at : 12:10</h5>
+					<h5 id="email" >อีเมล์ : 5366263621@fitm.kmutnb.ac.th</h5>
+					<h5 id="time" >เข้าระบบเมื่อ : 12:10</h5>
 				</div>
 			</div>
 		</div>
+
+		<div class="container" id="user" style="display:none">
+			<div class="inner">			
+				<div class="content">
+					<div class="pure-g-r" >
+						<div class="pure-u-2-5 user-profile">
+							<img src="https://lh6.googleusercontent.com/-o9gQg39pkKE/UbMLWFDfaNI/AAAAAAAAAL0/BznT0ODt85o/s416-no/daughter-of-crows_sml2.jpg" class="img-circle profile-img"></img>
+						</div>			
+						<div class="pure-u-3-5">
+							<dl>			
+								<dt>ชื่อ : </dt>
+								<dd>Watchrapong</dd>
+							
+								<dt>นามสกุล : </dt>
+								<dd>Agsonchu</dd>
+								<dt>อีเมล์ : </dt>
+								<dd> 5366263621@fitm.kmutnb.ac.th</dd>
+								<dt>อุปกรณ์ : </dt>
+								<dd>Boshido-Phone</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<div class="pure-g-r" >
+					<div class="pure-u-1-2">
+						<h2 class="text-center">เซสชันที่ใช้งานอยู่</h2>
+						<table class="pure-table pure-table-horizontal text-center" style="margin: auto;width:100%;max-width:500px;">
+							<thead style="background:rgba(32, 170, 43,0.5);">
+								<tr >
+									<th class="text-center" >ชื่ออุปกรณ์</th>
+									<th class="text-center" >ใช้งานล่าสุด</th>
+									<th class="text-center" >ยกเลิก</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr >
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						
+							</tbody>
+						</table>
+					</div>
+					<div class="pure-u-1-2">
+						<h2 class="text-center">ประวัติการใช้งาน</h2>
+						<table class="pure-table pure-table-horizontal text-center" style="margin: auto;width:100%;max-width:500px;">
+							<thead style="background:rgba(255, 117, 96,0.5);">
+								<tr >
+									<th class="text-center" >ชื่ออุปกรณ์</th>
+									<th class="text-center" >ใช้งานล่าสุด</th>
+									<th class="text-center" >ยกเลิก</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr >
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						<tr >
+									
+									<td class="center" >Device Name</td>
+									<td class="center" >15/09/54 21:00</td>
+									<td class="center" ><span class="icon remove" aria-hidden="true" data-icon="&#xe006;" alt="Home"></span></td>
+								</tr>						
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container" id="statistic" style="display:none">
+			<div class="inner">		
+				<div class="chart" id="bar" style="margin-top:50px;">
+					
+				</div>
+			</div>
+		</div>
+	
 		<script src="/js/jquery-2.0.3.js" type="text/javascript" > </script>
+		<script src="/js/highcharts.js" type="text/javascript" ></script>
+		<script src="/js/exporting.js" type="text/javascript" ></script>
+		<script type="text/javascript">
+		var chart;
+			$(document).ready(function(){
+				chart = new Highcharts.Chart({
+					chart: {
+						renderTo: bar,
+						backgroundColor:'rgba(255,255,255,0)',
+						type: 'column'
+					},
+					title: {
+						text: 'สถิติการใช้งานในแต่ละวัน'
+					},
+					subtitle: {
+						text: ''
+					},
+					xAxis: {
+						categories: [
+							'Jan',
+							'Feb',
+							'Mar',
+							'Apr',
+							'May',
+							'Jun',
+							'Jul',
+							'Aug',
+							'Sep',
+							'Oct',
+							'Nov',
+							'Dec'
+						]
+					},
+					yAxis: {
+						min: 0,
+						title: {	
+							text: 'Bytes'
+						}
+					},
+					tooltip: {
+						headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+						pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+							'<td style="padding:0"><b>{point.y:.1f} Bytes</b></td></tr>',
+						footerFormat: '</table>',
+						shared: true,
+						useHTML: true
+					},
+					plotOptions: {
+						column: {
+							pointPadding: 0.2,
+							borderWidth: 0
+						}
+					},
+					colors:
+						[
+						   '#2ecc71', 
+						   '#f39c12', 
+						 
+						]
+					,
+					series: [{
+						name: 'ดาวโหลด',
+						data: [49.9, 71.5, 106.4, 129.2, 144.0, 176.0, 135.6, 148.5, 216.4, 194.1, 95.6, 54.4]
+			
+					}, {
+						name: 'อัพโหลด',
+						data: [83.6, 78.8, 98.5, 93.4, 106.0, 84.5, 105.0, 104.3, 91.2, 83.5, 106.6, 92.3]
+			
+					}]
+					,
+					credits: {
+						enabled: false
+					}
+				});
+			});
+ 
+			/*$(function () {
+				$('#hello').highcharts({
+					chart: {
+						plotBackgroundColor: null,
+						backgroundColor:'rgba(255, 255, 255, 0)',
+						plotBorderWidth: null,
+						plotShadow: false
+					},
+					title: {
+						text: ' '
+					},
+					tooltip: {
+						pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+					},
+					plotOptions: {
+						pie: {
+							allowPointSelect: true,
+							cursor: 'pointer',
+							dataLabels: {
+								enabled: true,
+								color: '#000000',
+								connectorColor: '#000000',
+								format: '<b>{point.name}</b>: {point.percentage:.1f} %'
+							}
+						}
+					},
+					series: [{
+						type: 'pie',
+						name: 'Browser share',
+						data: [
+							['Firefox',   45.0],
+							['IE',       26.8],
+							{
+								name: 'Chrome',
+								y: 12.8,
+								sliced: true,
+								selected: true
+							},
+							['Safari',    8.5],
+							['Opera',     6.2],
+							['Others',   0.7]
+						]
+					}]
+				});
+			});*/
+		</script>
 		<script type="text/javascript">
 			var mobile;
+			var selected;
 			$(document).ready(function(){
 				
 				$('.navigator a').on('click',function(event){
@@ -355,10 +733,10 @@
 					if(!element.parent().hasClass('selected')){
 						$('.navigator li').removeClass('selected');
 						element.parent().addClass('selected');
-						$('.container').fadeOut('fast',function(){
-							$(element.attr('href')).fadeIn('fast');
-							if(mobile)$('.navicon').click();
-						});
+						$(selected).fadeOut('fast');
+						$(element.attr('href')).fadeIn('fast');
+						selected = element.attr('href');
+						if(mobile)$('.navicon').click();
 					}
 				});
 				
@@ -381,24 +759,26 @@
 					$('.navigator a[href="#home"]').click();
 				}
 				
-				checkDevice($(window).width());
+				checkDevice($(window).width(),$(this).height());
 				$(window).resize(function(){
-					checkDevice($(this).width());
+					checkDevice($(this).width(),$(this).height());
 					console.log($(this).width()+' '+$(this).height());
 				});
 			});
 			
-			function checkDevice(width){
+			function checkDevice(width,height){
 				if(width>1024){
 					if($('.navicon').hasClass('toggle')){
 						$('.navicon').addClass('hidden').click();
 					}
+					chart.setSize(width-200,height-100,true);
 					mobile=false;
 				}
 				else{
 					if(!$('.navicon').hasClass('toggle')){
 						$('.navicon').removeClass('hidden').click();
 					}
+					chart.setSize(width,height-100,true);
 					mobile=true;
 				}	
 			}

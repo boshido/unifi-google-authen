@@ -27,7 +27,7 @@ Instead of a list of all class selectors,
 you can use the generic selector below, but it's slower:
 [class*="icon-"] {
 */
-.icon-bars, .icon-home, .icon-history, .icon-user, .icon-clock, .icon-exit  {
+.icon-bars, .icon-home, .icon-history, .icon-user, .icon-clock, .icon-exit , .icon-close {
 	font-family: 'icomoon';
 	speak: none;
 	font-style: normal;
@@ -54,4 +54,7 @@ you can use the generic selector below, but it's slower:
 }
 .icon-exit:before {
 	content: "\e005";
+}
+.icon-close:before {
+	content: "\e006";
 }

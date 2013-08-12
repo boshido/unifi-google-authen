@@ -22,15 +22,26 @@
 		<link rel="stylesheet" href="/css/animations.css" />
 		<link rel="stylesheet" href="/css/overide2.css" />
 		<style>
-			<?php  $back_num=rand(1,4); ?>
-			body{
-				background: url(/img/bg{{$back_num}}.jpg) no-repeat center center fixed; 
+			#name{
+				margin:0.3em 0px 0px 0px;
+			}
+			#email{
+				color:lightgray;
+				margin:0.3em 0px 0px 0px;
+			}
+			#time{
+				color:lightgray;
+				margin:0.3em 0px 0px 0px;
+			}
+			#home{
+				background: url(/img/bg1.jpg) no-repeat center center fixed; 
 				-webkit-background-size: cover;
 				-moz-background-size: cover;
 				-o-background-size: cover;
 				background-size: cover;
-				filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg{{$back_num}}.jpg', sizingMethod='scale');
-				-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg{{$back_num}}.jpg', sizingMethod='scale')";
+				filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg1.jpg', sizingMethod='scale');
+				-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg1.jpg', sizingMethod='scale')";
+				
 			}
 		</style>
 	</head>
@@ -38,6 +49,9 @@
 		
 		<div class="navicon toggle">
 			<img src="/img/navicon-bg.png" width="20px">
+		</div>
+		<div class="timer">
+			<span class="icon" aria-hidden="true" data-icon="&#xe002;" alt="Home"></span><span>Time Remain : </span><span id="time-remain">00:00:00</span>
 		</div>
 		<div class="signout">
 			<span aria-hidden="true" data-icon="&#xe005;" alt="Signout"></span>
@@ -51,49 +65,117 @@
 					<a href="#home"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe001;" alt="Home"></span>หน้าหลัก </a>
 				</li>				
 				<li class="green">
-					<a href="#user"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="User"></span>ผู้ใช้งาน </a>
+					<a href="#user"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home"></span>ข้อมูลผู้ใช้ </a>
 				</li>				
 				<li class="yellow">
-					<a href="#statistic"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe000;" alt="Statistic"></span>สถิติ </a>
+					<a href="#statistic"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe000;" alt="Home"></span>สถิติ </a>
 				</li>				
-				<li class="pink">
-					<a href="#history"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="History"></span>ประวัติการใช้ </a>
-				</li>
+				<!--<li class="pink">
+					<a href="#history"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="Home"></span>ประวัติการใช้</a>
+				</li>-->
 			</ul>
 		</div>
-		<div class="timer">
-			<span class="icon" aria-hidden="true" data-icon="&#xe002;" alt="Home"></span><span>Time Remain : </span><span id="time-remain">00:00:00</span>
-		</div>
+
 		<div class="container" id="home" style="display:none">
 			<div class="profile">
 				<img src="{{ $img }}" class="img-circle profile-img" ></img>
 			</div>			
 			<div class="info">
 				<div class="content">
-					<h1 id="name" >{{ $name }}</h1>
-					<h5 id="email" >Email : {{ $email }}</h5>
-					<h5 id="time" >Login at : {{ $login_at }}</h5>
+					<h1 id="name" >{{ $name.' '.$surname }}</h1>
+					<h5 id="email" >อีเมล์ : {{ $email }}</h5>
+					<h5 id="time" >เข้าระบบเมื่อ : {{ $login_at }}</h5>
 				</div>
 			</div>
 		</div>
+
+		<div class="container" id="user" style="display:none">
+			<div class="inner">			
+				<div class="content">
+					<div class="pure-g-r" >
+						<div class="pure-u-2-5 user-profile">
+							<img src="https://lh6.googleusercontent.com/-o9gQg39pkKE/UbMLWFDfaNI/AAAAAAAAAL0/BznT0ODt85o/s416-no/daughter-of-crows_sml2.jpg" class="img-circle profile-img"></img>
+						</div>			
+						<div class="pure-u-3-5">
+							<dl>			
+								<dt>ชื่อ : </dt>
+								<dd>{{ $name }}</dd>
+							
+								<dt>นามสกุล : </dt>
+								<dd>{{ $surname }}</dd>
+								<dt>อีเมล์ : </dt>
+								<dd> {{ $email }}</dd>								
+								<dt>เพศ : </dt>
+								<dd> {{ $gender == 'male' ? 'ชาย' : 'หญิง' }}</dd>
+								<dt>อุปกรณ์ : </dt>
+								<dd>Boshido-Phone</dd>
+							</dl>
+						</div>
+					</div>
+				</div>
+				<div class="pure-g-r" >
+					<div class="pure-u-1-2">
+						<h2 class="text-center">เซสชันที่ใช้งานอยู่</h2>
+						<table class="pure-table pure-table-horizontal text-center" style="margin: auto;width:100%;max-width:500px;" id="session">
+							<thead style="background:rgba(32, 170, 43,0.5);">
+								<tr >
+									<th class="text-center" >ใช้งานล่าสุด</th>
+									<th class="text-center" >ชื่ออุปกรณ์</th>
+									<th class="text-center" >ยกเลิก</th>
+								</tr>
+							</thead>
+							<tbody>
+											
+							</tbody>
+						</table>
+					</div>
+					<div class="pure-u-1-2">
+						<h2 class="text-center">ประวัติการใช้งาน</h2>
+						<table class="pure-table pure-table-horizontal text-center" style="margin: auto;width:100%;max-width:500px;" id="history">
+							<thead style="background:rgba(0, 150, 204,0.5);">
+								<tr >
+									<th class="text-center" >ใช้งานล่าสุด</th>
+									<th class="text-center" >ชื่ออุปกรณ์</th>
+								</tr>
+							</thead>
+							<tbody>
+														
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="container" id="statistic" style="display:none">
+			<div class="inner">		
+				<div class="chart" id="bar" style="margin-top:50px;">
+					
+				</div>
+			</div>
+		</div>
+	
 		<script src="/js/jquery-2.0.3.js" type="text/javascript" > </script>
+		<script src="/js/highcharts.js" type="text/javascript" ></script>
+		<script src="/js/exporting.js" type="text/javascript" ></script>
 		<script type="text/javascript">
-			var mobile;
+		
+			var mobile,selected,chart;
 			var mac = '{{Session::get('id')}}';
 			var google_id = '{{$google_id}}';
 			var remain_time = {{$remain_time}}*1000;
 			
 			$(document).ready(function(){
 				
+				// Binding event
 				$('.navigator a').on('click',function(event){
 					var element = $(this);
 					if(!element.parent().hasClass('selected')){
 						$('.navigator li').removeClass('selected');
 						element.parent().addClass('selected');
-						$('.container').fadeOut('fast',function(){
-							$(element.attr('href')).fadeIn('fast');
-							if(mobile)$('.navicon').click();
-						});
+						$(selected).fadeOut('fast');
+						$(element.attr('href')).fadeIn('fast');
+						selected = element.attr('href');
+						if(mobile)$('.navicon').click();
 					}
 				});
 				
@@ -107,10 +189,8 @@
 						$('.navigator').addClass('hidden');
 					}
 				});
-				$('.signout').on('click',function(event){
-					window.location.href ="{{action('GuestController@getSignout')}}";
-				});
 				
+				// Checking hash url
 				if(window.location.hash){
 					var hash = window.location.hash;
 					$('.navigator a[href="'+hash+'"]').click();
@@ -119,13 +199,35 @@
 					$('.navigator a[href="#home"]').click();
 				}
 				
-				checkDevice($(window).width());
+				// Initial
+				daily();
+				session();
+				history();
+				renderTime();
+				checkDevice($(window).width(),$(this).height());
 				$(window).resize(function(){
-					checkDevice($(this).width());
+					checkDevice($(this).width(),$(this).height());
 					console.log($(this).width()+' '+$(this).height());
 				});
-				renderTime();
+				
 			});
+			
+			function checkDevice(width,height){
+				if(width>1024){
+					if($('.navicon').hasClass('toggle')){
+						$('.navicon').addClass('hidden').click();
+					}
+					mobile=false;
+					chart.setSize(width-200,height-100,true);
+				}
+				else{
+					if(!$('.navicon').hasClass('toggle')){
+						$('.navicon').removeClass('hidden').click();
+					}
+					mobile=true;
+					chart.setSize(width,height-100,true);
+				}	
+			}
 			
 			function renderTime() {
 				var msec = remain_time;
@@ -151,19 +253,213 @@
 				myClock.innerText = h + ":" + m + ":" + s + " ";
 			}
 			
-			function checkDevice(width){
-				if(width>1024){
-					if($('.navicon').hasClass('toggle')){
-						$('.navicon').addClass('hidden').click();
+			function daily(){
+				var tomorrow = new Date();
+				tomorrow.setDate(tomorrow.getDate()-9);
+			
+				var request = $.ajax({
+						url: "{{action('UnifiController@getStatDaily')}}",
+						type: "get",
+						dataType: "json",
+						data:{
+							mac:mac,
+							at:parseInt(tomorrow.getTime()/1000),
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					console.log(response);
+				
+					var graph = {
+							date:[],
+							data:{
+									tx:[],
+									rx:[]
+								}
+							};
+					for(var y in response){
+					
+						graph.date[y] = getDate(response[y].date*1000);
+						graph.data.tx[y] = response[y].tx_bytes;
+						graph.data.rx[y] = response[y].rx_bytes;
 					}
-					mobile=false;
-				}
-				else{
-					if(!$('.navicon').hasClass('toggle')){
-						$('.navicon').removeClass('hidden').click();
+					var max = Math.max(Math.max.apply(Math, graph.data.tx),Math.max.apply(Math, graph.data.rx));
+					var label;
+					if(parseInt(max/1073741824) > 0){
+						for(var y in graph.data.tx){
+							graph.data.tx[y] = graph.data.tx[y] / 1073741824;
+							graph.data.rx[y] = graph.data.rx[y] / 1073741824;
+						}
+						label = 'GBytes';
 					}
-					mobile=true;
-				}	
+					else if(parseInt(max / 1048576) > 0){
+						for(var y in graph.data.tx){
+							graph.data.tx[y] = graph.data.tx[y] / 1048576;
+							graph.data.rx[y] = graph.data.rx[y] / 1048576;
+						}
+						label = 'MBytes';
+					}					
+					else if(parseInt(max / 1024) > 0){
+						for(var y in graph.data.tx){
+							graph.data.tx[y] = graph.data.tx[y] / 1024;
+							graph.data.rx[y] = graph.data.rx[y] / 1024;
+						}
+						label = 'KBytes';
+					}
+					else{
+						label = 'Bytes';
+					}
+					
+					chart = new Highcharts.Chart({
+						chart: {
+							renderTo: bar,
+							backgroundColor:'rgba(255,255,255,0)',
+							type: 'column'
+						},
+						title: {
+							text: 'สถิติการใช้งานในแต่ละวัน'
+						},
+						subtitle: {
+							text: ''
+						},
+						xAxis: {
+							categories: graph.date
+						},
+						yAxis: {
+							min: 0,
+							title: {	
+								text: label
+							}
+						},
+						tooltip: {
+							headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+							pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+								'<td style="padding:0"><b>{point.y:.1f} '+label+'</b></td></tr>',
+							footerFormat: '</table>',
+							shared: true,
+							useHTML: true
+						},
+						plotOptions: {
+							column: {
+								pointPadding: 0.2,
+								borderWidth: 0
+							}
+						},
+						colors:
+							[
+							   '#2ecc71', 
+							   '#f39c12', 
+							 
+							]
+						,
+						series: [{
+							name: 'ดาวโหลด',
+							data: graph.data.tx
+				
+						}, {
+							name: 'อัพโหลด',
+							data: graph.data.rx
+				
+						}]
+						,
+						credits: {
+							enabled: false
+						}
+					});
+					
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+			}
+			
+			function history(){
+				var request = $.ajax({
+						url: "{{action('UnifiController@getHistory')}}",
+						type: "get",
+						dataType: "json",
+						data:{
+							google_id:google_id,
+							limit:10,
+							sort:'start',
+							sort_type:-1,
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					for(var y in response){
+						var r = $('<tr></tr>');
+						$('<td></td>').html(getDate(response[y].start*1000)+" "+getTime(response[y].start*1000)).css('width','100px').appendTo(r);
+						$('<td></td>').html(response[y].hostname).appendTo(r);
+						
+						$('#history > tbody').append(r);
+					}
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+			}
+			
+			function session(){
+				var request = $.ajax({
+						url: "{{action('UnifiController@getActiveSession')}}",
+						type: "get",
+						dataType: "json",
+						data:{
+							google_id:google_id,
+							limit:10,
+							sort:'start',
+							sort_type:-1,
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					
+					for(var y in response){
+						var r = $('<tr session-mac="'+response[y].mac+'"></tr>');
+						$('<td></td>').html(getTime(response[y].start*1000)).appendTo(r);
+						$('<td></td>').html(response[y].hostname).appendTo(r);
+						$('<td></td>').html('<span class="icon remove" aria-hidden="true" data-icon="&#xe006;" onClick="removeSession(this)" ></span>').appendTo(r);
+						
+						$('#session > tbody').append(r);
+					}
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+			}
+			function removeSession(element){
+				var r = $(element).parent().parent()
+				//alert(r.attr('session-mac'));
+				r.fadeOut();
+			}
+			
+			function getDate(parameter){
+				var d = new Date(parameter); //Unix Timestamp millisecond
+				var curr_date = d.getDate();
+				var curr_month = d.getMonth() + 1; //Months are zero based
+				var curr_year = d.getFullYear()+43-2000;
+				return curr_date+'/'+curr_month+'/'+curr_year;
+			}				
+			function getTime(parameter){
+				var d = new Date(parameter); //Unix Timestamp millisecond
+				var curr_hours = d.getHours();
+				var curr_minutes = d.getMinutes();
+				var curr_seconds = d.getSeconds();
+				
+				if (curr_minutes < 10) curr_minutes = "0" + curr_minutes;
+				if (curr_seconds < 10) curr_seconds = "0" + curr_seconds;
+
+				return curr_hours + ":" + curr_minutes + ":" + curr_seconds;
 			}
 		</script>
 	</body>

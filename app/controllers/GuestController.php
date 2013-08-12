@@ -60,6 +60,8 @@ class GuestController extends Controller {
 			$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
 			$fname = $userinfo['given_name'];
 			$lname = $userinfo['family_name'];
+			$gender = $userinfo['gender'];
+			$birthday = $userinfo['birthday'];
 			
 			$accesstoken = json_decode($client->getAccessToken());
 			if(isset($accesstoken->refresh_token)){					// store refresh token with userinfo 
@@ -67,7 +69,7 @@ class GuestController extends Controller {
 				$refresh_token = $accesstoken->refresh_token;
 				$token = $db->token;
 				$find = array('google_id'=>$google_id);
-				$set = array('$set'=>array('fname'=>$fname,'lname'=>$lname,'email'=>$email,'refresh_token'=>$refresh_token));
+				$set = array('$set'=>array('fname'=>$fname,'lname'=>$lname,'email'=>$email,'gender'=>$gender,'birthday'=>$birthday,'refresh_token'=>$refresh_token));
 				$token->update($find,$set,array("upsert" => true));	
 				Session::put('refresh_token',$refresh_token);
 				$cookie_refresh = Cookie::forever('refresh_token', $refresh_token);
@@ -199,18 +201,19 @@ class GuestController extends Controller {
 			
 			if ($client->getAccessToken()) {
 				$user = $oauth2->userinfo->get();
-				
 				// These fields are currently filtered through the PHP sanitize filters.
 				// See http://www.php.net/manual/en/filter.filters.sanitize.php
 				$google_id = $user['id'];
-				$name = $user['name'];
+				$name = $user['given_name'];
+				$surname = $user['family_name'];
+				$gender = $user['gender'];
 				$email = filter_var($user['email'], FILTER_SANITIZE_EMAIL);
 				$img = isset($user['picture']) ? $user['picture'] : '/img/photo.jpg';
 				$login_at = date("d/m/y H:i:s",$guest->start);
 				$login_at = substr_replace($login_at,(int)date("y",$guest->start)+43,6,2);
 				// The access token may have been updated lazily.
 				Session::put('token',$client->getAccessToken());
-				return Response::view('user',array('google_id'=>$google_id,'name'=>$name,'email'=>$email,'img'=>$img,'remain_time'=>$guest->end - time(),'login_at'=>$login_at));
+				return Response::view('user',array('google_id'=>$google_id,'name'=>$name,'surname'=>$surname,'gender'=>$gender,'email'=>$email,'img'=>$img,'remain_time'=>$guest->end - time(),'login_at'=>$login_at));
 			}
 		}
 		else{
