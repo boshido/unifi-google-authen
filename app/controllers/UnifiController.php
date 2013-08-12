@@ -9,7 +9,7 @@ class UnifiController extends Controller {
 	 */
 	public function getIndex()
     {
-		$unifi = new Unifi();
+		
 		
     }
 	public function getActiveSession()
@@ -37,6 +37,14 @@ class UnifiController extends Controller {
 		}
 		
 		return Response::json($result);
+	}
+	
+	public function postDeactiveSession()
+	{
+		$mac = Input::get('mac');
+		$unifi = new Unifi();
+		$unifi->sendUnAuthorization($mac);
+		return 1;
 	}
 	
 	public function getHistory()

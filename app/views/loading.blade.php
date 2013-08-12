@@ -33,7 +33,7 @@
 		<script src="/js/heartcode-canvasloader-min.js" type="text/javascript"></script>
 		<script>
 			var cl = new CanvasLoader('loading');
-			
+			var timer;
 			$(document).ready(function(){
 				cl.setColor('#F47063'); // default is '#000000'
 				cl.setShape('spiral'); // default is 'oval'
@@ -44,7 +44,7 @@
 				cl.setFPS(25); // default is 24
 				cl.show(); // Hidden by default
 				@if($flag=='signin')
-					setTimeout(check,1000);
+					timer = setTimeout(check,1000);
 				@else
 					setTimeout(function(){ window.location.href ="{{$url}}"; },3000);
 				@endif
@@ -60,15 +60,17 @@
 				});	
 				request.done(function (response, textStatus, jqXHR){
 					console.log(response+' '+textStatus+' '+jqXHR);
+					clearTimeout(timer);
 					window.location.href ="{{$url}}";
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
-					setTimeout(check,1000);
+					
 				});
 				request.always(function () {
 					
 				});
+				timer = setTimeout(check,1000);
 			}
 		</script>
 	</body>

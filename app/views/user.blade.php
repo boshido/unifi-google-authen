@@ -94,7 +94,7 @@
 				<div class="content">
 					<div class="pure-g-r" >
 						<div class="pure-u-2-5 user-profile">
-							<img src="https://lh6.googleusercontent.com/-o9gQg39pkKE/UbMLWFDfaNI/AAAAAAAAAL0/BznT0ODt85o/s416-no/daughter-of-crows_sml2.jpg" class="img-circle profile-img"></img>
+							<img src="{{ $img }}" class="img-circle profile-img"></img>
 						</div>			
 						<div class="pure-u-3-5">
 							<dl>			
@@ -105,8 +105,6 @@
 								<dd>{{ $surname }}</dd>
 								<dt>อีเมล์ : </dt>
 								<dd> {{ $email }}</dd>								
-								<dt>เพศ : </dt>
-								<dd> {{ $gender == 'male' ? 'ชาย' : 'หญิง' }}</dd>
 								<dt>อุปกรณ์ : </dt>
 								<dd>Boshido-Phone</dd>
 							</dl>
@@ -162,7 +160,7 @@
 			var mobile,selected,chart;
 			var mac = '{{Session::get('id')}}';
 			var google_id = '{{$google_id}}';
-			var remain_time = {{$remain_time}}*1000;
+			var end_time = {{$end_time}}*1000;
 			
 			$(document).ready(function(){
 				
@@ -190,6 +188,10 @@
 					}
 				});
 				
+				$('.signout').click(function(){
+					window.location.href ="{{action('GuestController@getSignout')}}";
+				});
+				
 				// Checking hash url
 				if(window.location.hash){
 					var hash = window.location.hash;
@@ -204,7 +206,7 @@
 				session();
 				history();
 				renderTime();
-				checkDevice($(window).width(),$(this).height());
+				checkDevice($(window).width(),$(window).height());
 				$(window).resize(function(){
 					checkDevice($(this).width(),$(this).height());
 					console.log($(this).width()+' '+$(this).height());
@@ -218,26 +220,26 @@
 						$('.navicon').addClass('hidden').click();
 					}
 					mobile=false;
-					chart.setSize(width-200,height-100,true);
+					if(chart)chart.setSize(width-200,height-100,true);
 				}
 				else{
 					if(!$('.navicon').hasClass('toggle')){
 						$('.navicon').removeClass('hidden').click();
 					}
 					mobile=true;
-					chart.setSize(width,height-100,true);
+					if(chart)chart.setSize(width,height-100,true);
 				}	
 			}
 			
 			function renderTime() {
-				var msec = remain_time;
+				var now = new Date();
+				var msec =  end_time - now.getTime() ;
 				var h = Math.floor(msec / 1000 / 60 / 60);
 				msec -= h * 1000 * 60 * 60;
 				var m = Math.floor(msec / 1000 / 60);
 				msec -= m * 1000 * 60;
 				var s = Math.floor(msec / 1000);
 				msec -= s * 1000;
-				remain_time = remain_time - 1000;
 				setTimeout('renderTime()',1000);
 				if (h < 10) {
 					h = "0" + h;
@@ -249,8 +251,14 @@
 					s = "0" + s;
 				}
 				var myClock = document.getElementById('time-remain');
-				myClock.textContent = h + ":" + m + ":" + s + " ";
-				myClock.innerText = h + ":" + m + ":" + s + " ";
+				if(h < 23){
+					myClock.textContent = h + ":" + m + ":" + s + " ";
+					myClock.innerText = h + ":" + m + ":" + s + " ";
+				}
+				else{
+					myClock.textContent =  " ไม่จำกัดเวลา";
+					myClock.innerText =  "ไม่จำกัดเวลา";
+				}
 			}
 			
 			function daily(){
@@ -366,7 +374,7 @@
 							enabled: false
 						}
 					});
-					
+					checkDevice($(window).width(),$(window).height());
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
@@ -392,7 +400,7 @@
 				request.done(function (response, textStatus, jqXHR){
 					for(var y in response){
 						var r = $('<tr></tr>');
-						$('<td></td>').html(getDate(response[y].start*1000)+" "+getTime(response[y].start*1000)).css('width','100px').appendTo(r);
+						$('<td></td>').html(getDate(response[y].start*1000)+" "+getTime(response[y].start*1000)).appendTo(r);
 						$('<td></td>').html(response[y].hostname).appendTo(r);
 						
 						$('#history > tbody').append(r);
@@ -437,10 +445,31 @@
 					
 				});
 			}
+			
 			function removeSession(element){
 				var r = $(element).parent().parent()
-				//alert(r.attr('session-mac'));
-				r.fadeOut();
+				var request = $.ajax({
+						url: "{{action('UnifiController@postDeactiveSession')}}",
+						type: "post",
+						dataType: "html",
+						data:{
+							mac:r.attr('session-mac'),
+							_method:'post',
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					if(response=='1'){
+						r.fadeOut();
+					}
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+				
 			}
 			
 			function getDate(parameter){

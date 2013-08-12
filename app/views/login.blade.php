@@ -64,7 +64,10 @@
 				//height: 8em;
 				overflow: hidden;
 			}
-
+			.checkbox{
+				color:white;
+				font-size:17px;
+			}
 		</style>
 		<link href="/css/pure-min.css" rel="stylesheet" media="screen">
 		<link href="/css/grids-min.css" rel="stylesheet" media="screen">
@@ -75,23 +78,20 @@
 			<div id="loading" style="width:200px;height:200px;position:relative;margin:100px auto 10px auto" ></div>
 			<h1 class="message" >Initializing your information.</h1>
 		</div>
-		<div class="menu">
-			<div  >
-				<div class="banner">fitm </div>
-				<div class="help"><div class="menu-btn" >Help !</div></div>
-			</div>	
-		</div>
+
+		<div class="help"><div class="menu-btn" >Help !</div></div>
 		<div class="shadow-fade">
 		</div>
 		<div class="bar login center">
+			<img src="/img/fitm-en.png"  style="width:277.5px;height:145.5px;"></img>
 			<div><h1 style="color:rgb(255, 255, 255);background-color:rgba(215, 72, 44,0.6);font-family:'Oswald',arial,sans-serif;">Wi-Fi Authentication</h1></div>
-			<img src="/img/photo.jpg" class="img-circle profile-img" ></img>
+			
 			<form action="/guest/google-redirect" method="get" >
-				@if(isset($auth_url))
+				
 				<input class="btn" type="image" src="/img/sign-in-with-fitm.png" alt="Sign in with FITM 2.0"  style="width:246px;height:54px;"/>
 				<input type="hidden" name="auth_url" value="{{$auth_url}}">
 				<input type="hidden" name="auth_code" value="{{$auth_code}}">
-				@endif
+				<div class="checkbox"><input type="checkbox" name="remember" value="1"> จดจำอุปกรณ์</div>
 			</form>	
 		</div>
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"> </script>
