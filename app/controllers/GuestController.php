@@ -30,7 +30,7 @@ class GuestController extends Controller {
 			Session::put('id', $id);     	//user's mac address
 			Session::put('ap', $ap);       	//AP mac
 			Session::put('ssid',$ssid);   	//ssid the user is on (POST 2.3.2)    	
-			Session::put('time',$t);		//time the user attempted a request of the portal      	
+			//Session::put('time',$t);		//time the user attempted a request of the portal      	
 			Session::put('ref_url',$url);	//url the user attempted to reach   	
 														// -- prevents them from simply going to /authorized.php on their own
 			
@@ -241,7 +241,7 @@ class GuestController extends Controller {
 				$login_at = substr_replace($login_at,(int)date("y",$guest->start)+43,6,2);
 				// The access token may have been updated lazily.
 				Session::put('token',$client->getAccessToken());
-				return Response::view('user',array('google_id'=>$google_id,'name'=>$name,'surname'=>$surname,'email'=>$email,'img'=>$img,'end_time'=>$guest->end ,'login_at'=>$login_at));
+				return Response::view('user',array('google_id'=>$google_id,'name'=>$name,'surname'=>$surname,'email'=>$email,'img'=>$img,'end_time'=>$guest->end,'device'=>$guest->hostname ,'login_at'=>$login_at));
 			
 			}
 

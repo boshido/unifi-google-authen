@@ -21,6 +21,7 @@ class UnifiController extends Controller {
 
 		$db = Database::Connect();
 		$guest = $db->guest;
+		$user = $db->user;
 		$result = array();
 		$time = time();
 		
@@ -33,6 +34,8 @@ class UnifiController extends Controller {
 		}
 		foreach($cursor as $key => $value){
 			$value['_id'] = (string)$value['_id'];
+			$tmp = $user->findOne(array('mac'=>$value['mac']));
+			$value['last_seen'] = $tmp['last_seen'];
 			$result[] =$value;
 		}
 		

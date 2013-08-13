@@ -104,9 +104,9 @@
 								<dt>นามสกุล : </dt>
 								<dd>{{ $surname }}</dd>
 								<dt>อีเมล์ : </dt>
-								<dd> {{ $email }}</dd>								
+								<dd>{{ $email }}</dd>								
 								<dt>อุปกรณ์ : </dt>
-								<dd>Boshido-Phone</dd>
+								<dd>{{ $device }}</dd>
 							</dl>
 						</div>
 					</div>
@@ -132,7 +132,7 @@
 						<table class="pure-table pure-table-horizontal text-center" style="margin: auto;width:100%;max-width:500px;" id="history">
 							<thead style="background:rgba(0, 150, 204,0.5);">
 								<tr >
-									<th class="text-center" >ใช้งานล่าสุด</th>
+									<th class="text-center" >เข้าระบบล่าสุด</th>
 									<th class="text-center" >ชื่ออุปกรณ์</th>
 								</tr>
 							</thead>
@@ -431,11 +431,16 @@
 					
 					for(var y in response){
 						var r = $('<tr session-mac="'+response[y].mac+'"></tr>');
-						$('<td></td>').html(getTime(response[y].start*1000)).appendTo(r);
+						$('<td></td>').html(getTime(response[y].last_seen*1000)).appendTo(r);
 						$('<td></td>').html(response[y].hostname).appendTo(r);
-						$('<td></td>').html('<span class="icon remove" aria-hidden="true" data-icon="&#xe006;" onClick="removeSession(this)" ></span>').appendTo(r);
-						
-						$('#session > tbody').append(r);
+						if(mac == response[y].mac){
+							$('<td></td>').html('').appendTo(r);
+							$('#session > tbody').prepend(r);
+						}
+						else{
+							$('<td></td>').html('<span class="icon remove" aria-hidden="true" data-icon="&#xe006;" onClick="removeSession(this)" ></span>').appendTo(r);
+							$('#session > tbody').append(r);
+						}
 					}
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
