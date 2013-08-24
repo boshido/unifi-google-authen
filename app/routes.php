@@ -18,6 +18,10 @@ Route::get('/', function()
 {
 	return Redirect::action('GuestController@getSignin');
 });
+Route::get('/helloworld', function()
+{
+	return 'Helloworld';
+});
 
 Route::filter('auth', function()
 {	

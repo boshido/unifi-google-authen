@@ -4,7 +4,7 @@ class Database {
 			$username = "admin"; //Database Username
 			$password = "admin"; //Database Password
 			$database = "ace"; //Database Name
-			$ip = "localhost:27117";//Database Ip and Port
+			$ip = "127.0.0.1:27117";//Database Ip and Port
 			try 
 			{
 				$m = new Mongo($ip); // Connecting to database on localhost

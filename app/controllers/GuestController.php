@@ -43,7 +43,7 @@ class GuestController extends Controller {
 		$code = Input::get('code');
 		$client = new Google_Client();
 		$client->setApplicationName("FITM Wifi Authentication Application");
-		$client->setApprovalPrompt("auto");
+		//$client->setApprovalPrompt("auto");
 		$client->setAccessType('offline');
 		$oauth2 = new Google_Oauth2Service($client);
 		$unifi = new Unifi();
@@ -203,7 +203,7 @@ class GuestController extends Controller {
 		if($guest && isset($guest->google_id) && Session::has('refresh_token')){
 			
 			$client = new Google_Client();
-			$client->setApprovalPrompt("auto");
+			//$client->setApprovalPrompt("auto");
 			$client->setAccessType('offline');
 			$oauth2 = new Google_Oauth2Service($client);
 			
@@ -212,7 +212,12 @@ class GuestController extends Controller {
 				$client->setAccessToken(Session::get('token'));
 			}
 			if($client->isAccessTokenExpired()) {
-				$client->refreshToken(Session::get('refresh_token'));
+				try{
+					$client->refreshToken(Session::get('refresh_token'));
+				}
+				catch(Exception $e){
+					return Redirect::action('GuestController@getSignout');
+				}
 			}
 			
 			if ($client->getAccessToken()) {
