@@ -82,7 +82,7 @@
 			</div>			
 			<div class="info">
 				<div class="content">
-					<h1 id="name" >{{ $name.' '.$surname }}</h1>
+					<h1 id="name" >{{ $name }}</h1>
 					<h5 id="email" >อีเมล์ : {{ $email }}</h5>
 					<h5 id="time" >เข้าระบบเมื่อ : {{ $login_at }}</h5>
 				</div>
@@ -99,10 +99,9 @@
 						<div class="pure-u-3-5">
 							<dl>			
 								<dt>ชื่อ : </dt>
-								<dd>{{ $name }}</dd>
-							
+								<dd>{{ $fname }}</dd>
 								<dt>นามสกุล : </dt>
-								<dd>{{ $surname }}</dd>
+								<dd>{{ $lname }}</dd>
 								<dt>อีเมล์ : </dt>
 								<dd>{{ $email }}</dd>								
 								<dt>อุปกรณ์ : </dt>
@@ -205,7 +204,15 @@
 				daily();
 				session();
 				history();
-				renderTime();
+				
+				//Authen type PHP
+				@if($auth_type==0)
+					renderTime();
+				@else
+					$('#time-remain').html('ไม่จำกัดเวลา');
+				@endif
+				
+				
 				checkDevice($(window).width(),$(window).height());
 				$(window).resize(function(){
 					checkDevice($(this).width(),$(this).height());
@@ -254,10 +261,6 @@
 				if(h < 23){
 					myClock.textContent = h + ":" + m + ":" + s + " ";
 					myClock.innerText = h + ":" + m + ":" + s + " ";
-				}
-				else{
-					myClock.textContent =  " ไม่จำกัดเวลา";
-					myClock.innerText =  "ไม่จำกัดเวลา";
 				}
 			}
 			

@@ -131,7 +131,9 @@
 				});	
 				request.done(function (response, textStatus, jqXHR){
 					if(response.status){
-						$('.overlay').fadeOut('slow');
+						$('.overlay').fadeOut('slow',function(){
+							location.reload(true);
+						});
 					}
 					else{
 						console.log(count);

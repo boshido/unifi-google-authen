@@ -26,20 +26,21 @@ class Unifi{
         }
     }
 	
-	public function sendAuthorization($id, $minutes)
+	public function sendAuthorization($id, $minutes , $ap_mac=null)
 	{
 		$ch = curl_init();
 		$ch = $this->sendLogin($ch);
 		
 		// Send user to authorize and the time allowed
-		$data = json_encode(array(
+		$data = array(
 			'cmd'=>'authorize-guest',
 			'mac'=>$id,
-			'minutes'=>$minutes));
-
+			'minutes'=>$minutes);
+		if($ap_mac != null) $data['ap_mac']=$ap_mac;
+		
 		// Send the command to the API
 		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/stamgr');
-		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.$data);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
 		$value = curl_exec ($ch);
 		$ch = $this->sendLogout($ch);
 		return $value;
@@ -49,13 +50,13 @@ class Unifi{
 	{
 		$ch = curl_init();
 		$ch = $this->sendLogin($ch);
-		$data = json_encode(array(
+		$data = array(
 			'cmd'=>'unauthorize-guest',
-			'mac'=>$id));
-
+			'mac'=>$id);
+		
 		// Send the command to the API
 		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/stamgr');
-		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.$data);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
 		$value = curl_exec ($ch);
 		$ch = $this->sendLogout($ch);
 		return $value;
@@ -156,6 +157,76 @@ class Unifi{
 		else{
 			return false;
 		}
+	}
+	
+	public function getStat($mac,$limit,$sort,$sort_type=1)
+	{
+		$db = Database::Connect();
+		$session = $db->session;
+		$result = array();
+		
+		$find = array('mac' => $mac);
+		if($limit != null) $cursor = $session->find($find)->limit($limit);
+		else $cursor = $session->find($find);
+		
+		if($sort != null){
+			$cursor->sort(array($sort=>$sort_type));
+		}
+		foreach($cursor as $key => $value){
+			$value['_id'] = (string)$value['_id'];
+			$value['user_id'] = (string)$value['user_id'];
+			$result[] =$value;
+		}
+		
+		return $result;
+	}
+	
+	public function getStatDaily($mac, $at , $to)
+	{	
+		$at = $at != null ? strtotime("midnight", $at) : strtotime("midnight", time());
+		$to = $to != null ? strtotime("tomorrow", $to)- 1 : strtotime("tomorrow", time())- 1; 
+	
+		$db = Database::Connect();
+		$session = $db->session;
+		$result = array();
+		
+		$find = array('mac' => $mac,'$and'=>array(array('assoc_time'=>array('$gte'=>$at)),array('assoc_time'=>array('$lte'=>$to))));
+		$cursor = $session->find($find);
+		$cursor->sort(array('assoc_time'=>-1));
+		
+		$tmp = array();
+		$stamp = strtotime("midnight", $at); 
+		do{
+			$tmp[$stamp]['date']=$stamp;
+			$tmp[$stamp]['tx_bytes']=0;
+			$tmp[$stamp]['rx_bytes']=0;
+			$stamp = strtotime("tomorrow", $stamp);
+		}while($stamp <= strtotime("midnight",$to));
+		
+		foreach($cursor as $key => $value){
+			$time = strtotime("midnight", $value['assoc_time']);
+			$tmp[$time]['tx_bytes'] = $tmp[$time]['tx_bytes']+$value['tx_bytes'];
+			$tmp[$time]['rx_bytes'] = $tmp[$time]['rx_bytes']+$value['rx_bytes'];
+		}
+		
+		foreach($tmp as $key => $value){
+			$result[] = $value;
+		}
+		
+		return $result;
+	}
+	
+	public function getStatSummary($type, $data)
+	{	
+		$db = Database::Connect();
+		$stat = $db->stat;
+		$result = array();
+		
+		$find = array($type => $data);
+		$result = $stat->findOne($find);
+		$result['_id']=(string)$result['_id'];
+		
+		return $result;
 	}
 	
 	public function sendLogin($ch){

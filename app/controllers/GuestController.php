@@ -72,8 +72,9 @@ class GuestController extends Controller {
 			
 			$google_id = $userinfo['id'];
 			$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
-			$fname = $userinfo['given_name'];
-			$lname = $userinfo['family_name'];
+			$name = $userinfo['name'];
+			$fname = isset($userinfo['given_name']) ? $userinfo['given_name'] : '-';
+			$lname = isset($userinfo['family_name']) ? $userinfo['family_name'] : '-';
 			
 			$accesstoken = json_decode($client->getAccessToken());
 			if(isset($accesstoken->refresh_token)){					// store refresh token with userinfo 
@@ -81,7 +82,7 @@ class GuestController extends Controller {
 				$refresh_token = $accesstoken->refresh_token;
 				$token = $db->token;
 				$find = array('google_id'=>$google_id);
-				$set = array('$set'=>array('fname'=>$fname,'lname'=>$lname,'email'=>$email,'refresh_token'=>$refresh_token));
+				$set = array('$set'=>array('name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'refresh_token'=>$refresh_token));
 				$token->update($find,$set,array("upsert" => true));	
 				Session::put('refresh_token',$refresh_token);
 				$cookie_refresh = Cookie::forever('refresh_token', $refresh_token);
@@ -101,10 +102,10 @@ class GuestController extends Controller {
 				$set = array('$set'=>array('email'=>$email));
 				$user->update($find,$set);
 				$data = $user->findOne($find);
-				$unifi->sendAuthorization(Session::get('id'), Session::get('auth_time')); //authorizing user for 6 hours(6*60)
+				$unifi->sendAuthorization(Session::get('id'), Session::get('auth_type') == 0 ? 360 : 9999999, Session::get('ap')); //authorizing user for 6 hours(6*60)
 				$cookie_id = Cookie::forever('id',Session::get('id'));
 				
-				$unifi->setCurrentGuest(Session::get('id'),array('google_id'=>$google_id,'email'=>$email,'hostname'=>$data['hostname']));
+				$unifi->setCurrentGuest(Session::get('id'),array('google_id'=>$google_id,'email'=>$email,'hostname'=>$data['hostname'],'auth_type'=>Session::get('auth_type')));
 			}
 			
 			return Redirect::to('guest/userinfo')->withCookie($cookie_refresh)->withCookie($cookie_id);
@@ -163,13 +164,13 @@ class GuestController extends Controller {
 		$auth_code =Input::get('auth_code');
 		$auth_url = Input::get('auth_url');
 		$remember = Input::get('remember');
-		if($remember != null)Session::put('auth_time',99999999);
-		else Session::put('auth_time',360);
+		if($remember != null)Session::put('auth_type',1);
+		else Session::put('auth_type',0);
 		
 		if(Session::has('auth_code') && Session::has('id')){
 			if(Session::get('auth_code') == $auth_code){
 				$unifi = new Unifi();
-				$unifi->sendAuthorization(Session::get('id'), 5); // authorizing 1 minutes for going through google authentication
+				$unifi->sendAuthorization(Session::get('id'), 5 , Session::get('ap')); // authorizing 1 minutes for going through google authentication
 				Session::forget('auth_code');
 				return Response::view('loading', array('url' => $auth_url,'flag'=>'signin'));
 			}
@@ -238,16 +239,17 @@ class GuestController extends Controller {
 				// These fields are currently filtered through the PHP sanitize filters.
 				// See http://www.php.net/manual/en/filter.filters.sanitize.php
 				$google_id = $userinfo['id'];
-				$name = $userinfo['given_name'];
-				$surname = $userinfo['family_name'];
+				$name = $userinfo['name'];
+				$fname = isset($userinfo['given_name']) ? $userinfo['given_name'] : '-';
+				$lname = isset($userinfo['family_name']) ? $userinfo['family_name'] : '-';
 				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
 				$img = isset($userinfo['picture']) ? $userinfo['picture'] : '/img/photo.jpg';
 				$login_at = date("d/m/y H:i:s",$guest->start);
 				$login_at = substr_replace($login_at,(int)date("y",$guest->start)+43,6,2);
 				// The access token may have been updated lazily.
 				Session::put('token',$client->getAccessToken());
-				return Response::view('user',array('google_id'=>$google_id,'name'=>$name,'surname'=>$surname,'email'=>$email,'img'=>$img,'end_time'=>$guest->end,'device'=>$guest->hostname ,'login_at'=>$login_at));
-			
+				return Response::view('user',array('google_id'=>$google_id,'name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'img'=>$img,'end_time'=>$guest->end,'auth_type'=>$guest->auth_type,'device'=>$guest->hostname ,'login_at'=>$login_at));
+				
 			}
 
 		}

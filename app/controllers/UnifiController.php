@@ -12,6 +12,7 @@ class UnifiController extends Controller {
 		
 		
     }
+	
 	public function getActiveSession()
 	{
 		$google_id = Input::get('google_id');
@@ -76,82 +77,47 @@ class UnifiController extends Controller {
 		return Response::json($result);
 	}
 	
+	public function getUser()
+	{
+		$ip = Input::get('ip');
+		$unifi = new Unifi();
+		$mac = $unifi->getUser(array('ip'=>$ip));
+		if($mac != false){
+			$user = $unifi->getCurrentGuest($mac->mac);
+			if($user != false)return Response::json(array('code'=>200,'data'=>$user));
+			else return Response::json(array('code'=>404));
+		}
+		else return Response::json(array('code'=>404));
+	}
+	
 	public function getStat()
 	{
 		$mac = Input::get('mac');
 		$limit = Input::get('limit');
 		$sort = Input::get('sort');
-		$sort_type = Input::get('sort_type') != null ? (int)Input::get('sort_type') : 1;
-
-		$db = Database::Connect();
-		$session = $db->session;
-		$result = array();
+		$sort_type =  Input::get('sort_type') != null ? Input::get('sort_type') : 1;
+		$unifi = new Unifi();
 		
-		$find = array('mac' => $mac);
-		if($limit != null) $cursor = $session->find($find)->limit($limit);
-		else $cursor = $session->find($find);
-		
-		if($sort != null){
-			$cursor->sort(array($sort=>$sort_type));
-		}
-		foreach($cursor as $key => $value){
-			$value['_id'] = (string)$value['_id'];
-			$value['user_id'] = (string)$value['user_id'];
-			$result[] =$value;
-		}
-		
-		return Response::json($result);
+		return Response::json($unifi->getStat($mac,$limit,$sort,$sort_type));
 	}
 	
 	public function getStatDaily()
 	{	
 		$mac = Input::get('mac');
-		$at = Input::get('at') != null ? strtotime("midnight", Input::get('at')) : strtotime("midnight", time());
-		$to = Input::get('to') != null ? strtotime("tomorrow", Input::get('to'))- 1 : strtotime("tomorrow", time())- 1; 
-	
-		$db = Database::Connect();
-		$session = $db->session;
-		$result = array();
+		$at = Input::get('at') ;
+		$to = Input::get('to') ; 
+		$unifi = new Unifi();
 		
-		$find = array('mac' => $mac,'$and'=>array(array('assoc_time'=>array('$gte'=>$at)),array('assoc_time'=>array('$lte'=>$to))));
-		$cursor = $session->find($find);
-		$cursor->sort(array('assoc_time'=>-1));
-		
-		$tmp = array();
-		$stamp = strtotime("midnight", $at); 
-		do{
-			$tmp[$stamp]['date']=$stamp;
-			$tmp[$stamp]['tx_bytes']=0;
-			$tmp[$stamp]['rx_bytes']=0;
-			$stamp = strtotime("tomorrow", $stamp);
-		}while($stamp <= strtotime("midnight",$to));
-		
-		foreach($cursor as $key => $value){
-			$time = strtotime("midnight", $value['assoc_time']);
-			$tmp[$time]['tx_bytes'] = $tmp[$time]['tx_bytes']+$value['tx_bytes'];
-			$tmp[$time]['rx_bytes'] = $tmp[$time]['rx_bytes']+$value['rx_bytes'];
-		}
-		
-		foreach($tmp as $key => $value){
-			$result[] = $value;
-		}
-		
-		return Response::json($result);
+		return Response::json($unifi->getStatDaily($mac,$at,$to));
 	}
 	
 	public function getStatSummary()
 	{	
 		$type = Input::get('type');
 		$data = Input::get('data');
-		$db = Database::Connect();
-		$stat = $db->stat;
-		$result = array();
+		$unifi = new Unifi();
 		
-		$find = array($type => $data);
-		$result = $stat->findOne($find);
-		$result['_id']=(string)$result['_id'];
-		
-		return Response::json($result);
+		return Response::json($unifi->getStatSummary($type,$data));
 	}
 	
 	protected function setupLayout()
