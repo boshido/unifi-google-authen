@@ -19,10 +19,6 @@ Route::get('/', function()
 {
 	return Redirect::action('GuestController@getSignin');
 });
-Route::get('/helloworld', function()
-{
-	return 'Helloworld';
-});
 
 Route::filter('auth', function()
 {	
@@ -33,5 +29,12 @@ Route::filter('auth', function()
 	if(!Session::has('id')){
 		$cookie = Cookie::get('id');
 		Session::put('id',$cookie);	
+	}
+});
+
+Route::filter('management', function()
+{	
+	if(!Session::has('login')){
+		return 	Redirect::action('AdminController@getSignin');
 	}
 });

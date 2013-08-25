@@ -8,7 +8,7 @@ class AdminController extends Controller {
 	 */
 	public function __construct()
     {
-        $this->beforeFilter('auth');
+        $this->beforeFilter('management',array('only' =>array('getIndex')));
 
         //$this->beforeFilter('auth', array('on' => 'post'));
 
@@ -18,58 +18,37 @@ class AdminController extends Controller {
 	
 	public function getIndex()
     {
-		if($id!=null){
-			Session::put('id', $id);     	//user's mac address
-			Session::put('ap', $ap);       	//AP mac
-			Session::put('ssid',$ssid);   	//ssid the user is on (POST 2.3.2)    	
-			//Session::put('time',$t);		//time the user attempted a request of the portal      	
-			Session::put('ref_url',$url);	//url the user attempted to reach   	
-														// -- prevents them from simply going to /authorized.php on their own
-			
-			return Redirect::action('GuestController@getSignin');
-		}
+		return  Response::view('admin/manage');
     }
 	
 	public function getSignin(){
-		return  Response::view('admin/signin');
-	}
-	
-	public function getGoogleRedirect(){
-		$auth_code =Input::get('auth_code');
-		$auth_url = Input::get('auth_url');
-		$remember = Input::get('remember');
-		if($remember != null)Session::put('auth_type',1);
-		else Session::put('auth_type',0);
-		
-		if(Session::has('auth_code') && Session::has('id')){
-			if(Session::get('auth_code') == $auth_code){
-				$unifi = new Unifi();
-				$unifi->sendAuthorization(Session::get('id'), 5 , Session::get('ap')); // authorizing 1 minutes for going through google authentication
-				Session::forget('auth_code');
-				return Response::view('loading', array('url' => $auth_url,'flag'=>'signin'));
-			}
+		if(!Session::has('login')){
+			return  Response::view('admin/signin');
 		}
 		else{
-			return Redirect::action('GuestController@getSignin');
+			return Redirect::action('AdminController@getIndex');
+		}
+	}
+	
+	public function postSignin(){
+		$username = Input::get('username');
+		$password = Input::get('password');
+		$db = Database::Connect();
+		$admin = $db->admin;
+		$user = $admin->findOne(array('name'=>$username,'x_password'=>$password));
+		if($user != null){
+			Session::put('login',$username);
+			return Redirect::action('AdminController@getIndex');
+		}
+		else{
+			return Redirect::action('AdminController@getSignin');
 		}
 	}
 	
 	public function getSignout(){
-		/*if(Session::has('token')){
-			$client = new Google_Client();
-			$client->setApprovalPrompt("auto");
-			$client->setAccessType('offline');
-			$client->setAccessToken(Session::get('token'));
-			$client->revokeToken();
-				
-		}*/
-		$unifi = new Unifi();
-		$unifi->sendUnAuthorization(Session::get('id'));
-		
-		$cookie_refresh = Cookie::forget('refresh_token');
+	
 		Session::flush();
-		
-		return Response::view('loading', array('url' => action('GuestController@getSignin'),'flag'=>'signout'))->withCookie($cookie_refresh);
+		return Redirect::action('AdminController@getSignin');
 	}	
 	
 	public function getUserinfo(){

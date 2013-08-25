@@ -1,7 +1,7 @@
 <!DOCTYPE HTML>
 <html>
 	<head>
-		<title>Userinfo</title>
+		<title>FITM 2.0 Wi-Fi Administrator</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" >
 		<script>
@@ -20,139 +20,53 @@
 		<link rel="stylesheet" href="/css/pure-min.css" />
 		<link rel="stylesheet" href="/css/grids-min.css" />
 		<link rel="stylesheet" href="/css/font.css" />
-		<link rel="stylesheet" href="/css/auth.css" />
+		<link rel="stylesheet" href="/css/admin.css" />
 		<style>
-			body{
-				background-color:#ecf0f1;
+			html {
+				background: url(/img/bg.png) repeat center center fixed; 
 			}
-			#name{
-				margin:0.3em 0px 0px 0px;
+			dl.dl-inline {
+				color:#FFFFFF;
+				margin:0px;
+				padding:0px;
+				overflow: hidden;
 			}
-			#email{
-				color:lightgray;
-				margin:0.3em 0px 0px 0px;
+			dl.dl-inline dt, dl.dl-inline dd {
+				float: left;
+				text-align:center;
 			}
-			#time{
-				color:lightgray;
-				margin:0.3em 0px 0px 0px;
+			dl.dl-inline dt {
+				font-size:15px;
+				min-width: 60px;
+				margin: 10px 0px;
+				padding: 4px;
 			}
-			#home{
-				background: url(/img/bg1.jpg) no-repeat center center fixed; 
-				-webkit-background-size: cover;
-				-moz-background-size: cover;
-				-o-background-size: cover;
-				background-size: cover;
-				filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg1.jpg', sizingMethod='scale');
-				-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg1.jpg', sizingMethod='scale')";
-				
+			dl.dl-inline dd {
+				font-size:12px;
+				overflow: hidden;
+				margin: 5px 0px;
+				padding: 4px;
+			}
+			dl.dl-inline dd p{
+				margin:0px;
+				padding:0px 10px;
+				border-right-style:dotted;
+				border-right-width:1px;
+				border-right-color:rgb(100,100,100);
 			}
 		</style>
 	</head>
 	<body>
+		<img class="banner" src="/img/fitm-en.png" width="100">
+		<div class="quick-info">
+			<dl class="dl-inline">
+				<dt>Person </dt>
+				<dd><p>66<br>Authorize</p></dd>
+				<dt>Ready</dt>
+				<dd>Record .</dd>
+			</dl>
+		</div>
 		
-		<div class="navicon toggle">
-			<img src="/img/navicon-bg.png" width="20px">
-		</div>
-		<div class="timer">
-			<span class="icon" aria-hidden="true" data-icon="&#xe002;" alt="Home"></span><span>Time Remain : </span><span id="time-remain">00:00:00</span>
-		</div>
-		<div class="signout">
-			<span aria-hidden="true" data-icon="&#xe005;" alt="Signout"></span>
-		</div>
-		<div class="navigator hidden">
-			<header >
-				<img class="banner" src="/img/fitm-en.png" width="150">
-			</header>
-			<ul>
-				<li class="blue">
-					<a href="#home"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe001;" alt="Home"></span>หน้าหลัก </a>
-				</li>				
-				<li class="green">
-					<a href="#user"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home"></span>ข้อมูลผู้ใช้ </a>
-				</li>				
-				<li class="yellow">
-					<a href="#statistic"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe000;" alt="Home"></span>สถิติ </a>
-				</li>				
-				<!--<li class="pink">
-					<a href="#history"><div class="label"></div> <span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="Home"></span>ประวัติการใช้</a>
-				</li>-->
-			</ul>
-		</div>
-
-		<div class="container" id="home" style="display:none">
-			<div class="profile">
-				<img src="{{ $img }}" class="img-circle profile-img" ></img>
-			</div>			
-			<div class="info">
-				<div class="content">
-					<h1 id="name" >{{ $name }}</h1>
-					<h5 id="email" >อีเมล์ : {{ $email }}</h5>
-					<h5 id="time" >เข้าระบบเมื่อ : {{ $signin_at }}</h5>
-				</div>
-			</div>
-		</div>
-
-		<div class="container" id="user" style="display:none">
-			<div class="inner">			
-				<div class="content">
-					<div class="pure-g-r" >
-						<div class="pure-u-2-5 user-profile">
-							<img src="{{ $img }}" class="img-circle profile-img"></img>
-						</div>			
-						<div class="pure-u-3-5">
-							<dl>			
-								<dt>ชื่อ : </dt>
-								<dd>{{ $fname }}</dd>
-								<dt>นามสกุล : </dt>
-								<dd>{{ $lname }}</dd>
-								<dt>อีเมล์ : </dt>
-								<dd>{{ $email }}</dd>								
-								<dt>อุปกรณ์ : </dt>
-								<dd>{{ $device }}</dd>
-							</dl>
-						</div>
-					</div>
-				</div>
-				<div class="pure-g-r" >
-					<div class="pure-u-1-2">
-						<h2 class="text-center">เซสชันที่ใช้งานอยู่</h2>
-						<table class="pure-table pure-table-horizontal text-center" style="margin: auto;width:100%;max-width:500px;" id="session">
-							<thead style="background:rgba(32, 170, 43,0.5);">
-								<tr >
-									<th class="text-center" >ใช้งานล่าสุด</th>
-									<th class="text-center" >ชื่ออุปกรณ์</th>
-									<th class="text-center" >ยกเลิก</th>
-								</tr>
-							</thead>
-							<tbody>
-											
-							</tbody>
-						</table>
-					</div>
-					<div class="pure-u-1-2">
-						<h2 class="text-center">ประวัติการใช้งาน</h2>
-						<table class="pure-table pure-table-horizontal text-center" style="margin: auto;width:100%;max-width:500px;" id="history">
-							<thead style="background:rgba(0, 150, 204,0.5);">
-								<tr >
-									<th class="text-center" >เข้าระบบล่าสุด</th>
-									<th class="text-center" >ชื่ออุปกรณ์</th>
-								</tr>
-							</thead>
-							<tbody>
-														
-							</tbody>
-						</table>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="container" id="statistic" style="display:none">
-			<div class="inner">		
-				<div class="chart" id="bar" style="margin-top:50px;">
-					
-				</div>
-			</div>
-		</div>
 	
 		<script src="/js/jquery-2.0.3.js" type="text/javascript" > </script>
 		<script src="/js/highcharts.js" type="text/javascript" ></script>
@@ -160,9 +74,9 @@
 		<script type="text/javascript">
 		
 			var mobile,selected,chart;
-			var mac = '{{Session::get('id')}}';
-			var google_id = '{{$google_id}}';
-			var end_time = {{$end_time}}*1000;
+			var mac = '';
+			var google_id = '';
+			var end_time = 1000;
 			
 			$(document).ready(function(){
 				
@@ -207,13 +121,7 @@
 				daily();
 				session();
 				history();
-				
-				//Authen type PHP
-				@if($auth_type==0)
-					renderTime();
-				@else
-					$('#time-remain').html('ไม่จำกัดเวลา');
-				@endif
+		
 				
 				
 				checkDevice($(window).width(),$(window).height());

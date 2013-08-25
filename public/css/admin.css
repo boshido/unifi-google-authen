@@ -10,13 +10,38 @@
   font-weight: 400;
   src: local('Oswald Regular'), local('Oswald-Regular'), url(/fonts/Oswald-Regular.woff) format('woff');
 }
-
-
-.login-box{
-	margin:auto;
-	width:500px;
-	height:300px;
+html{
+	font-family: 'Oswald';
+}
+.quick-info{
+	position:absolute;
+	top:0px;
+	left:50%;
+	margin-left:-300px;
+	width:600px;
+	height:50px;
 	background-color:rgba(20,20,20,0.7);
+}
+
+
+/* Sign In Page */
+.login-box{
+	position:absolute;
+	top:50%;
+	left:50%;
+	margin-left:-250px;
+	margin-top:-220px;
+	width:500px;
+	height:400px;
+	background-color:rgba(20,20,20,0.7);
+	padding:20px 0px;
+}
+.header{
+	font-family:'Oswald',arial,sans-serif;
+	font-size:26px;
+	font-weight:normal;
+	color:rgb(255, 255, 255);
+	background-color:rgba(52, 190, 232,0.9);
 }
 .text-center{
 	text-align:center;
