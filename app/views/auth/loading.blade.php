@@ -26,7 +26,7 @@
 	<body >
 		<div class="overlay" >
 			<div id="loading" style="width:200px;height:200px;position:relative;margin:100px auto 10px auto" ></div>
-			<h1 class="message" >Please wait.</h1>
+			<h1 class="message" >Please wait ...</h1>
 		</div> 
 
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"></script>

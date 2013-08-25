@@ -82,7 +82,7 @@
 		<div class="help"><div class="menu-btn" >Help !</div></div>
 		<div class="shadow-fade">
 		</div>
-		<div class="bar login center">
+		<div class="bar signin center">
 			<img src="/img/fitm-en.png"  style="width:277.5px;height:145.5px;"></img>
 			<div><h1 style="color:rgb(255, 255, 255);background-color:rgba(215, 72, 44,0.6);font-family:'Oswald',arial,sans-serif;">Wi-Fi Authentication</h1></div>
 			

@@ -20,8 +20,11 @@
 		<link rel="stylesheet" href="/css/grids-min.css" />
 		<link rel="stylesheet" href="/css/font.css" />
 		<link rel="stylesheet" href="/css/animations.css" />
-		<link rel="stylesheet" href="/css/overide2.css" />
+		<link rel="stylesheet" href="/css/overide.css" />
 		<style>
+			body{
+				background-color:#ecf0f1;
+			}
 			#name{
 				margin:0.3em 0px 0px 0px;
 			}
@@ -84,7 +87,7 @@
 				<div class="content">
 					<h1 id="name" >{{ $name }}</h1>
 					<h5 id="email" >อีเมล์ : {{ $email }}</h5>
-					<h5 id="time" >เข้าระบบเมื่อ : {{ $login_at }}</h5>
+					<h5 id="time" >เข้าระบบเมื่อ : {{ $signin_at }}</h5>
 				</div>
 			</div>
 		</div>

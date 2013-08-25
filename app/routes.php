@@ -12,6 +12,7 @@
 */
 date_default_timezone_set("Asia/Bangkok");
 
+Route::controller('admin', 'AdminController');
 Route::controller('unifi', 'UnifiController');
 Route::controller('guest', 'GuestController');
 Route::get('/', function()
