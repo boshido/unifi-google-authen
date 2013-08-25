@@ -35,9 +35,10 @@
 			}
 
 		</style>
+		<link rel="shortcut icon" href="/img/ico.png" type="image/x-icon" />
 		<link href="/css/pure-min.css" rel="stylesheet" media="screen">
 		<link href="/css/grids-min.css" rel="stylesheet" media="screen">
-		<link href="/css/overide.css" rel="stylesheet" media="screen">
+		<link href="/css/auth.css" rel="stylesheet" media="screen">
 	</head>
 	<body>		
 		<div class="overlay" style="display:none">

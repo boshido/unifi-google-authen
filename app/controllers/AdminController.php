@@ -31,7 +31,7 @@ class AdminController extends Controller {
     }
 	
 	public function getSignin(){
-		return  Response::view('auth/loading');
+		return  Response::view('admin/signin');
 	}
 	
 	public function getGoogleRedirect(){

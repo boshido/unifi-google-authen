@@ -21,7 +21,8 @@
 				margin-top:100px;
 			}
 		</style>
-		<link href="/css/overide.css" rel="stylesheet" media="screen">
+		<link rel="shortcut icon" href="/img/ico.png" type="image/x-icon" />
+		<link href="/css/auth.css" rel="stylesheet" media="screen">
 	</head>
 	<body >
 		<div class="overlay" >

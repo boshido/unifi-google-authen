@@ -11,3 +11,19 @@
   src: local('Oswald Regular'), local('Oswald-Regular'), url(/fonts/Oswald-Regular.woff) format('woff');
 }
 
+
+.login-box{
+	margin:auto;
+	width:500px;
+	height:300px;
+	background-color:rgba(20,20,20,0.7);
+}
+.text-center{
+	text-align:center;
+}
+.text-left{
+	text-align:left;
+}
+.text-right{
+	text-align:right;
+}

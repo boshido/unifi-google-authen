@@ -16,11 +16,12 @@
 				appendChild(msViewportStyle);
 			}
 		</script>
+		<link rel="shortcut icon" href="/img/ico.png" type="image/x-icon" />
 		<link rel="stylesheet" href="/css/pure-min.css" />
 		<link rel="stylesheet" href="/css/grids-min.css" />
 		<link rel="stylesheet" href="/css/font.css" />
 		<link rel="stylesheet" href="/css/animations.css" />
-		<link rel="stylesheet" href="/css/overide.css" />
+		<link rel="stylesheet" href="/css/auth.css" />
 		<style>
 			body{
 				background-color:#ecf0f1;
