@@ -41,9 +41,9 @@ class Unifi{
 		// Send the command to the API
 		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/stamgr');
 		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
-		$value = curl_exec ($ch);
+		$result = curl_exec ($ch);
 		$ch = $this->sendLogout($ch);
-		return $value;
+		return $result;
 	}
 	
 	public function sendUnAuthorization($id)
@@ -57,12 +57,129 @@ class Unifi{
 		// Send the command to the API
 		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/stamgr');
 		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
-		$value = curl_exec ($ch);
+		$result = curl_exec ($ch);
 		$ch = $this->sendLogout($ch);
-		return $value;
+		return $result;
 	}
 	
-	public function getCurrentGuest($mac)
+	public function getUser($array)
+	{
+		if(isset($array['mac']) || isset($array['ip']) || isset($array['all'])){
+			$ch = curl_init();
+			$ch = $this->sendLogin($ch);
+			// Send user to authorize and the time allowed
+			// Send the command to the API
+			curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/stat/sta');
+			$json = curl_exec ($ch);
+			$json = json_decode($json);
+			$result = false;
+			if(isset($array['all'])){
+				foreach($json->data as $key => $user){
+					$result[] = $user;
+				}
+			}
+			else if(isset($array['mac'])&& isset($array['ip'])){
+				foreach($json->data as $key => $user){
+					if(isset($user->mac) && isset($user->ip)){
+						if($user->mac == $array['mac'] && $user->ip == $array['ip']){
+							$result = $user;
+							break;
+						}
+					}
+				}
+			}
+			else if(isset($array['mac'])){
+				foreach($json->data as $key => $user){
+					if(isset($user->mac)){
+						if($user->mac == $array['mac']){
+							$result = $user;
+							break;
+						}
+					}
+				}
+			}
+			else if(isset($array['ip'])){
+				foreach($json->data as $key => $user){
+					if(isset($user->ip)){
+						if($user->ip == $array['ip']){
+							$result = $user;
+							break;
+						}
+					}
+				}
+			}
+			
+			$ch = $this->sendLogout($ch);
+			
+			return $result;
+		}
+		else{
+			return false;
+		}
+	}
+	
+	public function getDevice($mac=null)
+	{
+		
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/stat/device');
+		$json = curl_exec ($ch);
+		
+		$result = false;
+		$json = json_decode($json);
+		if($json != null){
+			if($mac==null){
+				$result = $json->data;
+			}
+			else{
+				foreach($json->data as $key => $device){
+					if($device->mac == $mac ){
+						$result = $device;
+						break;
+					}
+				}
+			}
+		}
+		$ch = $this->sendLogout($ch);
+		
+		return $result;
+	}
+	
+	public function sendLogin($ch){
+		// Disable Curl print result
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
+		// We are posting data
+		curl_setopt($ch, CURLOPT_POST, TRUE);
+		// Set up cookies
+		$cookie_file = "/tmp/unifi_cookie";
+		curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_file);
+		curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie_file);
+		// Allow Self Signed Certs
+		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+		// Force SSL3 only
+		curl_setopt($ch, CURLOPT_SSLVERSION, 3);
+		// Login to the UniFi controller
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer']."/login");
+		curl_setopt($ch, CURLOPT_POSTFIELDS,
+			'login=login&username='.$this->data['unifiUser'].'&password='.$this->data['unifiPass']);
+		// send login command
+		curl_exec ($ch);
+		return $ch;
+	}
+	
+	public function sendLogout($ch){
+		// Logout of the UniFi Controller
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/logout');
+		curl_exec ($ch);
+		curl_close ($ch);
+	}
+	
+	/*
+	public function getCurrentsGuest($mac)
 	{
 		
 		$ch = curl_init();
@@ -88,75 +205,43 @@ class Unifi{
 		$ch = $this->sendLogout($ch);
 		
 		return $value;
+	}*/
+	
+	public function getCurrentGuest($mac=null,$findOne=true)
+	{		
+		$db = Database::Connect();
+		$guest = $db->guest;
+		$result = array();
+		$time = time();
+		
+		$find = array('$and'=>array(array('start'=>array('$lte'=>$time)),array('end'=>array('$gte'=>$time))));
+		if($mac != null)$find['mac'] = $mac;
+		
+		if($findOne)$result = $guest->findOne($find);
+		else 
+		{
+			$cursor = $guest->find($find);
+			foreach($cursor as $key => $value){
+				$value['_id']=(string)$value['_id'];
+				$result[] = $value;
+			}
+		}
+		
+		if($result == null)$result=false;
+		
+		return $result;
 	}
 	
 	public function setCurrentGuest($mac,$data){
 	
 		$db = Database::Connect();
 		$guest = $db->guest;
-		$result = array();
 		$time = time();
 		
 		$find = array('mac' => $mac,'$and'=>array(array('start'=>array('$lte'=>$time)),array('end'=>array('$gte'=>$time))));
 		$set = array('$set'=>$data);
 		$cursor = $guest->update($find,$set);
 
-	}
-	
-	public function getUser($array)
-	{
-		if(isset($array['mac']) || isset($array['ip']) || isset($array['all'])){
-			$ch = curl_init();
-			$ch = $this->sendLogin($ch);
-			// Send user to authorize and the time allowed
-			// Send the command to the API
-			curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/stat/sta');
-			$json = curl_exec ($ch);
-			$json = json_decode($json);
-			$value = false;
-			if(isset($array['all'])){
-				foreach($json->data as $key => $user){
-					$value[] = $user;
-				}
-			}
-			else if(isset($array['mac'])&& isset($array['ip'])){
-				foreach($json->data as $key => $user){
-					if(isset($user->mac) && isset($user->ip)){
-						if($user->mac == $array['mac'] && $user->ip == $array['ip']){
-							$value = $user;
-							break;
-						}
-					}
-				}
-			}
-			else if(isset($array['mac'])){
-				foreach($json->data as $key => $user){
-					if(isset($user->mac)){
-						if($user->mac == $array['mac']){
-							$value = $user;
-							break;
-						}
-					}
-				}
-			}
-			else if(isset($array['ip'])){
-				foreach($json->data as $key => $user){
-					if(isset($user->ip)){
-						if($user->ip == $array['ip']){
-							$value = $user;
-							break;
-						}
-					}
-				}
-			}
-			
-			$ch = $this->sendLogout($ch);
-			
-			return $value;
-		}
-		else{
-			return false;
-		}
 	}
 	
 	public function getStat($mac,$limit,$sort,$sort_type=1)
@@ -227,36 +312,6 @@ class Unifi{
 		$result['_id']=(string)$result['_id'];
 		
 		return $result;
-	}
-	
-	public function sendLogin($ch){
-		// Disable Curl print result
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		// We are posting data
-		curl_setopt($ch, CURLOPT_POST, TRUE);
-		// Set up cookies
-		$cookie_file = "/tmp/unifi_cookie";
-		curl_setopt($ch, CURLOPT_COOKIEJAR, $cookie_file);
-		curl_setopt($ch, CURLOPT_COOKIEFILE, $cookie_file);
-		// Allow Self Signed Certs
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
-		// Force SSL3 only
-		curl_setopt($ch, CURLOPT_SSLVERSION, 3);
-		// Login to the UniFi controller
-		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer']."/login");
-		curl_setopt($ch, CURLOPT_POSTFIELDS,
-			'login=login&username='.$this->data['unifiUser'].'&password='.$this->data['unifiPass']);
-		// send login command
-		curl_exec ($ch);
-		return $ch;
-	}
-	
-	public function sendLogout($ch){
-		// Logout of the UniFi Controller
-		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/logout');
-		curl_exec ($ch);
-		curl_close ($ch);
 	}
 	
 }

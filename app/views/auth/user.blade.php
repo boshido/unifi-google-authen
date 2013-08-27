@@ -283,7 +283,7 @@
 				});	
 				request.done(function (response, textStatus, jqXHR){
 					console.log(response);
-				
+					response=response.data;
 					var graph = {
 							date:[],
 							data:{
@@ -404,6 +404,7 @@
 						}
 				});	
 				request.done(function (response, textStatus, jqXHR){
+					response=response.data;
 					for(var y in response){
 						var r = $('<tr></tr>');
 						$('<td></td>').html(getDate(response[y].start*1000)+" "+getTime(response[y].start*1000)).appendTo(r);
@@ -434,7 +435,7 @@
 						}
 				});	
 				request.done(function (response, textStatus, jqXHR){
-					
+					response=response.data;
 					for(var y in response){
 						var r = $('<tr session-mac="'+response[y].mac+'"></tr>');
 						$('<td></td>').html(getTime(response[y].last_seen*1000)).appendTo(r);

@@ -18,6 +18,9 @@ class AdminController extends Controller {
 	
 	public function getIndex()
     {
+		$unifi = new Unifi();
+		$guest = $unifi->getUser(array('all'=>true));
+		//print_r($guest);
 		return  Response::view('admin/manage');
     }
 	
@@ -54,7 +57,7 @@ class AdminController extends Controller {
 	public function getUserinfo(){
 		$unifi = new Unifi();
 		$guest = $unifi->getCurrentGuest(Session::get('id'));
-		if($guest && isset($guest->google_id) && Session::has('refresh_token')){
+		if($guest && isset($guest['google_id']) && Session::has('refresh_token')){
 			
 			$client = new Google_Client();
 			//$client->setApprovalPrompt("auto");
@@ -97,11 +100,11 @@ class AdminController extends Controller {
 				$lname = isset($userinfo['family_name']) ? $userinfo['family_name'] : '-';
 				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
 				$img = isset($userinfo['picture']) ? $userinfo['picture'] : '/img/photo.jpg';
-				$login_at = date("d/m/y H:i:s",$guest->start);
-				$login_at = substr_replace($login_at,(int)date("y",$guest->start)+43,6,2);
+				$login_at = date("d/m/y H:i:s",$guest['start']);
+				$login_at = substr_replace($login_at,(int)date("y",$guest['start'])+43,6,2);
 				// The access token may have been updated lazily.
 				Session::put('token',$client->getAccessToken());
-				return Response::view('user',array('google_id'=>$google_id,'name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'img'=>$img,'end_time'=>$guest->end,'auth_type'=>$guest->auth_type,'device'=>$guest->hostname ,'login_at'=>$login_at));
+				return Response::view('user',array('google_id'=>$google_id,'name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'img'=>$img,'end_time'=>$guest['end'],'auth_type'=>$guest['auth_type'],'device'=>$guest['hostname'] ,'login_at'=>$login_at));
 				
 			}
 

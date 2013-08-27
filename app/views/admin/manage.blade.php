@@ -24,9 +24,32 @@
 		<style>
 			html {
 				background: url(/img/bg.png) repeat center center fixed; 
+				color:rgb(255,255,255);
 			}
+			a {
+				text-decoration:none;
+				color:rgb(255,255,255);
+			}
+			header{
+				padding:0px 30px;
+				margin-top:50px;
+				height:50px;
+				line-height:50px;
+			}
+			.container{
+				margin:0px 40px 40px 40px;
+				min-width:600px;
+				min-height:540px;
+				background-color:rgba(20,20,20,0.7);
+				border-style:solid;
+				border-width:1px;
+				border-color:rgb(100, 100, 100);
+			}
+			.banner{
+				margin:5px 5px 5px 15px;
+			}
+			
 			dl.dl-inline {
-				color:#FFFFFF;
 				margin:0px;
 				padding:0px;
 				overflow: hidden;
@@ -38,257 +61,90 @@
 			dl.dl-inline dt {
 				font-size:15px;
 				min-width: 60px;
-				margin: 10px 0px;
+				margin: 5px 0px 5px 5px;
 				padding: 4px;
+			}
+			dl.dl-inline dt:nth-of-type(n+2) {
+				margin-left: 10px;
 			}
 			dl.dl-inline dd {
 				font-size:12px;
 				overflow: hidden;
 				margin: 5px 0px;
-				padding: 4px;
+				padding: 4px 3px;
 			}
 			dl.dl-inline dd p{
+				float:left;
 				margin:0px;
 				padding:0px 10px;
 				border-right-style:dotted;
 				border-right-width:1px;
 				border-right-color:rgb(100,100,100);
 			}
+			dl.dl-inline dd p.last{	
+				border-right-width:0px;
+			}
 		</style>
 	</head>
 	<body>
-		<img class="banner" src="/img/fitm-en.png" width="100">
 		<div class="quick-info">
-			<dl class="dl-inline">
-				<dt>Person </dt>
-				<dd><p>66<br>Authorize</p></dd>
-				<dt>Ready</dt>
-				<dd>Record .</dd>
+			<img class="banner float-left" src="/img/fitm-en.png" width="80">
+			<dl class="dl-inline float-left">
+				<dt>Access Points </dt>
+				<dd>
+					<p><span class="text-inform" id="connected"></span><br><span class="text-muted">connected</span></p>
+					<p><span class="text-alert"  id="disconnected"></span><br><span class="text-muted">disconnected</span></p>
+				</dd>
+				<dt>User</dt>
+				<dd>
+					<p><span class="text-inform" id="authorized"></span><br><span class="text-muted">authorized</span></p>
+					<p class="last"><span class="text-alert" id="non-authorized"></span><br><span class="text-muted">non-authorized</span></p>
+				</dd>
+				
 			</dl>
 		</div>
-		
-	
+		<header>
+			<div class="float-left">Welcome  
+				<span  style="color:#9fd834;">{{Session::get('login')}}</span>  | 
+				<a href="{{action('AdminController@getSignout')}}" style="font-size:12px;">settings</a> | 
+				<a href="{{action('AdminController@getSignout')}}" style="font-size:12px;">sign out</a>
+			</div>
+			
+		</header>
+		<div class="container">
+
+		</div>
 		<script src="/js/jquery-2.0.3.js" type="text/javascript" > </script>
 		<script src="/js/highcharts.js" type="text/javascript" ></script>
 		<script src="/js/exporting.js" type="text/javascript" ></script>
 		<script type="text/javascript">
-		
-			var mobile,selected,chart;
-			var mac = '';
-			var google_id = '';
-			var end_time = 1000;
 			
 			$(document).ready(function(){
 				
-				// Binding event
-				$('.navigator a').on('click',function(event){
-					var element = $(this);
-					if(!element.parent().hasClass('selected')){
-						$('.navigator li').removeClass('selected');
-						element.parent().addClass('selected');
-						$(selected).fadeOut('fast');
-						$(element.attr('href')).fadeIn('fast');
-						selected = element.attr('href');
-						if(mobile)$('.navicon').click();
-					}
-				});
-				
-				$('.navicon').on('click',function(event){
-					if($('.navicon').hasClass('toggle')){
-						$('.navicon').removeClass('toggle');
-						$('.navigator').removeClass('hidden');
-					}
-					else{
-						$('.navicon').addClass('toggle');
-						$('.navigator').addClass('hidden');
-					}
-				});
-				
-				$('.signout').click(function(){
-					window.location.href ="{{action('GuestController@getSignout')}}";
-				});
-				
-				// Checking hash url
-				if(window.location.hash){
-					var hash = window.location.hash;
-					$('.navigator a[href="'+hash+'"]').click();
-				}
-				else{
-					$('.navigator a[href="#home"]').click();
-				}
-				
 				// Initial
-				daily();
-				session();
-				history();
-		
-				
-				
-				checkDevice($(window).width(),$(window).height());
-				$(window).resize(function(){
-					checkDevice($(this).width(),$(this).height());
-					console.log($(this).width()+' '+$(this).height());
-				});
-				
+				device();		
+				user();
 			});
 			
-			function checkDevice(width,height){
-				if(width>1024){
-					if($('.navicon').hasClass('toggle')){
-						$('.navicon').addClass('hidden').click();
-					}
-					mobile=false;
-					if(chart)chart.setSize(width-200,height-100,true);
-				}
-				else{
-					if(!$('.navicon').hasClass('toggle')){
-						$('.navicon').removeClass('hidden').click();
-					}
-					mobile=true;
-					if(chart)chart.setSize(width,height-100,true);
-				}	
-			}
 			
-			function renderTime() {
-				var now = new Date();
-				var msec =  end_time - now.getTime() ;
-				var h = Math.floor(msec / 1000 / 60 / 60);
-				msec -= h * 1000 * 60 * 60;
-				var m = Math.floor(msec / 1000 / 60);
-				msec -= m * 1000 * 60;
-				var s = Math.floor(msec / 1000);
-				msec -= s * 1000;
-				setTimeout('renderTime()',1000);
-				if (h < 10) {
-					h = "0" + h;
-				}
-				if (m < 10) {
-					m = "0" + m;
-				}
-				if (s < 10) {
-					s = "0" + s;
-				}
-				var myClock = document.getElementById('time-remain');
-				if(h < 23){
-					myClock.textContent = h + ":" + m + ":" + s + " ";
-					myClock.innerText = h + ":" + m + ":" + s + " ";
-				}
-			}
-			
-			function daily(){
-				var tomorrow = new Date();
-				tomorrow.setDate(tomorrow.getDate()-9);
-			
+			function device(){
 				var request = $.ajax({
-						url: "{{action('UnifiController@getStatDaily')}}",
+						url: "{{action('UnifiController@getDevice')}}",
 						type: "get",
 						dataType: "json",
 						data:{
-							mac:mac,
-							at:parseInt(tomorrow.getTime()/1000),
 							_rand:encodeURIComponent(Math.random())
 						}
 				});	
 				request.done(function (response, textStatus, jqXHR){
-					console.log(response);
-				
-					var graph = {
-							date:[],
-							data:{
-									tx:[],
-									rx:[]
-								}
-							};
+					response=response.data;
+					var connected=0,disconnected=0;
 					for(var y in response){
-					
-						graph.date[y] = getDate(response[y].date*1000);
-						graph.data.tx[y] = response[y].tx_bytes;
-						graph.data.rx[y] = response[y].rx_bytes;
+						if(response[y].state==1) connected++;
+						else disconnected++;
 					}
-					var max = Math.max(Math.max.apply(Math, graph.data.tx),Math.max.apply(Math, graph.data.rx));
-					var label;
-					if(parseInt(max/1073741824) > 0){
-						for(var y in graph.data.tx){
-							graph.data.tx[y] = graph.data.tx[y] / 1073741824;
-							graph.data.rx[y] = graph.data.rx[y] / 1073741824;
-						}
-						label = 'GBytes';
-					}
-					else if(parseInt(max / 1048576) > 0){
-						for(var y in graph.data.tx){
-							graph.data.tx[y] = graph.data.tx[y] / 1048576;
-							graph.data.rx[y] = graph.data.rx[y] / 1048576;
-						}
-						label = 'MBytes';
-					}					
-					else if(parseInt(max / 1024) > 0){
-						for(var y in graph.data.tx){
-							graph.data.tx[y] = graph.data.tx[y] / 1024;
-							graph.data.rx[y] = graph.data.rx[y] / 1024;
-						}
-						label = 'KBytes';
-					}
-					else{
-						label = 'Bytes';
-					}
-					
-					chart = new Highcharts.Chart({
-						chart: {
-							renderTo: bar,
-							backgroundColor:'rgba(255,255,255,0)',
-							type: 'column'
-						},
-						title: {
-							text: 'สถิติการใช้งานในแต่ละวัน'
-						},
-						subtitle: {
-							text: ''
-						},
-						xAxis: {
-							categories: graph.date
-						},
-						yAxis: {
-							min: 0,
-							title: {	
-								text: label
-							}
-						},
-						tooltip: {
-							headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
-							pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
-								'<td style="padding:0"><b>{point.y:.1f} '+label+'</b></td></tr>',
-							footerFormat: '</table>',
-							shared: true,
-							useHTML: true
-						},
-						plotOptions: {
-							column: {
-								pointPadding: 0.2,
-								borderWidth: 0
-							}
-						},
-						colors:
-							[
-							   '#2ecc71', 
-							   '#f39c12', 
-							 
-							]
-						,
-						series: [{
-							name: 'ดาวโหลด',
-							data: graph.data.tx
-				
-						}, {
-							name: 'อัพโหลด',
-							data: graph.data.rx
-				
-						}]
-						,
-						credits: {
-							enabled: false
-						}
-					});
-					checkDevice($(window).width(),$(window).height());
+					$('#connected').html(connected);
+					$('#disconnected').html(disconnected);
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
@@ -298,27 +154,18 @@
 				});
 			}
 			
-			function history(){
+			function user(){
 				var request = $.ajax({
-						url: "{{action('UnifiController@getHistory')}}",
+						url: "{{action('UnifiController@getUserList')}}",
 						type: "get",
 						dataType: "json",
 						data:{
-							google_id:google_id,
-							limit:10,
-							sort:'start',
-							sort_type:-1,
 							_rand:encodeURIComponent(Math.random())
 						}
 				});	
 				request.done(function (response, textStatus, jqXHR){
-					for(var y in response){
-						var r = $('<tr></tr>');
-						$('<td></td>').html(getDate(response[y].start*1000)+" "+getTime(response[y].start*1000)).appendTo(r);
-						$('<td></td>').html(response[y].hostname).appendTo(r);
-						
-						$('#history > tbody').append(r);
-					}
+					$('#authorized').html(response.authorized);
+					$('#non-authorized').html(response.non_authorized);
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
@@ -326,69 +173,6 @@
 				request.always(function () {
 					
 				});
-			}
-			
-			function session(){
-				var request = $.ajax({
-						url: "{{action('UnifiController@getActiveSession')}}",
-						type: "get",
-						dataType: "json",
-						data:{
-							google_id:google_id,
-							limit:10,
-							sort:'start',
-							sort_type:-1,
-							_rand:encodeURIComponent(Math.random())
-						}
-				});	
-				request.done(function (response, textStatus, jqXHR){
-					
-					for(var y in response){
-						var r = $('<tr session-mac="'+response[y].mac+'"></tr>');
-						$('<td></td>').html(getTime(response[y].last_seen*1000)).appendTo(r);
-						$('<td></td>').html(response[y].hostname).appendTo(r);
-						if(mac == response[y].mac){
-							$('<td></td>').html('').appendTo(r);
-							$('#session > tbody').prepend(r);
-						}
-						else{
-							$('<td></td>').html('<span class="icon remove" aria-hidden="true" data-icon="&#xe006;" onClick="removeSession(this)" ></span>').appendTo(r);
-							$('#session > tbody').append(r);
-						}
-					}
-				});	
-				request.fail(function (jqXHR, textStatus, errorThrown){
-					console.log("The following error occured: "+textStatus, errorThrown);
-				});
-				request.always(function () {
-					
-				});
-			}
-			
-			function removeSession(element){
-				var r = $(element).parent().parent()
-				var request = $.ajax({
-						url: "{{action('UnifiController@postDeactiveSession')}}",
-						type: "post",
-						dataType: "html",
-						data:{
-							mac:r.attr('session-mac'),
-							_method:'post',
-							_rand:encodeURIComponent(Math.random())
-						}
-				});	
-				request.done(function (response, textStatus, jqXHR){
-					if(response=='1'){
-						r.fadeOut();
-					}
-				});	
-				request.fail(function (jqXHR, textStatus, errorThrown){
-					console.log("The following error occured: "+textStatus, errorThrown);
-				});
-				request.always(function () {
-					
-				});
-				
 			}
 			
 			function getDate(parameter){

@@ -112,17 +112,17 @@ class GuestController extends Controller {
 		}
 
 		// Normal Flow	
-		if($guest && isset($guest->google_id)){
+		if($guest && isset($guest['google_id'])){
 			if(!Session::has('refresh_token')){
 				$token = $db->token;
 				$user = $db->user;
 				
-				$find = array('google_id'=>$guest->google_id);
+				$find = array('google_id'=>$guest['google_id']);
 				$result = $token->findOne($find);
 				Session::put('refresh_token',$result['refresh_token']);
 				$cookie_refresh = Cookie::forever('refresh_token', $result['refresh_token']);
 				
-				$find = array('mac'=>$guest->mac);
+				$find = array('mac'=>$guest['mac']);
 				$data = $user->findOne($find);
 				$cookie_id = Cookie::forever('id',Session::get('id'));
 				return Redirect::to('guest/userinfo')->withCookie($cookie_refresh)->withCookie($cookie_id);
@@ -201,7 +201,7 @@ class GuestController extends Controller {
 	public function getUserinfo(){
 		$unifi = new Unifi();
 		$guest = $unifi->getCurrentGuest(Session::get('id'));
-		if($guest && isset($guest->google_id) && Session::has('refresh_token')){
+		if($guest && isset($guest['google_id']) && Session::has('refresh_token')){
 			
 			$client = new Google_Client();
 			//$client->setApprovalPrompt("auto");
@@ -244,11 +244,11 @@ class GuestController extends Controller {
 				$lname = isset($userinfo['family_name']) ? $userinfo['family_name'] : '-';
 				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
 				$img = isset($userinfo['picture']) ? $userinfo['picture'] : '/img/photo.jpg';
-				$signin_at = date("d/m/y H:i:s",$guest->start);
-				$signin_at = substr_replace($signin_at,(int)date("y",$guest->start)+43,6,2);
+				$signin_at = date("d/m/y H:i:s",$guest['start']);
+				$signin_at = substr_replace($signin_at,(int)date("y",$guest['start'])+43,6,2);
 				// The access token may have been updated lazily.
 				Session::put('token',$client->getAccessToken());
-				return Response::view('auth/user',array('google_id'=>$google_id,'name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'img'=>$img,'end_time'=>$guest->end,'auth_type'=>$guest->auth_type,'device'=>$guest->hostname ,'signin_at'=>$signin_at));
+				return Response::view('auth/user',array('google_id'=>$google_id,'name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'img'=>$img,'end_time'=>$guest['end'],'auth_type'=>$guest['auth_type'],'device'=>$guest['hostname'] ,'signin_at'=>$signin_at));
 				
 			}
 
