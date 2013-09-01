@@ -72,7 +72,7 @@ class GuestController extends Controller {
 			
 			$google_id = $userinfo['id'];
 			$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
-			$name = $userinfo['name'];
+			$name =  isset($userinfo['name']) ? $userinfo['name'] : '-';
 			$fname = isset($userinfo['given_name']) ? $userinfo['given_name'] : '-';
 			$lname = isset($userinfo['family_name']) ? $userinfo['family_name'] : '-';
 			
@@ -104,8 +104,9 @@ class GuestController extends Controller {
 				$data = $user->findOne($find);
 				$unifi->sendAuthorization(Session::get('id'), Session::get('auth_type') == 0 ? 360 : 9999999, Session::get('ap')); //authorizing user for 6 hours(6*60)
 				$cookie_id = Cookie::forever('id',Session::get('id'));
-				
-				$unifi->setCurrentGuest(Session::get('id'),array('google_id'=>$google_id,'email'=>$email,'hostname'=>$data['hostname'],'auth_type'=>Session::get('auth_type')));
+				$guestinfo = array('google_id'=>$google_id,'email'=>$email,'auth_type'=>Session::get('auth_type'));
+				if(isset($data['hostname']))$guestinfo['hostname']=$data['hostname'];
+				$unifi->setCurrentGuest(Session::get('id'),$guestinfo);
 			}
 			
 			return Redirect::to('guest/userinfo')->withCookie($cookie_refresh)->withCookie($cookie_id);
@@ -239,16 +240,18 @@ class GuestController extends Controller {
 				// These fields are currently filtered through the PHP sanitize filters.
 				// See http://www.php.net/manual/en/filter.filters.sanitize.php
 				$google_id = $userinfo['id'];
-				$name = $userinfo['name'];
+				$name = isset($userinfo['name']) ? $userinfo['name'] : '-';
 				$fname = isset($userinfo['given_name']) ? $userinfo['given_name'] : '-';
 				$lname = isset($userinfo['family_name']) ? $userinfo['family_name'] : '-';
 				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
 				$img = isset($userinfo['picture']) ? $userinfo['picture'] : '/img/photo.jpg';
+				$device = isset($guest['hostname']) ? $guest['hostname'] : '-';
 				$signin_at = date("d/m/y H:i:s",$guest['start']);
 				$signin_at = substr_replace($signin_at,(int)date("y",$guest['start'])+43,6,2);
+				
 				// The access token may have been updated lazily.
 				Session::put('token',$client->getAccessToken());
-				return Response::view('auth/user',array('google_id'=>$google_id,'name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'img'=>$img,'end_time'=>$guest['end'],'auth_type'=>$guest['auth_type'],'device'=>$guest['hostname'] ,'signin_at'=>$signin_at));
+				return Response::view('auth/user',array('google_id'=>$google_id,'name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'img'=>$img,'end_time'=>$guest['end'],'auth_type'=>$guest['auth_type'],'device'=> $device,'signin_at'=>$signin_at));
 				
 			}
 

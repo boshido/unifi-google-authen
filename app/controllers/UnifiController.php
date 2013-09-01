@@ -52,7 +52,7 @@ class UnifiController extends Controller {
 	}
 	
 	public function getHistory()
-	{
+	{	
 		$google_id = Input::get('google_id');
 		$limit = Input::get('limit');
 		$sort = Input::get('sort');
@@ -102,13 +102,15 @@ class UnifiController extends Controller {
 		$guest = array();
 		$authorized = 0;
 		$non_authorized = 0;
-		foreach($user as $key => $value){
-			if($value->is_guest == 1){
-				$guest[]=$value;
-				if($unifi->getCurrentGuest($value->mac))$authorized++;
-				else $non_authorized++;
-			}
-		}	
+		if($user){
+			foreach($user as $key => $value){
+				if($value->is_guest == 1){
+					$guest[]=$value;
+					if($unifi->getCurrentGuest($value->mac))$authorized++;
+					else $non_authorized++;
+				}
+			}	
+		}
 		return Response::json(array('code'=>200,'authorized'=>$authorized,'non_authorized'=>$non_authorized,'data'=>$guest));
 	}
 	
@@ -148,6 +150,53 @@ class UnifiController extends Controller {
 		$unifi = new Unifi();
 		
 		return Response::json(array('code'=>200,'data'=>$unifi->getStatSummary($type,$data)));
+	}
+	
+	public function getUserTable(){
+	
+		$unifi = new Unifi();
+		$db = Database::Connect();
+		$token = $db->token;
+		$cursor = $token->find();
+		$user = array();
+		$result = array();
+		$guest_tmp = $unifi->getCurrentGuest(null,false);
+		$online = $unifi->getUser(array('all'=>true));
+		
+		foreach($guest_tmp as $key =>$value){
+			$guest[$value['mac']]=$value;
+		}
+		if($online){ // Online check with       Online User  and  Guest table
+			foreach($online as $key => $value){
+				if($value->is_guest == 1){
+					if(isset($guest[$value->mac])){
+						$guest[$value->mac]['online']=true;
+					}
+				}
+			}	
+		}
+		
+		foreach($cursor as $key => $value){
+			if(!isset($value['name']) || $value['name'] == '-'){
+				if($value['fname'] != '-' && $value['lname'] != '-'){
+					$value['name'] = $value['fname'].' '.$value['lname'];
+				}
+			}
+			$user[$value['google_id']] = $value;			
+		}
+		foreach($guest as $key =>$value){
+			$user[$value['google_id']]['authorized'] = true;
+			$tmp = array('auth_type'=>$value['auth_type'],'mac'=>$value['mac'],'start'=>$value['start'],'end'=>$value['end']);	
+			if(isset($value['hostname'])) $tmp['hostname'] = $value['hostname'];
+			if(isset($value['online']))$user[$value['google_id']]['status']="Online";
+			$user[$value['google_id']]['device'][] = $tmp;
+		}
+		foreach($user as $key =>$value){
+			$result[]=$value;
+		}
+		
+		return Response::json(array('aaData'=>$result));
+		
 	}
 	
 	protected function setupLayout()

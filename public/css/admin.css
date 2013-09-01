@@ -25,6 +25,7 @@ html{
 	border-width:1px;
 	border-top-width:0px;
 	border-color:rgb(100, 100, 100);
+	
 }
 
 
@@ -66,8 +67,21 @@ html{
 	color:rgb(52, 190, 232);
 }
 .text-alert{
-	color:#E56C19;
+	color:rgb(229, 108, 25);
 }
 .text-muted{
-	color:rgb(153, 154, 153);
+	color:rgb(185, 185, 185);
+}
+
+.one-edge-shadow{
+	-webkit-box-shadow: 0 8px 6px -6px black;
+	   -moz-box-shadow: 0 8px 6px -6px black;
+			box-shadow: 0 8px 6px -6px black;
+}
+
+.transition{
+-webkit-transition: all 0.3s ease-out;  /* Chrome 1-25, Safari 3.2+ */
+     -moz-transition: all 0.3s ease-out;  /* Firefox 4-15 */
+       -o-transition: all 0.3s ease-out;  /* Opera 10.50–12.00 */
+          transition: all 0.3s ease-out;  /* Chrome 26, Firefox 16+, IE 10+, Opera 12.10+ */
 }

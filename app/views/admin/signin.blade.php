@@ -54,7 +54,7 @@
 							<input name="password" type="password" placeholder="Password">
 						</div>
 						<div class="pure-control-group" style="margin-top:20px;">
-							<button type="submit" class="pure-button pure-button-primary" style="font-weight:bold">SIGN IN</button>
+							<button type="submit" class="pure-button pure-button-primary" style="font-family:'Oswald';">Sign In</button>
 						</div>
 					</fieldset>
 				</form>
