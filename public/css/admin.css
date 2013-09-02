@@ -66,6 +66,9 @@ html{
 .text-inform{
 	color:rgb(52, 190, 232);
 }
+.text-success{
+	color:rgb(159, 216, 52);
+}
 .text-alert{
 	color:rgb(229, 108, 25);
 }

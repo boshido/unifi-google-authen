@@ -221,7 +221,7 @@
 		</div>
 		<header>
 			<div class="float-left">Welcome  
-				<span  style="color:#9fd834;">{{Session::get('login')}}</span>  | 
+				<span  class="text-success">{{Session::get('login')}}</span>  | 
 				<a href="{{action('AdminController@getSignout')}}" style="font-size:14px;" >settings</a> | 
 				<a href="{{action('AdminController@getSignout')}}" style="font-size:14px;" >sign out</a>
 			</div>
@@ -358,10 +358,14 @@
 						{"mDataProp":"email"},
 						{"mDataProp":"name","sDefaultContent": ""},			
 						{	
-							"sDefaultContent": "aef",
+							"sDefaultContent": '<span class="text-alert">None</span>',
 							"mRender": function (data, type, full) {		
-								
-							}
+								console.log(full);
+								if(full.status == 'Online'){
+									return '<div class="tooltip text-success">Click !<div>';
+								}
+							},
+							"sClass":'text-center'
 						},
 						{"mDataProp":"status","sDefaultContent": "Offline",'bVisible':false}
 					]
@@ -392,8 +396,10 @@
 					if($(element.attr('href')).css('display')=='none'){
 						$('.menu-list').removeClass('selected');
 						element.addClass('selected');
-						$(selected).fadeOut('fast');
-						$(element.attr('href')).fadeIn('fast');
+						//$(selected).fadeOut();
+						$(selected).hide();
+						//$(element.attr('href')).fadeIn();
+						$(element.attr('href')).show();
 						selected = element.attr('href');
 					}
 					initial();
@@ -435,7 +441,7 @@
 						}
 				});	
 				request.done(function (response, textStatus, jqXHR){
-					console.log(response);
+					
 					response=response.data;
 					var connected=0,disconnected=0;
 					for(var y in response){

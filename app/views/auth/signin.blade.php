@@ -98,9 +98,7 @@
 				});	
 				request.done(function (response, textStatus, jqXHR){
 					if(response.status){
-						$('.overlay').fadeOut('slow',function(){
-							location.reload(true);
-						});
+						$('.overlay').fadeOut('slow');
 					}
 					else{
 						console.log(count);

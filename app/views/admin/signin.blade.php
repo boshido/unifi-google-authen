@@ -62,8 +62,8 @@
 		</div>
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"> </script>
 		<script src="/js/heartcode-canvasloader-min.js" type="text/javascript"> </script>
-		<script>
-			
+		<script  type="text/javascript">
+			$('input[name="username"]').focus();
 		</script>
 	</body>
 </html>

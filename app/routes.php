@@ -22,13 +22,40 @@ Route::get('/', function()
 
 Route::filter('auth', function()
 {	
-	if(!Session::has('refresh_token')){
-		$cookie = Cookie::get('refresh_token');
-		Session::put('refresh_token',$cookie);	
+	$unifi = new Unifi();
+	$db = Database::Connect(); 	
+	
+	if(!Session::has('id')){ // when user doesn't has mac address	
+		if(Cookie::has('id')){
+			$cookie = Cookie::get('id');
+			Session::put('id',$cookie);
+		}
+		else{
+			$info = $unifi->getUser(array('ip'=> $_SERVER['REMOTE_ADDR']));
+			if($info){
+				Session::put('id', $info->mac);     				// user's mac address
+				Session::put('ap', $info->ap_mac);   				// AP mac
+				Session::put('ssid',$info->essid);   				// ssid the user is on (POST 2.3.2)    	
+				//Session::put('time',null);
+				Session::put('ref_url','http://www.google.co.th');	// url the user attempted to reach
+			}
+		}
 	}
-	if(!Session::has('id')){
-		$cookie = Cookie::get('id');
-		Session::put('id',$cookie);	
+	if(!Session::has('refresh_token')){
+		if(Cookie::has('refresh_token')){
+			$cookie = Cookie::get('refresh_token');
+			Session::put('refresh_token',$cookie);	
+		}
+		else{
+			$guest = Session::has('id') ? $unifi->getCurrentGuest(Session::get('id')) : false;
+			if($guest && isset($guest['google_id'])){
+				$token = $db->token;
+				$find = array('google_id'=>$guest['google_id']);
+				$result = $token->findOne($find);
+				Session::put('refresh_token',$result['refresh_token']);
+				$cookie_refresh = Cookie::forever('refresh_token', $result['refresh_token']);
+			}
+		}
 	}
 });
 
