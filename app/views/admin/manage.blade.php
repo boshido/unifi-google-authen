@@ -3,7 +3,7 @@
 	<head>
 		<title>FITM 2.0 Wi-Fi Administrator</title>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" >
+		<meta name="viewport" content="width=device-width, initial-scale=1" >
 		<script>
 			if (navigator.userAgent.match(/IEMobile\/10\.0/)) {
 			  var msViewportStyle = document.createElement("style");
@@ -200,6 +200,16 @@
 				/*border-top-right-radius: 3.9914772510528564px;
 				border-bottom-right-radius: 3.9914772510528564px;*/
 			}
+			.overlay {
+				position: fixed;
+				z-index:100;
+				top: 0px;
+				left: 0px;
+				height:100%;
+				width:100%;
+				background: rgba(0,0,0,0.5);
+				display:none
+			}
 		</style>
 	</head>
 	<body>
@@ -226,6 +236,7 @@
 				<a href="{{action('AdminController@getSignout')}}" style="font-size:14px;" >sign out</a>
 			</div>
 		</header>
+
 		<div class="container">
 			<div class="menu">
 				<a class="menu-list " href="#setting">
@@ -247,8 +258,8 @@
 			</div>
 			<div class="tab" id="user" >
 				<div class="pure-form controller-bar">
-					<label for="user-search" style="width:40px;color:white;margin-right:5px;">Search</label> 
-					<input id="user-search" name="user-search" type="text" style="height:25px;padding:5px;">
+					<label for="search" style="width:40px;color:white;margin-right:5px;">Search</label> 
+					<input class="search" name="search" type="text" style="height:25px;padding:5px;">
 					
 					<input id="toggle-all" 	class="toggle toggle-right" name="user-toggle" value="true" 	type="radio" ><label for="toggle-all" >All</label
 					><input id="toggle-offline" class="toggle" 				name="user-toggle" value="false" 	type="radio" ><label for="toggle-offline" style=""  >Offline</label
@@ -281,6 +292,9 @@
 			</div>
 			<div class="tab" id="setting" >
 			</div>
+		</div>
+		<div class="overlay">
+			
 		</div>
 		<script src="/js/jquery-2.0.3.js" type="text/javascript" > </script>
 		<script src="/js/highcharts.js" type="text/javascript" ></script>
@@ -343,6 +357,7 @@
 		<script type="text/javascript">
 			var user_table;
 			var selected;
+			var test;
 			$(document).ready(function(){
 				user_table = $('#user-table').dataTable( {
 					"sDom": "<r><t><i><p>",
@@ -352,17 +367,18 @@
 					"fnServerParams": function ( aoData ) {
 						aoData.push( { "name": "key", "value": "element" } );
 					},
-					"sAjaxSource": "{{action('UnifiController@getUserTable')}}",
+					//"sAjaxSource": "{{action('UnifiController@getUserTable')}}",
 					"aoColumns":[
 						{"mDataProp":"google_id"},
 						{"mDataProp":"email"},
 						{"mDataProp":"name","sDefaultContent": ""},			
 						{	
 							"sDefaultContent": '<span class="text-alert">None</span>',
+							"bSortable": false,
 							"mRender": function (data, type, full) {		
 								console.log(full);
 								if(full.status == 'Online'){
-									return '<div class="tooltip text-success">Click !<div>';
+									return '<a class="modal text-success" href="#" data=\''+JSON.stringify(full.device)+'\'">Click !<a>';
 								}
 							},
 							"sClass":'text-center'
@@ -371,18 +387,17 @@
 					]
 				} );
 				user_table.fnFilter( 'Online',4);
-				$('#user-search').keyup(function(){
+				$('#user .search').keyup(function(){
 					user_table.fnFilter( $(this).val() );
 				});
-				
 				$('#user .toggle').on('change',function(){
 					if($(this).attr('id')=='toggle-online') user_table.fnFilter( 'Online',4);
 					else if($(this).attr('id')=='toggle-offline') user_table.fnFilter( 'Offline',4);
 					else if($(this).attr('id')=='toggle-all') user_table.fnFilter( '',4);
 				});
-				
-				$('.navigator a').on('click',function(event){
-					
+				$('#user').on('click','.modal',function(event){
+						console.log(JSON.parse($(this).attr('data')));
+						$('.overlay').fadeIn('fast').click(function(){ $(this).fadeOut('fast');});
 				});
 				
 				initial();
@@ -427,7 +442,7 @@
 			function loading(){
 				device();		
 				user();
-				user_table.fnReloadAjax();
+				user_table.fnReloadAjax('{{action('UnifiController@getUserTable')}}',function(parameter){console.log(parameter)},true);
 				setTimeout(loading,5000);
 			}
 			

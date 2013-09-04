@@ -185,11 +185,13 @@ class UnifiController extends Controller {
 			$user[$value['google_id']] = $value;			
 		}
 		foreach($guest as $key =>$value){
-			$user[$value['google_id']]['authorized'] = true;
-			$tmp = array('auth_type'=>$value['auth_type'],'mac'=>$value['mac'],'start'=>$value['start'],'end'=>$value['end']);	
-			if(isset($value['hostname'])) $tmp['hostname'] = $value['hostname'];
-			if(isset($value['online']))$user[$value['google_id']]['status']="Online";
-			$user[$value['google_id']]['device'][] = $tmp;
+			if(isset($value['google_id'])){
+				$user[$value['google_id']]['authorized'] = true;
+				$tmp = array('auth_type'=>$value['auth_type'],'mac'=>$value['mac'],'start'=>$value['start'],'end'=>$value['end']);	
+				if(isset($value['hostname'])) $tmp['hostname'] = $value['hostname'];
+				if(isset($value['online']))$user[$value['google_id']]['status']="Online";
+				$user[$value['google_id']]['device'][] = $tmp;
+			}
 		}
 		foreach($user as $key =>$value){
 			$result[]=$value;

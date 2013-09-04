@@ -18,9 +18,6 @@ class AdminController extends Controller {
 	
 	public function getIndex()
     {
-		$unifi = new Unifi();
-		$guest = $unifi->getUser(array('all'=>true));
-		//print_r($guest);
 		return  Response::view('admin/manage');
     }
 	
