@@ -39,7 +39,7 @@
 			}
 			.container {
 				position:relative;
-				margin:0px 40px 0px 40px;
+				margin:0px 40px 40px 40px;
 				min-width:600px;
 				min-height:480px;
 				background-color:rgba(20,20,20,0.7);
@@ -115,7 +115,7 @@
 			
 			.pure-table > tbody > tr > td{
 				font-size:12px;
-				font-family: 'Open Sans',arial,sans-serif;;
+				font-family: 'Open Sans',arial,sans-serif;
 				/*color:rgb(153, 154, 153);*/
 				color:rgb(185, 185, 185);
 				font-weight:normal;
@@ -200,6 +200,17 @@
 				/*border-top-right-radius: 3.9914772510528564px;
 				border-bottom-right-radius: 3.9914772510528564px;*/
 			}
+			label.head{
+				color:rgb(0,0,0);
+				font-family: 'Open Sans',arial,sans-serif;
+				font-size:13px;
+			}
+			label.content{
+				color:rgb(100,100,100);
+				font-weight:normal;
+				font-family: 'Open Sans',arial,sans-serif;
+				font-size:13px;
+			}
 			.overlay {
 				position: fixed;
 				z-index:100;
@@ -209,6 +220,74 @@
 				width:100%;
 				background: rgba(0,0,0,0.5);
 				display:none
+			}
+			.modal{
+				position:absolute;
+				top:50%;
+				border-style:solid;
+				border-width:1px;
+				border-color:rgb(100, 100, 100);
+				margin:-250px 5% 0px 5%;
+				width:90%;
+				height:500px;
+				background-color:#FFFFFF;
+				display:none;
+				z-index:150;
+				color:black;
+				
+			}
+			.modal > .modal-header{
+				width:100%;
+				color:#FFFFFF;
+				padding:5px 0px;
+				height:30px;
+				line-height:30px;
+				background-color:rgba(170,170,170,1);
+				font-size:14px;
+			}
+			.modal > .modal-content-left{
+				height:80%;
+				width:240px;
+				overflow:auto;
+				float:left;
+				font-size:13px;
+			}
+			.modal > .modal-content-right{
+				height:80%;
+				width:auto;
+				margin:0px;
+				overflow:auto;
+				font-size:13px;
+			}
+			button.close {
+				padding: 0px 4px 0px 0px;
+				cursor: pointer;
+				background: transparent;
+				border: 0;
+				-webkit-appearance: none;
+			}
+			.close{
+				float: right;
+				font-size: 20px;
+				font-weight: bold;
+				line-height: 20px;
+				color: #000000;
+				text-shadow: 0 1px 0 #ffffff;
+				opacity: 0.2;
+				filter: alpha(opacity=20);
+			}
+			ul.list{
+				margin:0px;
+				list-style-type:none;
+				padding:0px;
+			}
+			ul.list > li{
+				padding:10px 30px;
+				cursor:pointer;
+			}
+			ul.list > li:hover{
+				color:#FFFFFF;
+				background-color:rgba(170,170,170,1);
 			}
 		</style>
 	</head>
@@ -221,7 +300,7 @@
 					<p><span class="text-inform" id="connected"></span><br><span class="text-muted">connected</span></p>
 					<p><span class="text-alert"  id="disconnected"></span><br><span class="text-muted">disconnected</span></p>
 				</dd>
-				<dt>User</dt>
+				<dt>Device</dt>
 				<dd>
 					<p><span class="text-inform" id="authorized"></span><br><span class="text-muted">authorized</span></p>
 					<p class="last"><span class="text-alert" id="non-authorized"></span><br><span class="text-muted">non-authorized</span></p>
@@ -283,6 +362,67 @@
 						
 					</tbody>			
 				</table>
+				<div class="modal">
+					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+					<div class="modal-header">
+						<img src="/img/device.png"  style="width:35px;height:25px;margin-left:10px;margin-right:5px;float:left;"></img><span>Watchrapong Agsonchu's Device</span>
+					</div>
+					<div class="modal-content-left">
+						<ul class="list">
+							<li>
+								Boshido-Laptop
+							</li>	
+							<li>
+								Gnowman-IPAD
+							</li>
+						</ul>
+					</div>
+					<div class="modal-content-right">
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+						dsa<br>
+					</div>
+					<div>
+						<button class="pure-button pure-button-primary">Unauthorize</button>
+					</div>
+					
+					<!-- <label class="head">Device Name : </label><label class="content">Boshido-LAPTOP </label><br>
+						<label class="head">Authentication Type : </label><label class="content">Unlimited</label><br>
+						<label class="head">Start : </label><label class="content">8-9-2556</label><br>
+						<label class="head">End : </label><label class="content">12-12-3000 </label><br>
+						-->
+				</div>
 			</div>
 			<div class="tab" id="device" >
 			</div>
@@ -378,7 +518,7 @@
 							"mRender": function (data, type, full) {		
 								console.log(full);
 								if(full.status == 'Online'){
-									return '<a class="modal text-success" href="#" data=\''+JSON.stringify(full.device)+'\'">Click !<a>';
+									return '<a class="modal-button text-success" href="#" data=\''+JSON.stringify(full.device)+'\'">Click !<a>';
 								}
 							},
 							"sClass":'text-center'
@@ -395,9 +535,18 @@
 					else if($(this).attr('id')=='toggle-offline') user_table.fnFilter( 'Offline',4);
 					else if($(this).attr('id')=='toggle-all') user_table.fnFilter( '',4);
 				});
-				$('#user').on('click','.modal',function(event){
-						console.log(JSON.parse($(this).attr('data')));
-						$('.overlay').fadeIn('fast').click(function(){ $(this).fadeOut('fast');});
+				$('#user').on('click','.modal-button',function(event){
+						var device = JSON.parse($(this).attr('data'));
+						for(var y in device){
+							console.log(device[y]);
+						}
+						$('.overlay').fadeIn('fast').click(function(){ $(this).fadeOut('fast');$('.modal').fadeOut('fast');});
+						$('.modal').fadeIn('fast');
+				});
+				
+				$('body').on('click','.close',function(){
+					$('.overlay').fadeOut('fast');
+					$('.modal').fadeOut('fast');
 				});
 				
 				initial();
