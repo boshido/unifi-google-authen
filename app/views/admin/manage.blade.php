@@ -22,6 +22,7 @@
 		<link rel="stylesheet" href="/css/grids-min.css" />
 		<link rel="stylesheet" href="/css/font.css" />
 		<link rel="stylesheet" href="/css/admin.css" />
+		<link rel="stylesheet" href="/css/scrollbar.css" />
 		<style>
 			html {
 				background: url(/img/bg.png) repeat center center fixed; 
@@ -58,7 +59,7 @@
 			.banner{
 				margin:5px 5px 5px 15px;
 			}
-			.menu{
+			.menu-list{
 				position:absolute;
 				top:-40px;
 				left:50%;
@@ -72,7 +73,7 @@
 				border-color:rgb(100, 100, 100);
 				
 			}
-			.menu-list{
+			.menu-item-list{
 				position:relative;
 				float:right;
 				text-align:center;
@@ -229,7 +230,7 @@
 				border-color:rgb(100, 100, 100);
 				margin:-250px 5% 0px 5%;
 				width:90%;
-				height:500px;
+				height:460px;
 				background-color:#FFFFFF;
 				display:none;
 				z-index:150;
@@ -239,25 +240,49 @@
 			.modal > .modal-header{
 				width:100%;
 				color:#FFFFFF;
-				padding:5px 0px;
-				height:30px;
-				line-height:30px;
-				background-color:rgba(170,170,170,1);
+				padding:0px 0px;
+				height:40px;
+				line-height:40px;
+				background-color:rgba(70,70,70,1);
 				font-size:14px;
 			}
-			.modal > .modal-content-left{
+			.modal > .modal-content{
 				height:80%;
-				width:240px;
-				overflow:auto;
-				float:left;
+				width:100%;
 				font-size:13px;
+				border-style:solid;
+				border-width:0px 0px 1px 0px;
+				border-color:rgb(100, 100, 100);
+				position:relative;
 			}
-			.modal > .modal-content-right{
-				height:80%;
+			.modal .modal-content-left{
+				width:240px;
+				height:100%;
+				float:left;
+				/*border-style:solid;
+				border-width:0px 1px 0px 0px;
+				border-color:rgb(100, 100, 100);*/
+				overflow:hidden;
+				text-overflow: ellipsis;
+			}		
+			.modal .modal-content-right{
 				width:auto;
+				height:100%;
 				margin:0px;
 				overflow:auto;
-				font-size:13px;
+			}
+			.modal-item-list{
+				height:100%;
+				width:100px;
+				padding:0px 10px;
+				color:rgb(170,170,170);
+				text-align:center;
+				cursor:pointer;
+				float:left;
+			}
+			.modal-item-list.selected{
+				color:rgb(0,0,0);
+				background-color:rgb(255, 255, 255);
 			}
 			button.close {
 				padding: 0px 4px 0px 0px;
@@ -284,10 +309,31 @@
 			ul.list > li{
 				padding:10px 30px;
 				cursor:pointer;
+				
+			}
+			ul.list > li > img{
+				width:22px;
+				height:22px;
+				margin-right:5px;
+				float:left;
+			}
+			ul.list > li.selected{
+				cursor:pointer;
+				color:black;
+				background:url('/img/admin/two-arrow.png') no-repeat center right;
+			}			
+			ul.list > li.selected:hover{
+				background:rgb(0, 150, 231) url('/img/admin/two-arrow-white.png') no-repeat center right;
 			}
 			ul.list > li:hover{
-				color:#FFFFFF;
-				background-color:rgba(170,170,170,1);
+				color:white;
+				background-color:rgb(0, 150, 231);
+			}
+			ul.list > li:hover img.limited{
+				content:url('/img/admin/time-white.png');
+			}
+			ul.list > li:hover img.unlimited{
+				content:url('/img/admin/infinity-white.png');
 			}
 		</style>
 	</head>
@@ -317,20 +363,20 @@
 		</header>
 
 		<div class="container">
-			<div class="menu">
-				<a class="menu-list " href="#setting">
+			<div class="menu-list">
+				<a class="menu-item-list " href="#setting">
 					Setting
 				</a>
-				<a class="menu-list" href="#authorize">
+				<a class="menu-item-list" href="#authorize">
 					Authorize
 				</a>
-				<a class="menu-list" href="#ap">
+				<a class="menu-item-list" href="#ap">
 					AP
 				</a>
-				<a class="menu-list" href="#device">
+				<a class="menu-item-list" href="#device">
 					Device
 				</a>
-				<a class="menu-list selected" href="#user">
+				<a class="menu-item-list selected" href="#user">
 					User
 				</a>
 				<div class="menu-selector"> </div>
@@ -363,57 +409,47 @@
 					</tbody>			
 				</table>
 				<div class="modal">
+					
 					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 					<div class="modal-header">
-						<img src="/img/device.png"  style="width:35px;height:25px;margin-left:10px;margin-right:5px;float:left;"></img><span>Watchrapong Agsonchu's Device</span>
+						<div class="modal-content-left">
+							<img src="/img/admin/device2.png"  style="width:35px;height:25px;margin:5px 5px 0px 10px;float:left;"></img><span id="owner"></span>
+						</div>
+						<div class="modal-content-right">
+							<div class="modal-item-list selected">
+								User Information
+							</div>
+							<div class="modal-item-list">
+								Statistic
+							</div>
+							<div class="modal-item-list ">
+								History
+							</div>
+						</div>
 					</div>
-					<div class="modal-content-left">
-						<ul class="list">
-							<li>
-								Boshido-Laptop
-							</li>	
-							<li>
-								Gnowman-IPAD
-							</li>
-						</ul>
+					<div style="width:100%;border-style:solid;border-width:1px 0px;border-color:rgb(247, 178, 42)"></div>
+					<div class="modal-content">
+						<div class="modal-content-left nano">
+							<div class="content">
+								<ul class="list" id="device-list">
+									<li class="selected">
+										<img src="/img/admin/infinity.png"   class="limited" ></img>Boshido-Laptop
+									</li>	
+									<li>
+										<img src="/img/admin/time.png"  class="unlimited" ></img>Gnowman-IPAD
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="modal-content-right" style="font-family:'Open Sans',arial,sans-serif;font-weight:normal;padding-left:20px;">
+							<p>Session Information</p>
+							<div style="">
+								<img src="/img/admin/download.png"  style="width:50px;height:50px" ></img>
+							</div>
+							
+						</div>
 					</div>
-					<div class="modal-content-right">
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-						dsa<br>
-					</div>
-					<div>
+					<div class="modal-footer">
 						<button class="pure-button pure-button-primary">Unauthorize</button>
 					</div>
 					
@@ -440,65 +476,12 @@
 		<script src="/js/highcharts.js" type="text/javascript" ></script>
 		<script src="/js/exporting.js" type="text/javascript" ></script>
 		<script src="/js/jquery.dataTables.min.js" type="text/javascript" ></script>
-		<script type="text/javascript" >
-			$.fn.dataTableExt.oApi.fnReloadAjax = function ( oSettings, sNewSource, fnCallback, bStandingRedraw )
-			{
-				if ( sNewSource !== undefined && sNewSource !== null ) {
-					oSettings.sAjaxSource = sNewSource;
-				}
-			 
-				// Server-side processing should just call fnDraw
-				if ( oSettings.oFeatures.bServerSide ) {
-					this.fnDraw();
-					return;
-				}
-			 
-				this.oApi._fnProcessingDisplay( oSettings, true );
-				var that = this;
-				var iStart = oSettings._iDisplayStart;
-				var aData = [];
-			 
-				this.oApi._fnServerParams( oSettings, aData );
-			 
-				oSettings.fnServerData.call( oSettings.oInstance, oSettings.sAjaxSource, aData, function(json) {
-					/* Clear the old information from the table */
-					that.oApi._fnClearTable( oSettings );
-			 
-					/* Got the data - add it to the table */
-					var aData =  (oSettings.sAjaxDataProp !== "") ?
-						that.oApi._fnGetObjectDataFn( oSettings.sAjaxDataProp )( json ) : json;
-			 
-					for ( var i=0 ; i<aData.length ; i++ )
-					{
-						that.oApi._fnAddData( oSettings, aData[i] );
-					}
-					 
-					oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-			 
-					that.fnDraw();
-			 
-					if ( bStandingRedraw === true )
-					{
-						oSettings._iDisplayStart = iStart;
-						that.oApi._fnCalculateEnd( oSettings );
-						that.fnDraw( false );
-					}
-			 
-					that.oApi._fnProcessingDisplay( oSettings, false );
-			 
-					/* Callback user function - for event handlers etc */
-					if ( typeof fnCallback == 'function' && fnCallback !== null )
-					{
-						fnCallback( oSettings );
-					}
-				}, oSettings );
-			};
-		</script>
+		<script src="/js/jquery.dataTables.plugin.js" type="text/javascript" ></script>
+		<script src="/js/scrollbar.js" type="text/javascript" ></script>
 		<script type="text/javascript">
-			var user_table;
-			var selected;
-			var test;
+			var user_table,selected,user_sta={};
 			$(document).ready(function(){
+			 
 				user_table = $('#user-table').dataTable( {
 					"sDom": "<r><t><i><p>",
 					"sPaginationType": "full_numbers",
@@ -518,7 +501,10 @@
 							"mRender": function (data, type, full) {		
 								console.log(full);
 								if(full.status == 'Online'){
-									return '<a class="modal-button text-success" href="#" data=\''+JSON.stringify(full.device)+'\'">Click !<a>';
+									var tmp = {};
+									tmp.device = full.device;
+									tmp.name = full.name
+									return '<a class="modal-button text-success" href="#" data=\''+JSON.stringify(tmp)+'\'">Click !<a>';
 								}
 							},
 							"sClass":'text-center'
@@ -536,29 +522,48 @@
 					else if($(this).attr('id')=='toggle-all') user_table.fnFilter( '',4);
 				});
 				$('#user').on('click','.modal-button',function(event){
-						var device = JSON.parse($(this).attr('data'));
-						for(var y in device){
-							console.log(device[y]);
-						}
-						$('.overlay').fadeIn('fast').click(function(){ $(this).fadeOut('fast');$('.modal').fadeOut('fast');});
-						$('.modal').fadeIn('fast');
+					console.log($(this).parent());
+					$('#device-list').empty()
+					var user = JSON.parse($(this).attr('data'));
+					$('#owner').html(user.name+"'s Device");
+					//{auth_type: 1, mac: "8c:fa:ba:7a:81:cf", start: 1378106032, end: 1978106062, hostname: "Gnowman-iPad"}
+					for(var y in user.device){
+						var img,li;
+						if(user.device[y].auth_type==0) img = $('<img src="/img/admin/time.png" ></img>').addClass('limited');
+						else img = $('<img src="/img/admin/infinity.png" ></img>').addClass('unlimited');
+
+						$('#device-list').append($('<li class="device-item-list"></li>').attr('mac',user.device[y].mac).append(img).append(typeof(user.device[y].hostname) != 'undefined' ? user.device[y].hostname : user.device[y].mac));
+					}
+					
+					
+					$('.overlay').fadeIn('fast').click(function(){ $(this).fadeOut('fast');$('.modal').fadeOut('fast');});
+					$('.modal').fadeIn('fast');
+					
+					$(".nano").nanoScroller({ 
+						alwaysVisible: false,
+						preventPageScrolling: true
+					});	
 				});
 				
 				$('body').on('click','.close',function(){
 					$('.overlay').fadeOut('fast');
 					$('.modal').fadeOut('fast');
 				});
-				
+				$('#device-list').on('click','.device-item-list',function(){
+					$('.device-item-list').removeClass('selected');
+					$(this).addClass('selected');
+					console.log(user_sta[$(this).attr('mac')]);
+				});
 				initial();
 				$(window).resize(function(){
 					initial();
 					console.log($(this).width()+' '+$(this).height());
 				});
 				
-				$('.menu-list').on('click',function(){
+				$('.menu-item-list').on('click',function(){
 					var element = $(this);
 					if($(element.attr('href')).css('display')=='none'){
-						$('.menu-list').removeClass('selected');
+						$('.menu-item-list').removeClass('selected');
 						element.addClass('selected');
 						//$(selected).fadeOut();
 						$(selected).hide();
@@ -572,10 +577,10 @@
 				// Checking hash url
 				if(window.location.hash){
 					var hash = window.location.hash;
-					$('.menu-list[href="'+hash+'"]').click();
+					$('.menu-item-list[href="'+hash+'"]').click();
 				}
 				else{
-					$('.menu-list[href="#user"]').click();
+					$('.menu-item-list[href="#user"]').click();
 				}
 				
 				// Initial
@@ -583,7 +588,7 @@
 			});
 			
 			function initial(){
-				var position = $('.menu-list.selected').position();
+				var position = $('.menu-item-list.selected').position();
 				$('.menu-selector').css('top',position.top+'px').css('left',position.left+'px').addClass('transition');
 				
 			}
@@ -635,6 +640,9 @@
 				request.done(function (response, textStatus, jqXHR){
 					$('#authorized').html(response.authorized);
 					$('#non-authorized').html(response.non_authorized);
+					for(var y in response.data){
+						user_sta[response.data[y].mac]=response.data[y];
+					}
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
