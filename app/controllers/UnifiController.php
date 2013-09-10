@@ -51,7 +51,7 @@ class UnifiController extends Controller {
 		return 1;
 	}
 	
-	public function getHistory()
+	public function getUserHistory()
 	{	
 		$google_id = Input::get('google_id');
 		$limit = Input::get('limit');
@@ -127,10 +127,11 @@ class UnifiController extends Controller {
 		$mac = Input::get('mac');
 		$limit = Input::get('limit');
 		$sort = Input::get('sort');
-		$sort_type =  Input::get('sort_type') != null ? Input::get('sort_type') : 1;
+		
+		$sort_type =  Input::get('sort_type') != null ? (int)Input::get('sort_type') : 1;
 		$unifi = new Unifi();
 		
-		return Response::json(array('code'=>200,'data'=>$unifi->getStat($mac,$limit,$sort,$sort_type)));
+		return Response::json(array('code'=>200,'mac'=>$mac,'limit'=>$limit,'sort'=>$sort,'sort_type'=>$sort_type,'data'=>$unifi->getStat($mac,$limit,$sort,$sort_type)));
 	}
 	
 	public function getStatDaily()

@@ -122,6 +122,9 @@
 				font-weight:normal;
 				border-width:0px;
 			}
+			.pure-table.black > tbody > tr > td{
+				color:rgb(0, 0, 0);
+			}
 			
 			dl.dl-inline {
 				margin:0px;
@@ -247,7 +250,7 @@
 				font-size:14px;
 			}
 			.modal > .modal-content{
-				height:80%;
+				height:380px;
 				width:100%;
 				font-size:13px;
 				border-style:solid;
@@ -259,9 +262,6 @@
 				width:240px;
 				height:100%;
 				float:left;
-				/*border-style:solid;
-				border-width:0px 1px 0px 0px;
-				border-color:rgb(100, 100, 100);*/
 				overflow:hidden;
 				text-overflow: ellipsis;
 			}		
@@ -269,11 +269,21 @@
 				width:auto;
 				height:100%;
 				margin:0px;
-				overflow:auto;
+				overflow:hidden;
+				position:relative;
+			}
+			.modal .modal-footer{
+				width:100%;
+				color:#FFFFFF;
+				padding:0px 0px;
+				height:37px;
+				line-height:37px;
+				background-color:rgba(70,70,70,1);
+				font-size:14px;
 			}
 			.modal-item-list{
 				height:100%;
-				width:100px;
+				width:70px;
 				padding:0px 10px;
 				color:rgb(170,170,170);
 				text-align:center;
@@ -283,6 +293,11 @@
 			.modal-item-list.selected{
 				color:rgb(0,0,0);
 				background-color:rgb(255, 255, 255);
+			}
+			.modal-tab{
+				position:absolute;
+				width:100%;
+				height:100%;
 			}
 			button.close {
 				padding: 0px 4px 0px 0px;
@@ -415,21 +430,21 @@
 						<div class="modal-content-left">
 							<img src="/img/admin/device2.png"  style="width:35px;height:25px;margin:5px 5px 0px 10px;float:left;"></img><span id="owner"></span>
 						</div>
-						<div class="modal-content-right">
-							<div class="modal-item-list selected">
-								User Information
-							</div>
-							<div class="modal-item-list">
-								Statistic
-							</div>
-							<div class="modal-item-list ">
-								History
-							</div>
+						<div class="modal-content-right" id="modal-list">
+							<a class="modal-item-list" href="modal-user">
+								<span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home" style="margin-right:5px;"></span>User
+							</a>
+							<a class="modal-item-list" href="modal-statistic" >
+								<span class="icon" aria-hidden="true" data-icon="&#xe000;" alt="Home" style="margin-right:5px;"></span>Statistic
+							</a>
+							<a class="modal-item-list" href="modal-history">
+								<span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="Home" style="margin-right:5px;"></span>History
+							</a>
 						</div>
 					</div>
-					<div style="width:100%;border-style:solid;border-width:1px 0px;border-color:rgb(247, 178, 42)"></div>
+					<div style="width:100%;border-style:solid;border-width:1px 0px;border-color:rgb(247, 178, 42);"></div>
 					<div class="modal-content">
-						<div class="modal-content-left nano">
+						<div class="modal-content-left nano" style="background-color:rgb(230, 230, 230);border-style:solid;border-width:0px 1px 0px 0px;border-color:rgb(203, 203, 203);">
 							<div class="content">
 								<ul class="list" id="device-list">
 									<li class="selected">
@@ -441,16 +456,50 @@
 								</ul>
 							</div>
 						</div>
-						<div class="modal-content-right" style="font-family:'Open Sans',arial,sans-serif;font-weight:normal;padding-left:20px;">
-							<p>Session Information</p>
-							<div style="">
-								<img src="/img/admin/download.png"  style="width:50px;height:50px" ></img>
+						<div class="modal-content-right nano" style="font-family:'Open Sans',arial,sans-serif;font-weight:normal;">
+							<div class="content">
+								<div class="modal-tab" id="modal-alert" >
+										<div style="text-align:center;font-size:18px;font-family: 'Oswald';height:380px;line-height:380px;color:rgb(247, 178, 42)"> Please select a device.</div>
+								</div>
+								<div class="modal-tab" id="modal-user" style="display:none" >
+									<div style="margin-left:20px;"><p>Session Information</p>
+										<div style="line-height:50px">
+											<img src="/img/admin/download.png"  style="width:50px;height:50px;float:left" ></img> Download
+										</div>
+										<div style="line-height:50px">
+											<img src="/img/admin/upload.png"  style="width:50px;height:50px;float:left" ></img> Download
+										</div>
+										<span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home" style="margin-right:5px;"></span>Statistic
+										<span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="Home" style="margin-right:5px;"></span>Statistic
+										<span class="icon" aria-hidden="true" data-icon="&#xe005;" alt="Home" style="margin-right:5px;"></span>Statistic
+										<span class="icon" aria-hidden="true" data-icon="&#xe006;" alt="Home" style="margin-right:5px;"></span>Statistic
+									</div>
+								</div>
+								<div class="modal-tab" id="modal-statistic" style="display:none" >
+									<div class="chart" id="bar"  style="height:380px;overflow:hidden">
+						
+									</div>
+								</div>
+								<div class="modal-tab" id="modal-history" style="display:none" >
+									<table class="pure-table black" id="history-table" style="width:100%;border-style:solid;border-width:0px 0px 1px 0px">
+										<thead>
+											<tr>
+												<th>Date/Time</th>
+												<th>Duration</th>
+												<th>Download</th>
+												<th>Upload</th>
+											</tr>
+										</thead>
+										<tbody >									
+										</tbody>			
+									</table>
+								</div>
 							</div>
-							
 						</div>
 					</div>
+					
 					<div class="modal-footer">
-						<button class="pure-button pure-button-primary">Unauthorize</button>
+						<button class="pure-button pure-button-primary" style="float:right;margin-top:4px;margin-right:4px">Unauthorize</button>
 					</div>
 					
 					<!-- <label class="head">Device Name : </label><label class="content">Boshido-LAPTOP </label><br>
@@ -480,6 +529,7 @@
 		<script src="/js/scrollbar.js" type="text/javascript" ></script>
 		<script type="text/javascript">
 			var user_table,selected,user_sta={};
+			var selected_mac;
 			$(document).ready(function(){
 			 
 				user_table = $('#user-table').dataTable( {
@@ -531,13 +581,16 @@
 						var img,li;
 						if(user.device[y].auth_type==0) img = $('<img src="/img/admin/time.png" ></img>').addClass('limited');
 						else img = $('<img src="/img/admin/infinity.png" ></img>').addClass('unlimited');
-
 						$('#device-list').append($('<li class="device-item-list"></li>').attr('mac',user.device[y].mac).append(img).append(typeof(user.device[y].hostname) != 'undefined' ? user.device[y].hostname : user.device[y].mac));
+						
 					}
-					
 					
 					$('.overlay').fadeIn('fast').click(function(){ $(this).fadeOut('fast');$('.modal').fadeOut('fast');});
 					$('.modal').fadeIn('fast');
+					
+					$('.modal-tab').hide();
+					$('.modal-item-list').removeClass('selected');
+					$('#modal-alert').show();
 					
 					$(".nano").nanoScroller({ 
 						alwaysVisible: false,
@@ -552,8 +605,181 @@
 				$('#device-list').on('click','.device-item-list',function(){
 					$('.device-item-list').removeClass('selected');
 					$(this).addClass('selected');
-					console.log(user_sta[$(this).attr('mac')]);
+					selected_mac = $(this).attr('mac');
+					console.log(user_sta[selected_mac]);
+					$('.modal-item-list[href="modal-user"]').click();
 				});
+
+				$('#modal-list').on('click','.modal-item-list',function(event){
+					event.preventDefault();
+					if($('.device-item-list.selected').length >0){
+						$('.modal-item-list').removeClass('selected');
+						$('.modal-tab').hide();
+						$('#'+$(this).attr('href')).show();
+						$(this).addClass('selected');
+						if($(this).attr('href')=='modal-user'){
+							
+						
+						}
+						else if($(this).attr('href')=='modal-statistic'){
+							var tomorrow = new Date();
+							tomorrow.setDate(tomorrow.getDate()-9);
+							var request = $.ajax({
+								url: "{{action('UnifiController@getStatDaily')}}",
+								type: "get",
+								dataType: "json",
+								data:{
+									mac:selected_mac,
+									at:parseInt(tomorrow.getTime()/1000),
+									_rand:encodeURIComponent(Math.random())
+								}
+							});	
+							request.done(function (response, textStatus, jqXHR){
+
+								console.log(response);
+								response=response.data;
+								var graph = {
+										date:[],
+										data:{
+												tx:[],
+												rx:[]
+											}
+										};
+								for(var y in response){
+								
+									graph.date[y] = getDate(response[y].date*1000);
+									graph.data.tx[y] = response[y].tx_bytes;
+									graph.data.rx[y] = response[y].rx_bytes;
+								}
+								var max = Math.max(Math.max.apply(Math, graph.data.tx),Math.max.apply(Math, graph.data.rx));
+								var label;
+								if(parseInt(max/1073741824) > 0){
+									for(var y in graph.data.tx){
+										graph.data.tx[y] = graph.data.tx[y] / 1073741824;
+										graph.data.rx[y] = graph.data.rx[y] / 1073741824;
+									}
+									label = 'GBytes';
+								}
+								else if(parseInt(max / 1048576) > 0){
+									for(var y in graph.data.tx){
+										graph.data.tx[y] = graph.data.tx[y] / 1048576;
+										graph.data.rx[y] = graph.data.rx[y] / 1048576;
+									}
+									label = 'MBytes';
+								}					
+								else if(parseInt(max / 1024) > 0){
+									for(var y in graph.data.tx){
+										graph.data.tx[y] = graph.data.tx[y] / 1024;
+										graph.data.rx[y] = graph.data.rx[y] / 1024;
+									}
+									label = 'KBytes';
+								}
+								else{
+									label = 'Bytes';
+								}
+								
+								chart = new Highcharts.Chart({
+									chart: {
+										renderTo: bar,
+										backgroundColor:'rgba(255,255,255,0)',
+										type: 'column'
+									},
+									title: {
+										text: 'Dialy Traffic'
+									},
+									subtitle: {
+										text: ''
+									},
+									xAxis: {
+										categories: graph.date
+									},
+									yAxis: {
+										min: 0,
+										title: {	
+											text: label
+										}
+									},
+									tooltip: {
+										headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+										pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+											'<td style="padding:0"><b>{point.y:.1f} '+label+'</b></td></tr>',
+										footerFormat: '</table>',
+										shared: true,
+										useHTML: true
+									},
+									plotOptions: {
+										column: {
+											pointPadding: 0.2,
+											borderWidth: 0
+										}
+									},
+									colors:
+										[
+										   '#2ecc71', 
+										   '#f39c12', 
+										 
+										]
+									,
+									series: [{
+										name: 'Download',
+										data: graph.data.tx
+							
+									}, {
+										name: 'Upload',
+										data: graph.data.rx
+							
+									}]
+									,
+									credits: {
+										enabled: false
+									}
+								});
+				
+							});	
+							request.fail(function (jqXHR, textStatus, errorThrown){
+								console.log("The following error occured: "+textStatus, errorThrown);
+							});
+							request.always(function () {
+								
+							});
+						}
+						else if($(this).attr('href')=='modal-history'){
+							var request = $.ajax({
+								url: "{{action('UnifiController@getStat')}}",
+								type: "get",
+								dataType: "json",
+								data:{
+									mac:selected_mac,
+									limit:13,
+									sort:'assoc_time',
+									sort_type:-1,
+									_rand:encodeURIComponent(Math.random())
+								}
+							});	
+							request.done(function (response, textStatus, jqXHR){
+							console.log(response);
+								var table = $('#history-table > tbody').empty();
+								for(var y in response.data){
+									var tr = $('<tr></tr>');
+									tr.append($('<td></td>').html(getDate(response.data[y].assoc_time*1000)+' '+getTime(response.data[y].assoc_time*1000)));
+									tr.append($('<td></td>').html(getTime(response.data[y].duration*1000)));
+									
+									tr.append($('<td></td>').html(getUnit(response.data[y].tx_bytes)));
+									tr.append($('<td></td>').html(getUnit(response.data[y].rx_bytes)));
+									table.append(tr);
+								}
+							});	
+							request.fail(function (jqXHR, textStatus, errorThrown){
+								console.log("The following error occured: "+textStatus, errorThrown);
+							});
+							request.always(function () {
+								
+							});
+						
+						}
+					}
+				});
+				
 				initial();
 				$(window).resize(function(){
 					initial();
@@ -652,6 +878,25 @@
 				});
 			}
 			
+			function getUnit(data){
+				if(parseInt(data/1073741824) > 0){
+					data = data / 1073741824;
+					label = 'GBytes';
+				}
+				else if(parseInt(data / 1048576) > 0){
+					data = data / 1048576;
+					label = 'MBytes';
+				}					
+				else if(parseInt(data / 1024) > 0){
+					data = data / 1024;
+					label = 'KBytes';
+				}
+				else{
+					label = 'Bytes';
+				}
+				return data.toFixed(2)+' '+label;
+			}
+			
 			function getDate(parameter){
 				var d = new Date(parameter); //Unix Timestamp millisecond
 				var curr_date = d.getDate();
@@ -669,6 +914,9 @@
 				if (curr_seconds < 10) curr_seconds = "0" + curr_seconds;
 
 				return curr_hours + ":" + curr_minutes + ":" + curr_seconds;
+			}
+			function getDuration(parameter){
+				return Math.round(parameter/1000/60/60/24);
 			}
 		</script>
 	</body>

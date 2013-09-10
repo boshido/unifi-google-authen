@@ -392,7 +392,7 @@
 			
 			function history(){
 				var request = $.ajax({
-						url: "{{action('UnifiController@getHistory')}}",
+						url: "{{action('UnifiController@getUserHistory')}}",
 						type: "get",
 						dataType: "json",
 						data:{
