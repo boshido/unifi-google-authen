@@ -105,21 +105,45 @@ class UnifiController extends Controller {
 		if($user){
 			foreach($user as $key => $value){
 				if($value->is_guest == 1){
-					$guest[]=$value;
 					if($unifi->getCurrentGuest($value->mac))$authorized++;
 					else $non_authorized++;
 				}
 			}	
 		}
-		return Response::json(array('code'=>200,'authorized'=>$authorized,'non_authorized'=>$non_authorized,'data'=>$guest));
+		return Response::json(array('code'=>200,'authorized'=>$authorized,'non_authorized'=>$non_authorized));
 	}
 	
 	public function getDevice()
 	{
 		$mac = Input::get('mac');
+		
+		$find = array();
+		if($mac != null)$find['mac']=$mac;
+		$db = Database::Connect();
+		$user = $db->user;
+		
+		$unifi = new Unifi();
+		$device = $unifi->getUser($find);
+
+		if($device != false){
+			$result = array('code'=>200,'data'=>$device);
+		}
+		else{
+			$device = $user->findOne($find);
+			$result = array('code'=>206,'data'=>$device);
+		}
+		
+		if($device != null)return Response::json($result);
+		else return Response::json(array('code'=>404));
+		
+	}
+	
+	public function getAp()
+	{
+		$mac = Input::get('mac');
 		$unifi = new Unifi();
 		
-		return Response::json(array('code'=>200,'data'=>$unifi->getDevice($mac)));
+		return Response::json(array('code'=>200,'data'=>$unifi->getAp($mac)));
 	}
 	
 	public function getStat()
@@ -130,8 +154,8 @@ class UnifiController extends Controller {
 		
 		$sort_type =  Input::get('sort_type') != null ? (int)Input::get('sort_type') : 1;
 		$unifi = new Unifi();
-		
-		return Response::json(array('code'=>200,'mac'=>$mac,'limit'=>$limit,'sort'=>$sort,'sort_type'=>$sort_type,'data'=>$unifi->getStat($mac,$limit,$sort,$sort_type)));
+		//'mac'=>$mac,'limit'=>$limit,'sort'=>$sort,'sort_type'=>$sort_type
+		return Response::json(array('code'=>200,'data'=>$unifi->getStat($mac,$limit,$sort,$sort_type)));
 	}
 	
 	public function getStatDaily()
@@ -167,6 +191,7 @@ class UnifiController extends Controller {
 		foreach($guest_tmp as $key =>$value){
 			$guest[$value['mac']]=$value;
 		}
+		
 		if($online){ // Online check with       Online User  and  Guest table
 			foreach($online as $key => $value){
 				if($value->is_guest == 1){
@@ -190,15 +215,21 @@ class UnifiController extends Controller {
 				$user[$value['google_id']]['authorized'] = true;
 				$tmp = array('auth_type'=>$value['auth_type'],'mac'=>$value['mac'],'start'=>$value['start'],'end'=>$value['end']);	
 				if(isset($value['hostname'])) $tmp['hostname'] = $value['hostname'];
-				if(isset($value['online']))$user[$value['google_id']]['status']="Online";
-				$user[$value['google_id']]['device'][] = $tmp;
+				
+				if(isset($value['online'])){
+					$user[$value['google_id']]['status']=1;
+					$user[$value['google_id']]['online'][] = $tmp;
+				}
+				else{
+					$user[$value['google_id']]['offline'][] = $tmp;
+				}
 			}
 		}
 		foreach($user as $key =>$value){
 			$result[]=$value;
 		}
 		
-		return Response::json(array('aaData'=>$result));
+		return Response::json(array('code'=>200,'aaData'=>$result));
 		
 	}
 	

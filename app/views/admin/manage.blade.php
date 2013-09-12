@@ -204,12 +204,12 @@
 				/*border-top-right-radius: 3.9914772510528564px;
 				border-bottom-right-radius: 3.9914772510528564px;*/
 			}
-			label.head{
+			label.label-head{
 				color:rgb(0,0,0);
 				font-family: 'Open Sans',arial,sans-serif;
 				font-size:13px;
 			}
-			label.content{
+			label.label-content{
 				color:rgb(100,100,100);
 				font-weight:normal;
 				font-family: 'Open Sans',arial,sans-serif;
@@ -322,14 +322,16 @@
 				padding:0px;
 			}
 			ul.list > li{
-				padding:10px 30px;
+				height:40px;
+				padding:0px 30px;
 				cursor:pointer;
 				
 			}
 			ul.list > li > img{
-				width:22px;
-				height:22px;
-				margin-right:5px;
+				width:26px;
+				height:26px;
+				margin-right:10px;
+				margin-top:6px;
 				float:left;
 			}
 			ul.list > li.selected{
@@ -344,11 +346,35 @@
 				color:white;
 				background-color:rgb(0, 150, 231);
 			}
+			ul.list > li:hover > span{
+				color:white;
+			}
 			ul.list > li:hover img.limited{
 				content:url('/img/admin/time-white.png');
 			}
 			ul.list > li:hover img.unlimited{
 				content:url('/img/admin/infinity-white.png');
+			}
+			
+			.row-splice{
+				overflow:hidden;
+			}
+			.row-splice > .col{
+				float:left;
+			}
+			.row-splice > .col > .col-header{
+				width:50px;
+				height:50px;
+				float:left;
+			}
+			.row-splice > .col > .col-content{
+				width:85px;
+				height:50px;
+				float:left;
+			}
+			.row-splice > .col > .col-content > .col-splice{
+				height:25px;
+				line-height:25px
 			}
 		</style>
 	</head>
@@ -415,7 +441,6 @@
 							<th>Full Name</th>
 							<th>Device</th>
 							<th>Authorized</th>
-							
 						</tr>
 					</thead>
 					<tbody>
@@ -432,7 +457,7 @@
 						</div>
 						<div class="modal-content-right" id="modal-list">
 							<a class="modal-item-list" href="modal-user">
-								<span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home" style="margin-right:5px;"></span>User
+								<span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home" style="margin-right:5px;"></span>Device
 							</a>
 							<a class="modal-item-list" href="modal-statistic" >
 								<span class="icon" aria-hidden="true" data-icon="&#xe000;" alt="Home" style="margin-right:5px;"></span>Statistic
@@ -446,33 +471,63 @@
 					<div class="modal-content">
 						<div class="modal-content-left nano" style="background-color:rgb(230, 230, 230);border-style:solid;border-width:0px 1px 0px 0px;border-color:rgb(203, 203, 203);">
 							<div class="content">
+								<div style="margin:10px 10px 5px 10px;border-bottom: 2px solid rgb(0, 150, 231);">Authorized Device</div>
+								<!--rgb(73, 205, 118)-->
 								<ul class="list" id="device-list">
-									<li class="selected">
-										<img src="/img/admin/infinity.png"   class="limited" ></img>Boshido-Laptop
-									</li>	
-									<li>
-										<img src="/img/admin/time.png"  class="unlimited" ></img>Gnowman-IPAD
-									</li>
+									
+								</ul>
+								<div style="margin:10px 10px 5px 10px;border-bottom: 2px solid rgb(0, 150, 231);">History</div>
+								<ul class="list" id="history-list">
+									
 								</ul>
 							</div>
 						</div>
 						<div class="modal-content-right nano" style="font-family:'Open Sans',arial,sans-serif;font-weight:normal;">
 							<div class="content">
 								<div class="modal-tab" id="modal-alert" >
-										<div style="text-align:center;font-size:18px;font-family: 'Oswald';height:380px;line-height:380px;color:rgb(247, 178, 42)"> Please select a device.</div>
+									<div style="text-align:center;font-size:18px;font-family: 'Oswald';height:380px;line-height:380px;color:rgb(247, 178, 42)"> Please select a device.</div>
 								</div>
 								<div class="modal-tab" id="modal-user" style="display:none" >
-									<div style="margin-left:20px;"><p>Session Information</p>
-										<div style="line-height:50px">
-											<img src="/img/admin/download.png"  style="width:50px;height:50px;float:left" ></img> Download
+									<div style="margin:0px 20px;">
+									
+										<div class="row-splice" id="device-overview">
+											<h3>Overview</h3>
+											<div class="col" >
+												<div  class="col-header"><img src="/img/admin/download.png"  style="width:50px;height:50px" ></img></div>
+												<div  class="col-content">
+													<div class="col-splice">Download</div>
+													<div class="col-splice" id="device-download"></div>
+												</div>
+											</div>
+											<div class="col" >
+												<div  class="col-header"><img src="/img/admin/upload.png"  style="width:50px;height:50px" ></img></div>
+												<div  class="col-content">
+													<div class="col-splice">Upload</div>
+													<div class="col-splice" id="device-upload"></div>
+												</div>
+											</div>
+											<div class="col" >
+												<div  class="col-header"><img src="/img/admin/upload.png"  style="width:50px;height:50px" ></img></div>
+												<div  class="col-content">
+													<div class="col-splice">Upload</div>
+													<div class="col-splice" >3 GBtyes</div>
+												</div>
+											</div>
+											<div class="col" >
+												<div  class="col-header"><img src="/img/admin/upload.png"  style="width:50px;height:50px" ></img></div>
+												<div  class="col-content">
+													<div class="col-splice">Upload</div>
+													<div class="col-splice" >3 GBtyes</div>
+												</div>
+											</div>
 										</div>
-										<div style="line-height:50px">
-											<img src="/img/admin/upload.png"  style="width:50px;height:50px;float:left" ></img> Download
-										</div>
-										<span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home" style="margin-right:5px;"></span>Statistic
-										<span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="Home" style="margin-right:5px;"></span>Statistic
-										<span class="icon" aria-hidden="true" data-icon="&#xe005;" alt="Home" style="margin-right:5px;"></span>Statistic
-										<span class="icon" aria-hidden="true" data-icon="&#xe006;" alt="Home" style="margin-right:5px;"></span>Statistic
+										
+										<dl class="horizontal " id="device-info">
+											<h3>Device Information</h3>
+											<div class="border">
+												
+											</div>
+										</dl>
 									</div>
 								</div>
 								<div class="modal-tab" id="modal-statistic" style="display:none" >
@@ -501,12 +556,6 @@
 					<div class="modal-footer">
 						<button class="pure-button pure-button-primary" style="float:right;margin-top:4px;margin-right:4px">Unauthorize</button>
 					</div>
-					
-					<!-- <label class="head">Device Name : </label><label class="content">Boshido-LAPTOP </label><br>
-						<label class="head">Authentication Type : </label><label class="content">Unlimited</label><br>
-						<label class="head">Start : </label><label class="content">8-9-2556</label><br>
-						<label class="head">End : </label><label class="content">12-12-3000 </label><br>
-						-->
 				</div>
 			</div>
 			<div class="tab" id="device" >
@@ -528,7 +577,7 @@
 		<script src="/js/jquery.dataTables.plugin.js" type="text/javascript" ></script>
 		<script src="/js/scrollbar.js" type="text/javascript" ></script>
 		<script type="text/javascript">
-			var user_table,selected,user_sta={};
+			var user_table,selected;
 			var selected_mac;
 			$(document).ready(function(){
 			 
@@ -549,20 +598,21 @@
 							"sDefaultContent": '<span class="text-alert">None</span>',
 							"bSortable": false,
 							"mRender": function (data, type, full) {		
-								console.log(full);
-								if(full.status == 'Online'){
-									var tmp = {};
-									tmp.device = full.device;
-									tmp.name = full.name
-									return '<a class="modal-button text-success" href="#" data=\''+JSON.stringify(tmp)+'\'">Click !<a>';
-								}
+								console.log( );
+								
+								var tmp = {};
+								if(typeof(full.online)!='undefined')tmp.online = full.online;
+								if(typeof(full.offline)!='undefined')tmp.offline = full.offline;
+								tmp.name = full.name;
+								tmp.google_id = full.google_id;
+								return $('<div>').append($('<a class="modal-button text-success" href="#" >Click !</a>').attr('data-device',JSON.stringify(tmp))).html();
 							},
 							"sClass":'text-center'
 						},
 						{"mDataProp":"status","sDefaultContent": "Offline",'bVisible':false}
 					]
 				} );
-				user_table.fnFilter( 'Online',4);
+				user_table.fnFilter( 1,4);
 				$('#user .search').keyup(function(){
 					user_table.fnFilter( $(this).val() );
 				});
@@ -572,18 +622,63 @@
 					else if($(this).attr('id')=='toggle-all') user_table.fnFilter( '',4);
 				});
 				$('#user').on('click','.modal-button',function(event){
-					console.log($(this).parent());
-					$('#device-list').empty()
-					var user = JSON.parse($(this).attr('data'));
+					
+					$('#device-list').empty();
+					$('#history-list').empty();
+					var user = JSON.parse($(this).attr('data-device'));
 					$('#owner').html(user.name+"'s Device");
 					//{auth_type: 1, mac: "8c:fa:ba:7a:81:cf", start: 1378106032, end: 1978106062, hostname: "Gnowman-iPad"}
-					for(var y in user.device){
-						var img,li;
-						if(user.device[y].auth_type==0) img = $('<img src="/img/admin/time.png" ></img>').addClass('limited');
-						else img = $('<img src="/img/admin/infinity.png" ></img>').addClass('unlimited');
-						$('#device-list').append($('<li class="device-item-list"></li>').attr('mac',user.device[y].mac).append(img).append(typeof(user.device[y].hostname) != 'undefined' ? user.device[y].hostname : user.device[y].mac));
-						
+					
+					if(typeof(user.online)!='undefined'){
+						for(var y in user.online){
+							var img,li;
+							if(user.online[y].auth_type==0) img = $('<img src="/img/admin/time.png" ></img>').addClass('limited');
+							else img = $('<img src="/img/admin/infinity.png" ></img>').addClass('unlimited');
+							$('#device-list').append($('<li class="device-item-list"></li>').attr('data-mac',user.online[y].mac).append(img).append(typeof(user.online[y].hostname) != 'undefined' ? user.online[y].hostname : user.online[y].mac).append('<br><span class="text-green">Online</span>'));
+							
+						}
 					}
+					if(typeof(user.offline)!='undefined'){
+						for(var y in user.offline){
+							var img,li;
+							if(user.offline[y].auth_type==0) img = $('<img src="/img/admin/time.png" ></img>').addClass('limited');
+							else img = $('<img src="/img/admin/infinity.png" ></img>').addClass('unlimited');
+							$('#device-list').append($('<li class="device-item-list"></li>').attr('data-mac',user.offline[y].mac).append(img).append(typeof(user.offline[y].hostname) != 'undefined' ? user.offline[y].hostname : user.offline[y].mac).append('<br><span class="text-alert">Offline</span>'));
+							
+						}
+					}
+					
+					var request = $.ajax({
+								url: "{{action('UnifiController@getUserHistory')}}",
+								type: "get",
+								dataType: "json",
+								data:{
+									google_id:user.google_id,
+									limit:10,
+									sort:'start',
+									sort_type:-1,
+									_rand:encodeURIComponent(Math.random())
+								}
+					});	
+					request.done(function (response, textStatus, jqXHR){
+						response = response.data;
+						for(var y in response){
+							var img,li;
+							if(response[y].auth_type==0) img = $('<img src="/img/admin/time.png" ></img>').addClass('limited');
+							else img = $('<img src="/img/admin/infinity.png" ></img>').addClass('unlimited');
+							$('#history-list').append($('<li class="device-item-list"></li>').attr('data-mac',response[y].mac).append(img).append(typeof(response[y].hostname) != 'undefined' ? response[y].hostname : response[y].mac).append('<br><span class="text-warning">'+getDate(response[y].start*1000)+" "+getTime(response[y].start*1000)+'</span>'));
+						}
+						$(".nano").nanoScroller({ 
+							alwaysVisible: false,
+							preventPageScrolling: true
+						});	
+					});	
+					request.fail(function (jqXHR, textStatus, errorThrown){
+						console.log("The following error occured: "+textStatus, errorThrown);
+					});
+					request.always(function () {
+						
+					});
 					
 					$('.overlay').fadeIn('fast').click(function(){ $(this).fadeOut('fast');$('.modal').fadeOut('fast');});
 					$('.modal').fadeIn('fast');
@@ -592,21 +687,18 @@
 					$('.modal-item-list').removeClass('selected');
 					$('#modal-alert').show();
 					
-					$(".nano").nanoScroller({ 
-						alwaysVisible: false,
-						preventPageScrolling: true
-					});	
+					
+					$('.device-item-list:first').click();
 				});
 				
 				$('body').on('click','.close',function(){
 					$('.overlay').fadeOut('fast');
 					$('.modal').fadeOut('fast');
 				});
-				$('#device-list').on('click','.device-item-list',function(){
+				$('#device-list, #history-list').on('click','.device-item-list',function(){
 					$('.device-item-list').removeClass('selected');
 					$(this).addClass('selected');
-					selected_mac = $(this).attr('mac');
-					console.log(user_sta[selected_mac]);
+					selected_mac = $(this).attr('data-mac');
 					$('.modal-item-list[href="modal-user"]').click();
 				});
 
@@ -618,8 +710,48 @@
 						$('#'+$(this).attr('href')).show();
 						$(this).addClass('selected');
 						if($(this).attr('href')=='modal-user'){
-							
-						
+							var request = $.ajax({
+										url: "{{action('UnifiController@getDevice')}}",
+										type: "get",
+										dataType: "json",
+										data:{
+											mac:selected_mac,
+											_rand:encodeURIComponent(Math.random())
+										}
+							});	
+							request.done(function (response, textStatus, jqXHR){
+								
+								
+								var info = $('#device-info > .border').empty();
+								var overview = $('#device-overview');
+								var device = response.data;
+								if(response.code == 206){
+									overview.hide();
+									if(typeof(device.hostname)!='undefined')info.append('<dt>Device Name : </dt><dd >'+device.hostname+'</dd>');
+									if(typeof(device.mac)!='undefined')info.append('<dt>MAC : </dt><dd >'+device.mac+'</dd>');
+									if(typeof(device.last_seen)!='undefined')info.append('<dt>Last Seen : </dt><dd >'+device.last_seen+'</dd>');
+								}
+								else{
+									overview.show();
+									if(typeof(device.hostname)!='undefined')info.append('<dt>Device Name : </dt><dd >'+device.hostname+'</dd>');
+									if(typeof(device.mac)!='undefined')info.append('<dt>MAC : </dt><dd >'+device.mac+'</dd>');
+									if(typeof(device.ip)!='undefined')info.append('<dt>IP Address : </dt><dd >'+device.ip+'</dd>');
+									if(typeof(device.tx_bytes)!='undefined')$('#device-download').html(getUnit(device.tx_bytes));
+									if(typeof(device.rx_bytes)!='undefined')$('#device-upload').html(getUnit(device.rx_bytes));
+								}
+								/*
+								<dt>Authentication Type : </dt><dd id="device-auth"></dd>
+								<dt>Start Using : </dt><dd id="device-start"></dd>
+								<dt>End Using : </dt><dd id="device-end"></dd>
+								<dt>Uptime : </dt><dd id="device-duration"></dd>
+								<dt>Channel : </dt><dd id="device-channel"></dd>*/
+							});	
+							request.fail(function (jqXHR, textStatus, errorThrown){
+								console.log("The following error occured: "+textStatus, errorThrown);
+							});
+							request.always(function () {
+								
+							});
 						}
 						else if($(this).attr('href')=='modal-statistic'){
 							var tomorrow = new Date();
@@ -635,8 +767,6 @@
 								}
 							});	
 							request.done(function (response, textStatus, jqXHR){
-
-								console.log(response);
 								response=response.data;
 								var graph = {
 										date:[],
@@ -677,7 +807,7 @@
 								else{
 									label = 'Bytes';
 								}
-								
+								$('#bar').empty();
 								chart = new Highcharts.Chart({
 									chart: {
 										renderTo: bar,
@@ -757,7 +887,6 @@
 								}
 							});	
 							request.done(function (response, textStatus, jqXHR){
-							console.log(response);
 								var table = $('#history-table > tbody').empty();
 								for(var y in response.data){
 									var tr = $('<tr></tr>');
@@ -820,15 +949,15 @@
 			}
 			
 			function loading(){
-				device();		
+				ap();		
 				user();
-				user_table.fnReloadAjax('{{action('UnifiController@getUserTable')}}',function(parameter){console.log(parameter)},true);
-				setTimeout(loading,5000);
+				user_table.fnReloadAjax('{{action('UnifiController@getUserTable')}}',function(parameter){},true);
+				//setTimeout(loading,5000);
 			}
 			
-			function device(){
+			function ap(){
 				var request = $.ajax({
-						url: "{{action('UnifiController@getDevice')}}",
+						url: "{{action('UnifiController@getAp')}}",
 						type: "get",
 						dataType: "json",
 						data:{
@@ -866,9 +995,6 @@
 				request.done(function (response, textStatus, jqXHR){
 					$('#authorized').html(response.authorized);
 					$('#non-authorized').html(response.non_authorized);
-					for(var y in response.data){
-						user_sta[response.data[y].mac]=response.data[y];
-					}
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
@@ -881,15 +1007,15 @@
 			function getUnit(data){
 				if(parseInt(data/1073741824) > 0){
 					data = data / 1073741824;
-					label = 'GBytes';
+					label = 'GB';
 				}
 				else if(parseInt(data / 1048576) > 0){
 					data = data / 1048576;
-					label = 'MBytes';
+					label = 'MB';
 				}					
 				else if(parseInt(data / 1024) > 0){
 					data = data / 1024;
-					label = 'KBytes';
+					label = 'KB';
 				}
 				else{
 					label = 'Bytes';

@@ -118,7 +118,7 @@ class Unifi{
 		}
 	}
 	
-	public function getDevice($mac=null)
+	public function getAp($mac=null)
 	{
 		
 		$ch = curl_init();

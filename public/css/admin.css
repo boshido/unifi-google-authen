@@ -13,6 +13,7 @@
 html{
 	font-family: 'Oswald';
 }
+
 .quick-info{
 	position:absolute;
 	top:0px;
@@ -27,7 +28,29 @@ html{
 	border-color:rgb(100, 100, 100);
 	
 }
-
+dl.horizontal {
+	margin:0px
+}
+.border {
+	border-style:solid;
+	border-width:1px;
+	border-color:rgb(203, 203, 203);
+}
+dl.horizontal dt {
+	color:#0096CC;
+	float:left; 
+	font-weight:bold; 
+	margin-right:5px; 
+	padding:5px;  
+	width:150px; 
+	text-align:left;
+}
+ 
+dl.horizontal dd {
+	margin:2px auto;
+	padding:5px 0;
+	overflow:hidden;
+}
 
 /* Sign In Page */
 .login-box{
@@ -69,8 +92,14 @@ html{
 .text-success{
 	color:rgb(159, 216, 52);
 }
+.text-green{
+	color:rgb(73, 205, 118);
+}
 .text-alert{
 	color:rgb(229, 108, 25);
+}
+.text-warning{
+	color:rgb(241, 163, 6);
 }
 .text-muted{
 	color:rgb(185, 185, 185);
