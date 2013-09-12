@@ -299,21 +299,21 @@
 					}
 					var max = Math.max(Math.max.apply(Math, graph.data.tx),Math.max.apply(Math, graph.data.rx));
 					var label;
-					if(parseInt(max/1073741824) > 0){
+					if(Math.floor(max/1073741824) != 0){
 						for(var y in graph.data.tx){
 							graph.data.tx[y] = graph.data.tx[y] / 1073741824;
 							graph.data.rx[y] = graph.data.rx[y] / 1073741824;
 						}
 						label = 'GBytes';
 					}
-					else if(parseInt(max / 1048576) > 0){
+					else if(Math.floor(max / 1048576) != 0){
 						for(var y in graph.data.tx){
 							graph.data.tx[y] = graph.data.tx[y] / 1048576;
 							graph.data.rx[y] = graph.data.rx[y] / 1048576;
 						}
 						label = 'MBytes';
 					}					
-					else if(parseInt(max / 1024) > 0){
+					else if(Math.floor(max / 1024) != 0){
 						for(var y in graph.data.tx){
 							graph.data.tx[y] = graph.data.tx[y] / 1024;
 							graph.data.rx[y] = graph.data.rx[y] / 1024;

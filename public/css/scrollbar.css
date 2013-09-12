@@ -24,7 +24,7 @@
 .nano > .pane {
   background : rgba(170,170,170,1);
   position   : absolute;
-  width      : 10px;
+  width      : 6px;
   right      : 0;
   top        : 0;
   bottom     : 0;
@@ -34,9 +34,9 @@
   -moz-transition       : .2s;
   -o-transition         : .2s;
   transition            : .2s;
-  -moz-border-radius    : 5px;
+  /*-moz-border-radius    : 5px;
   -webkit-border-radius : 5px;  
-  border-radius         : 5px;
+  border-radius         : 5px;*/
   z-index:200;
 }
 .nano > .pane > .slider {

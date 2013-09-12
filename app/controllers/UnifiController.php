@@ -117,8 +117,7 @@ class UnifiController extends Controller {
 	{
 		$mac = Input::get('mac');
 		
-		$find = array();
-		if($mac != null)$find['mac']=$mac;
+		$find['mac']=$mac;
 		$db = Database::Connect();
 		$user = $db->user;
 		
@@ -177,6 +176,38 @@ class UnifiController extends Controller {
 		return Response::json(array('code'=>200,'data'=>$unifi->getStatSummary($type,$data)));
 	}
 	
+	public function getAuthorizedDevice(){
+		
+		$google_id = Input::get('google_id');
+		$unifi = new Unifi();
+		$db = Database::Connect();
+		$guest = $db->guest;
+		$result = array();
+		$tmp = array();
+		$time = time();
+		$find = array('google_id'=>$google_id,'$and'=>array(array('start'=>array('$lte'=>$time)),array('end'=>array('$gte'=>$time))));
+		$cursor = $guest->find($find);
+		$online = $unifi->getUser(array('all'=>true));
+		if($online){
+			foreach($online as $key => $value){
+				$tmp[$value->mac]=$value;
+			}
+		}
+		
+		foreach($cursor as $key => $value){
+			$value['_id']=(string)$value['_id'];
+			if(isset($tmp[$value['mac']]) && $tmp[$value['mac']]->is_guest == 1){
+				$result['online'][]=$value;
+			}
+			else{
+				$result['offline'][]=$value;
+			}
+		}
+		
+		if(count($result)>0)return Response::json(array('code'=>200,'data'=>$result));
+		else return Response::json(array('code'=>404));
+	}
+	
 	public function getUserTable(){
 	
 		$unifi = new Unifi();
@@ -208,6 +239,8 @@ class UnifiController extends Controller {
 					$value['name'] = $value['fname'].' '.$value['lname'];
 				}
 			}
+			$value['online']=0;
+			$value['offline']=0;
 			$user[$value['google_id']] = $value;			
 		}
 		foreach($guest as $key =>$value){
@@ -218,10 +251,10 @@ class UnifiController extends Controller {
 				
 				if(isset($value['online'])){
 					$user[$value['google_id']]['status']=1;
-					$user[$value['google_id']]['online'][] = $tmp;
+					$user[$value['google_id']]['online']++;
 				}
 				else{
-					$user[$value['google_id']]['offline'][] = $tmp;
+					$user[$value['google_id']]['offline']++;
 				}
 			}
 		}
