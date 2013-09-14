@@ -11,7 +11,12 @@ $(document).ready(function(){
 		},
 		//"sAjaxSource": "{{action('UnifiController@getUserTable')}}",
 		"aoColumns":[
-			{"mDataProp":"hostname","sDefaultContent": ""},	
+			{"sDefaultContent": "",
+				"mRender": function (data, type, full) {			
+					if(typeof(full.hostname)!='undefined')return full.hostname;
+					else return full.mac;
+				}
+			},	
 			{
 				"sDefaultContent": 'Pending',
 				"mRender": function (data, type, full) {			

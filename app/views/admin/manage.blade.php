@@ -386,6 +386,13 @@
 				height:25px;
 				line-height:25px
 			}
+			.item-list-data{
+				white-space: nowrap;
+				width: 120px;
+				height: 20px;
+				text-overflow: ellipsis;
+				overflow: hidden;
+			}
 		</style>
 	</head>
 	<body>
@@ -499,7 +506,7 @@
 				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
 				<div class="modal-header">
 					<div class="modal-content-left">
-						<img src="/img/admin/device2.png"  style="width:35px;height:25px;margin:5px 5px 0px 10px;float:left;"></img><span id="owner"></span>
+						<img src="/img/admin/device2.png"  style="width:35px;height:25px;margin:5px 5px 0px 10px;float:left;"></img><span id="owner" ></span>
 					</div>
 					<div class="modal-content-right" id="modal-list">
 						<a class="modal-item-list" href="modal-user">
@@ -685,23 +692,24 @@
 				request.done(function (response, textStatus, jqXHR){
 					$('#device-list').empty();
 					response = response.data;
+					var img,li,data;
 					if(typeof(response.online)!='undefined'){
 						for(var y in response.online){
-							var img,li;
 							if(response.online[y].auth_type==0) img = $('<img src="/img/admin/time.png" ></img>').addClass('limited');
 							else img = $('<img src="/img/admin/infinity.png" ></img>').addClass('unlimited');
-							$('#device-list').append($('<li class="device-item-list"></li>').attr('data-mac',response.online[y].mac)//.attr('data-status','1')
-							.append(img).append(typeof(response.online[y].hostname) != 'undefined' ? response.online[y].hostname : response.online[y].mac).append('<br><span class="text-green">Online</span>'));
+							data = $('<div></div>').addClass('item-list-data').html(typeof(response.online[y].hostname) != 'undefined' ? response.online[y].hostname : response.online[y].mac);
+							$('#device-list').append($('<li class="device-item-list"></li>').attr('data-mac',response.online[y].mac)
+							.append(img).append(data).append('<span class="text-green">Online</span>'));
 							
 						}
 					}
 					if(typeof(response.offline)!='undefined'){
 						for(var y in response.offline){
-							var img,li;
 							if(response.offline[y].auth_type==0) img = $('<img src="/img/admin/time.png" ></img>').addClass('limited');
 							else img = $('<img src="/img/admin/infinity.png" ></img>').addClass('unlimited');
-							$('#device-list').append($('<li class="device-item-list"></li>').attr('data-mac',response.offline[y].mac)//.attr('data-status','0')
-							.append(img).append(typeof(response.offline[y].hostname) != 'undefined' ? response.offline[y].hostname : response.offline[y].mac).append('<br><span class="text-alert">Offline</span>'));
+							data = $('<div></div>').addClass('item-list-data').html(typeof(response.offline[y].hostname) != 'undefined' ? response.offline[y].hostname : response.offline[y].mac);
+							$('#device-list').append($('<li class="device-item-list"></li>').attr('data-mac',response.offline[y].mac)
+							.append(img).append(data).append('<span class="text-alert">Offline</span>'));
 							
 						}
 					}
@@ -733,11 +741,12 @@
 					$('#history-list').empty();
 					response = response.data;
 					for(var y in response){
-						var img,li;
+						var img,li,data;
 						if(response[y].auth_type==0) img = $('<img src="/img/admin/time.png" ></img>').addClass('limited');
 						else img = $('<img src="/img/admin/infinity.png" ></img>').addClass('unlimited');
+						data = $('<div></div>').addClass('item-list-data').html(typeof(response[y].hostname) != 'undefined' ? response[y].hostname : response[y].mac);
 						$('#history-list').append($('<li class="device-item-list"></li>').attr('data-mac',response[y].mac).append(img).attr('data-status',response[y].online)
-						.append(typeof(response[y].hostname) != 'undefined' ? response[y].hostname : response[y].mac).append('<br><span class="text-warning">'+getDate(response[y].start*1000)+" "+getTime(response[y].start*1000)+'</span>'));
+						.append(data).append('<span class="text-warning">'+getDate(response[y].start*1000)+" "+getTime(response[y].start*1000)+'</span>'));
 					}
 					$(".nano").nanoScroller({ alwaysVisible: false,preventPageScrolling: true});		
 				});	
