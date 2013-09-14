@@ -60,7 +60,56 @@ class Unifi{
 		$result = curl_exec ($ch);
 		$ch = $this->sendLogout($ch);
 		return $result;
+	}	
+	
+	public function sendBlock($id)
+	{
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		$data = array(
+			'cmd'=>'block-sta',
+			'mac'=>$id);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/stamgr');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
+		$result = curl_exec ($ch);
+		$ch = $this->sendLogout($ch);
+		return $result;
 	}
+	
+	public function sendUnBlock($id)
+	{
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		$data = array(
+			'cmd'=>'unblock-sta',
+			'mac'=>$id);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/stamgr');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
+		$result = curl_exec ($ch);
+		$ch = $this->sendLogout($ch);
+		return $result;
+	}
+	
+	public function sendReconnect($id)
+	{
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		$data = array(
+			'cmd'=>'kick-sta',
+			'mac'=>$id);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/stamgr');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
+		$result = curl_exec ($ch);
+		$ch = $this->sendLogout($ch);
+		return $result;
+	}
+	
 	
 	public function getUser($array)
 	{

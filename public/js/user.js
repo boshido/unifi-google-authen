@@ -1,4 +1,6 @@
+var user_table;
 $(document).ready(function(){	
+	
 	user_table = $('#user-table').dataTable( {
 		"sDom": "<r><t><i><p>",
 		"sPaginationType": "full_numbers",
@@ -37,36 +39,31 @@ $(document).ready(function(){
 	$('#user .toggle').on('change',function(){
 		if($(this).attr('id')=='toggle-online') user_table.fnFilter( 1,4);
 		else if($(this).attr('id')=='toggle-offline') user_table.fnFilter( 0,4);
-		else if($(this).attr('id')=='toggle-all') user_table.fnFilter( '',4);
+		else if($(this).attr('id')=='toggle-all-user') user_table.fnFilter( '',4);
 	});
 	$('#user').on('click','.modal-button',function(event){
+		selected_google_id= $(this).attr('data-id');
 		
-		$('#device-list').empty();
-		$('#history-list').empty();
-		var google_id = $(this).attr('data-id');
+		$('#owner').html($(this).attr('data-name')+"'s Device")
+		authorized(selected_google_id);
+		userhistory(selected_google_id);
 		
-		$('#owner').html($(this).attr('data-name')+"'s Device");
-		authorized(google_id);
-		userhistory(google_id);
-		
-		$('.overlay').fadeIn('fast').click(function(){ $(this).fadeOut('fast');$('.modal').fadeOut('fast');});
+		$('.overlay').fadeIn('fast');
 		$('.modal').fadeIn('fast');
 		
 		$('.modal-tab').hide();
 		$('.modal-item-list').removeClass('selected');
 		$('#modal-alert').show();
+		$('.modal-footer').empty();
 	});
 	
-	$('body').on('click','.close',function(){
-		$('.overlay').fadeOut('fast');
-		$('.modal').fadeOut('fast');
-	});
 	$('#device-list, #history-list').on('click','.device-item-list',function(){
 		$('.device-item-list').removeClass('selected');
 		$(this).addClass('selected');
 		selected_mac = $(this).attr('data-mac');
-		$('.modal-item-list[href="modal-user"]').click();
-		
+		device();
+		//$('.modal-item-list[href="modal-user"]').click();
+		$('.modal-item-list.selected').length > 0 ? $('.modal-item-list.selected').click() : $('.modal-item-list[href="modal-user"]').click();
 	});
 
 	$('#modal-list').on('click','.modal-item-list',function(event){
@@ -77,7 +74,7 @@ $(document).ready(function(){
 			$('#'+$(this).attr('href')).show();
 			$(this).addClass('selected');
 			if($(this).attr('href')=='modal-user'){
-				device();
+				
 			}
 			else if($(this).attr('href')=='modal-statistic'){
 				dailystat();
@@ -88,3 +85,10 @@ $(document).ready(function(){
 		}
 	});
 });
+
+function autoload(){
+	if(selected_google_id != '' && selected_mac != ''){
+		authorized(selected_google_id,selected_mac);
+		userhistory(selected_google_id);
+	}
+}

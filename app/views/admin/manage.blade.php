@@ -57,7 +57,7 @@
 				display:none;
 			}
 			.banner{
-				margin:5px 5px 5px 15px;
+				margin:5px 15px 5px 20px;
 			}
 			.menu-list{
 				position:absolute;
@@ -400,7 +400,7 @@
 				<dt>Device</dt>
 				<dd>
 					<p><span class="text-inform" id="authorized"></span><br><span class="text-muted">authorized</span></p>
-					<p class="last"><span class="text-alert" id="non-authorized"></span><br><span class="text-muted">non-authorized</span></p>
+					<p class="last"><span class="text-alert" id="pending"></span><br><span class="text-muted">pending</span></p>
 				</dd>
 				
 			</dl>
@@ -437,9 +437,9 @@
 					<label for="search" style="width:40px;color:white;margin-right:5px;">Search</label> 
 					<input class="search" name="search" type="text" style="height:25px;padding:5px;">
 					
-					<input id="toggle-all" 	class="toggle toggle-right" name="user-toggle" value="true" 	type="radio" ><label for="toggle-all" >All</label
-					><input id="toggle-offline" class="toggle" 				name="user-toggle" value="false" 	type="radio" ><label for="toggle-offline" style=""  >Offline</label
-					><input id="toggle-online" 	class="toggle toggle-left" 	name="user-toggle" value="false" 	type="radio" checked><label for="toggle-online" >Online</label
+					<input id="toggle-all-user" 	class="toggle toggle-right" name="user-toggle"  	type="radio" ><label for="toggle-all-user" >All</label
+					><input id="toggle-offline" class="toggle" 				name="user-toggle" 	type="radio" ><label for="toggle-offline" style=""  >Offline</label
+					><input id="toggle-online" 	class="toggle toggle-left" 	name="user-toggle"  type="radio" checked><label for="toggle-online" >Online</label
 					>
 				</div>
 			
@@ -450,7 +450,7 @@
 							<th>Full Name</th>
 							<th>Authorized Devices</th>
 							<th>Action</th>
-							<th>Authorized</th>
+							<th>toggle</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -458,123 +458,150 @@
 						
 					</tbody>			
 				</table>
-				<div class="modal">
-					
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-					<div class="modal-header">
-						<div class="modal-content-left">
-							<img src="/img/admin/device2.png"  style="width:35px;height:25px;margin:5px 5px 0px 10px;float:left;"></img><span id="owner"></span>
-						</div>
-						<div class="modal-content-right" id="modal-list">
-							<a class="modal-item-list" href="modal-user">
-								<span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home" style="margin-right:5px;"></span>Device
-							</a>
-							<a class="modal-item-list" href="modal-statistic" >
-								<span class="icon" aria-hidden="true" data-icon="&#xe000;" alt="Home" style="margin-right:5px;"></span>Statistic
-							</a>
-							<a class="modal-item-list" href="modal-history">
-								<span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="Home" style="margin-right:5px;"></span>History
-							</a>
-						</div>
-					</div>
-					<div style="width:100%;border-style:solid;border-width:1px 0px;border-color:rgb(247, 178, 42);"></div>
-					<div class="modal-content">
-						<div class="modal-content-left nano" style="background-color:rgb(230, 230, 230);border-style:solid;border-width:0px 1px 0px 0px;border-color:rgb(203, 203, 203);">
-							<div class="content">
-								<div style="margin:10px 10px 5px 10px;border-bottom: 2px solid rgb(0, 150, 231);">Authorized Device</div>
-								<!--rgb(73, 205, 118)-->
-								<ul class="list" id="device-list">
-									
-								</ul>
-								<div style="margin:10px 10px 5px 10px;border-bottom: 2px solid rgb(0, 150, 231);">History</div>
-								<ul class="list" id="history-list">
-									
-								</ul>
-							</div>
-						</div>
-						<div class="modal-content-right nano" style="font-family:'Open Sans',arial,sans-serif;font-weight:normal;">
-							<div class="content">
-								<div class="modal-tab" id="modal-alert" >
-									<div style="text-align:center;font-size:18px;font-family: 'Oswald';height:380px;line-height:380px;color:rgb(247, 178, 42)"> Please select a device.</div>
-								</div>
-								<div class="modal-tab" id="modal-user" style="display:none" >
-									<div style="margin:0px 20px;">
-									
-										<div class="row-splice" id="device-overview">
-											<h3>Overview</h3>
-											<div class="col" >
-												<div  class="col-header"><img src="/img/admin/download.png"  style="width:50px;height:50px" ></img></div>
-												<div  class="col-content">
-													<div class="col-splice">Download</div>
-													<div class="col-splice" id="device-download"></div>
-												</div>
-											</div>
-											<div class="col" >
-												<div  class="col-header"><img src="/img/admin/upload.png"  style="width:50px;height:50px" ></img></div>
-												<div  class="col-content">
-													<div class="col-splice">Upload</div>
-													<div class="col-splice" id="device-upload"></div>
-												</div>
-											</div>
-											<div class="col" >
-												<div  class="col-header"><img src="/img/admin/wireless-good.png"  style="width:50px;height:50px" id="device-signal-img"></img></div>
-												<div  class="col-content">
-													<div class="col-splice">Signal</div>
-													<div class="col-splice" id="device-signal"></div>
-												</div>
-											</div>
-											<div class="col" >
-												<div  class="col-header"><img src="/img/admin/activity.png"  style="width:50px;height:50px" ></img></div>
-												<div  class="col-content">
-													<div class="col-splice">Activity</div>
-													<div class="col-splice" id="device-rate"></div>
-												</div>
-											</div>
-										</div>
-										
-										<dl class="horizontal " id="device-info">
-											<h3>Device Information</h3>
-											<div class="border">
-												
-											</div>
-										</dl>
-									</div>
-								</div>
-								<div class="modal-tab" id="modal-statistic" style="display:none" >
-									<div class="chart" id="bar"  style="height:380px;overflow:hidden">
-						
-									</div>
-								</div>
-								<div class="modal-tab" id="modal-history" style="display:none" >
-									<table class="pure-table black" id="history-table" style="width:100%;border-style:solid;border-width:0px 0px 1px 0px">
-										<thead>
-											<tr>
-												<th>Date/Time</th>
-												<th>Duration</th>
-												<th>Download</th>
-												<th>Upload</th>
-											</tr>
-										</thead>
-										<tbody >									
-										</tbody>			
-									</table>
-								</div>
-							</div>
-						</div>
-					</div>
-					
-					<div class="modal-footer">
-						
-					</div>
-				</div>
+				
 			</div>
 			<div class="tab" id="device" >
+				<div class="pure-form controller-bar">
+					<label for="search" style="width:40px;color:white;margin-right:5px;">Search</label> 
+					<input class="search" name="search" type="text" style="height:25px;padding:5px;">
+					
+					<input id="toggle-all-device" 	class="toggle toggle-right" name="device-toggle" 	type="radio" ><label for="toggle-all-device" >All</label
+					><input id="toggle-pending" class="toggle" 	name="device-toggle"  	type="radio" ><label for="toggle-pending" style=""  >Pending</label>
+					<input id="toggle-authorized" class="toggle" 	name="device-toggle"  	type="radio" checked><label for="toggle-authorized" style=""  >Authorized</label>
+				</div>
+				<table class="pure-table" id="device-table" style="width:100%;">
+					<thead>
+						<tr>
+							<th>Device Name</th>
+							<th>Authorized</th>
+							<th>IP Address</th>
+							<th>Download</th>
+							<th>Upload</th>
+							<th>Activity</th>	
+							<th>Action</th>
+							<th>toggle</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+						
+					</tbody>			
+				</table>
 			</div>
 			<div class="tab" id="ap" >
 			</div>
 			<div class="tab" id="authorize" >
 			</div>
 			<div class="tab" id="setting" >
+			</div>
+			
+			<div class="modal">	
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<div class="modal-header">
+					<div class="modal-content-left">
+						<img src="/img/admin/device2.png"  style="width:35px;height:25px;margin:5px 5px 0px 10px;float:left;"></img><span id="owner"></span>
+					</div>
+					<div class="modal-content-right" id="modal-list">
+						<a class="modal-item-list" href="modal-user">
+							<span class="icon" aria-hidden="true" data-icon="&#xe003;" alt="Home" style="margin-right:5px;"></span>Device
+						</a>
+						<a class="modal-item-list" href="modal-statistic" >
+							<span class="icon" aria-hidden="true" data-icon="&#xe000;" alt="Home" style="margin-right:5px;"></span>Statistic
+						</a>
+						<a class="modal-item-list" href="modal-history">
+							<span class="icon" aria-hidden="true" data-icon="&#xe004;" alt="Home" style="margin-right:5px;"></span>History
+						</a>
+					</div>
+				</div>
+				<div style="width:100%;border-style:solid;border-width:1px 0px;border-color:rgb(247, 178, 42);"></div>
+				<div class="modal-content">
+					<div class="modal-content-left nano" style="background-color:rgb(230, 230, 230);border-style:solid;border-width:0px 1px 0px 0px;border-color:rgb(203, 203, 203);">
+						<div class="content">
+							<div style="margin:10px 10px 5px 10px;border-bottom: 2px solid rgb(0, 150, 231);">Authorized Device</div>
+							<!--rgb(73, 205, 118)-->
+							<ul class="list" id="device-list">
+								
+							</ul>
+							<div style="margin:10px 10px 5px 10px;border-bottom: 2px solid rgb(0, 150, 231);">History</div>
+							<ul class="list" id="history-list">
+								
+							</ul>
+						</div>
+					</div>
+					<div class="modal-content-right nano" style="font-family:'Open Sans',arial,sans-serif;font-weight:normal;">
+						<div class="content">
+							<div class="modal-tab" id="modal-alert" >
+								<div style="text-align:center;font-size:18px;font-family: 'Oswald';height:380px;line-height:380px;color:rgb(247, 178, 42)"> Please select a device.</div>
+							</div>
+							<div class="modal-tab" id="modal-user" style="display:none" >
+								<div style="margin:0px 20px;">
+								
+									<div class="row-splice" id="device-overview">
+										<h3>Overview</h3>
+										<div class="col" >
+											<div  class="col-header"><img src="/img/admin/download.png"  style="width:50px;height:50px" ></img></div>
+											<div  class="col-content">
+												<div class="col-splice">Download</div>
+												<div class="col-splice" id="device-download"></div>
+											</div>
+										</div>
+										<div class="col" >
+											<div  class="col-header"><img src="/img/admin/upload.png"  style="width:50px;height:50px" ></img></div>
+											<div  class="col-content">
+												<div class="col-splice">Upload</div>
+												<div class="col-splice" id="device-upload"></div>
+											</div>
+										</div>
+										<div class="col" >
+											<div  class="col-header"><img src="/img/admin/wireless-good.png"  style="width:50px;height:50px" id="device-signal-img"></img></div>
+											<div  class="col-content">
+												<div class="col-splice">Signal</div>
+												<div class="col-splice" id="device-signal"></div>
+											</div>
+										</div>
+										<div class="col" >
+											<div  class="col-header"><img src="/img/admin/activity.png"  style="width:50px;height:50px" ></img></div>
+											<div  class="col-content">
+												<div class="col-splice">Activity</div>
+												<div class="col-splice" id="device-rate"></div>
+											</div>
+										</div>
+									</div>
+									
+									<dl class="horizontal " id="device-info">
+										<h3>Device Information</h3>
+										<div class="border">
+											
+										</div>
+									</dl>
+								</div>
+							</div>
+							<div class="modal-tab" id="modal-statistic" style="display:none" >
+								<div class="chart" id="bar"  style="height:380px;overflow:hidden">
+					
+								</div>
+							</div>
+							<div class="modal-tab" id="modal-history" style="display:none" >
+								<table class="pure-table black" id="history-table" style="width:100%;border-style:solid;border-width:0px 0px 1px 0px">
+									<thead>
+										<tr>
+											<th>Date/Time</th>
+											<th>Duration</th>
+											<th>Download</th>
+											<th>Upload</th>
+										</tr>
+									</thead>
+									<tbody >									
+									</tbody>			
+								</table>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				<div class="modal-footer">
+					
+				</div>
 			</div>
 		</div>
 		<div class="overlay">
@@ -587,16 +614,22 @@
 		<script src="/js/jquery.dataTables.plugin.js" type="text/javascript" ></script>
 		<script src="/js/scrollbar.js" type="text/javascript" ></script>
 		<script src="/js/user.js" type="text/javascript" ></script>
+		<script src="/js/device.js" type="text/javascript" ></script>
 		<script type="text/javascript">
-			var user_table,selected;
-			var selected_mac;
+			var selected,selected_mac='',selected_google_id='';
+			
 			$(document).ready(function(){
 				initial();
 				$(window).resize(function(){
 					initial();
 					console.log($(this).width()+' '+$(this).height());
 				});
-				
+				$('body').on('click','.close, .overlay',function(){
+					$('.overlay').fadeOut('fast');
+					$('.modal').fadeOut('fast');
+					selected_mac = '';
+					selected_google_id='';
+				});
 				$('.menu-item-list').on('click',function(){
 					var element = $(this);
 					if($(element.attr('href')).css('display')=='none'){
@@ -634,10 +667,12 @@
 				ap();		
 				user();
 				user_table.fnReloadAjax('{{action('UnifiController@getUserTable')}}',function(parameter){},true);
+				device_table.fnReloadAjax('{{action('UnifiController@getDeviceTable')}}',function(parameter){},true);
+				autoload();
 				setTimeout(loading,5000);
 			}
 			
-			function authorized(google_id){
+			function authorized(google_id,mac){
 				var request = $.ajax({
 							url: "{{action('UnifiController@getAuthorizedDevice')}}",
 							type: "get",
@@ -648,6 +683,7 @@
 							}
 				});	
 				request.done(function (response, textStatus, jqXHR){
+					$('#device-list').empty();
 					response = response.data;
 					if(typeof(response.online)!='undefined'){
 						for(var y in response.online){
@@ -669,7 +705,7 @@
 							
 						}
 					}
-					$('.device-item-list:first').click();
+					$('#device-list').find('.device-item-list[data-mac="'+mac+'"]').click();
 					$(".nano").nanoScroller({ alwaysVisible: false,preventPageScrolling: true});	
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
@@ -694,6 +730,7 @@
 							}
 				});	
 				request.done(function (response, textStatus, jqXHR){
+					$('#history-list').empty();
 					response = response.data;
 					for(var y in response){
 						var img,li;
@@ -723,15 +760,24 @@
 				});	
 				request.done(function (response, textStatus, jqXHR){
 					
-					
-					var info = $('#device-info > .border').empty();
 					var overview = $('#device-overview');
+					var info = $('#device-info > .border').empty();
+					var footer = $('.modal-footer').empty();
 					var device = response.data;
 					if(response.code == 206){
 						overview.hide();
 						if(typeof(device.hostname)!='undefined')info.append('<dt>Device Name : </dt><dd >'+device.hostname+'</dd>');
 						if(typeof(device.mac)!='undefined')info.append('<dt>MAC : </dt><dd >'+device.mac+'</dd>');
 						if(typeof(device.last_seen)!='undefined')info.append('<dt>Last Seen : </dt><dd >'+getDate(device.last_seen*1000)+' '+getTime(device.last_seen*1000)+'</dd>');
+						
+						if(response.is_auth)footer.append('<button class="pure-button" onclick="unauthorize(\''+device.mac+'\')">Unauthorize</button>');
+						if(typeof(device.blocked)!='undefined'){
+							if(device.blocked)footer.append('<button class="pure-button " onclick="block(\''+device.mac+'\',0)" >Unblock</button>');
+							else footer.append('<button class="pure-button" onclick="block(\''+device.mac+'\',1)">Block</button>');
+						}
+						else footer.append('<button class="pure-button" onclick="block(\''+device.mac+'\',1)">Block</button>');
+						
+						
 					}
 					else{
 						overview.show();
@@ -755,13 +801,11 @@
 						if(typeof(device.ip)!='undefined')info.append('<dt>IP Address : </dt><dd >'+device.ip+'</dd>');
 						if(typeof(device.uptime)!='undefined')info.append('<dt>Uptime : </dt><dd >'+getDuration(device.uptime*1000)+'</dd>');
 						
+						if(response.is_auth)footer.append('<button class="pure-button" onclick="unauthorize(\''+device.mac+'\')">Unauthorize</button>');
+						footer.append('<button class="pure-button" onclick="reconnect(\''+device.mac+'\')">Reconnect</button>');
+						footer.append('<button class="pure-button" onclick="block(\''+device.mac+'\',1)">Block</button>');
 					}
 					
-					/*<button class="pure-button " >Unauthorize</button>
-						<button class="pure-button " >Reconnect</button>
-						<button class="pure-button " >Block</button>*/
-					
-					//$('.modal-footer').append()
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
@@ -857,7 +901,8 @@
 						plotOptions: {
 							column: {
 								pointPadding: 0.2,
-								borderWidth: 0
+								borderWidth: 0,
+								animation: false
 							}
 						},
 						colors:
@@ -954,7 +999,7 @@
 			
 			function user(){
 				var request = $.ajax({
-						url: "{{action('UnifiController@getUserList')}}",
+						url: "{{action('UnifiController@getDeviceCount')}}",
 						type: "get",
 						dataType: "json",
 						data:{
@@ -963,7 +1008,74 @@
 				});	
 				request.done(function (response, textStatus, jqXHR){
 					$('#authorized').html(response.authorized);
-					$('#non-authorized').html(response.non_authorized);
+					$('#pending').html(response.non_authorized);
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+			}
+			
+			function block(mac,cmd){
+				var url;
+				if(cmd==1) url = "{{action('UnifiController@postBlock')}}";
+				else url = "{{action('UnifiController@postUnBlock')}}";
+				
+				var request = $.ajax({
+						url: url,
+						type: "post",
+						dataType: "json",
+						data:{
+							mac:mac,
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					autoload();
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+			}
+			
+			function reconnect(mac){
+				var request = $.ajax({
+						url: "{{action('UnifiController@postReconnect')}}",
+						type: "post",
+						dataType: "json",
+						data:{
+							mac:mac,
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					autoload();
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+			}
+			
+			function unauthorize(mac){
+				var request = $.ajax({
+						url: "{{action('UnifiController@postDeactiveSession')}}",
+						type: "post",
+						dataType: "json",
+						data:{
+							mac:mac,
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					autoload();
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
