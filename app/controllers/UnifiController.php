@@ -301,6 +301,7 @@ class UnifiController extends Controller {
 		$result = array();
 		
 		foreach($tmp as $key =>$value){
+			//if()
 			$authorized[$value['mac']]=$value;
 		}
 		foreach($cursor as $key =>$value){
@@ -311,14 +312,16 @@ class UnifiController extends Controller {
 				if($value->is_guest == 1){
 					if(isset($authorized[$value->mac])){
 						$value->is_auth=1;
-						$value->google_id=$authorized[$value->mac]['google_id'];
-						$google = $user[$value->google_id];
-						if(!isset($google['name']) || $google['name'] == '-'){
-							if($google['fname'] != '-' && $google['lname'] != '-'){
-								$value->name = $google['fname'].' '.$google['lname'];
+						if(isset($authorized[$value->mac]['google_id'])){
+							$value->google_id=$authorized[$value->mac]['google_id'];
+							$google = $user[$value->google_id];
+							if(!isset($google['name']) || $google['name'] == '-'){
+								if($google['fname'] != '-' && $google['lname'] != '-'){
+									$value->name = $google['fname'].' '.$google['lname'];
+								}
 							}
+							else $value->name = $google['name'];
 						}
-						else $value->name = $google['name'];
 					}
 					else{
 						$value->is_auth=0;

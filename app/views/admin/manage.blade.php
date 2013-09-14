@@ -473,7 +473,7 @@
 					<thead>
 						<tr>
 							<th>Device Name</th>
-							<th>Authorized</th>
+							<th>Status</th>
 							<th>IP Address</th>
 							<th>Download</th>
 							<th>Upload</th>
@@ -1033,7 +1033,7 @@
 						}
 				});	
 				request.done(function (response, textStatus, jqXHR){
-					autoload();
+					loading();
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
@@ -1054,7 +1054,7 @@
 						}
 				});	
 				request.done(function (response, textStatus, jqXHR){
-					autoload();
+					loading();
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
@@ -1075,7 +1075,7 @@
 						}
 				});	
 				request.done(function (response, textStatus, jqXHR){
-					autoload();
+					loading();
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);

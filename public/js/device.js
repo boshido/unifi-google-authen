@@ -49,9 +49,15 @@ $(document).ready(function(){
 				"sDefaultContent": '<span class="text-alert">None</span>',
 				"bSortable": false,
 				"mRender": function (data, type, full) {		
-					var tmp = {};
-					return $('<div>').append($('<a class="modal-button text-success" href="#" >Show Information</a>').attr('data-mac',full.mac)
-					.attr('data-id',full.google_id).attr('data-name',full.name)).html();
+					if(typeof(full.google_id) != 'undefined'){
+						return $('<div>').append($('<a class="modal-button text-success" href="#" >Show Information</a>').attr('data-mac',full.mac)
+						.attr('data-id',full.google_id).attr('data-name',full.name)).html();
+					}
+					else if(full.is_auth==1) return '<a class="text-alert" style="cursor:pointer" onclick="unauthorize(\''+full.mac+'\')">Unauthorize</a>'
+					else {
+						return '<a class="text-alert" style="cursor:pointer" onclick="reconnect(\''+full.mac+'\')">Reconnect</a> | '+
+						'<a class="text-alert" style="cursor:pointer" onclick="block(\''+full.mac+'\',1)">Block</a>'
+					}
 				},
 				"sClass":'text-center'
 			},
