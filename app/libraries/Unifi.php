@@ -110,6 +110,22 @@ class Unifi{
 		return $result;
 	}
 	
+	public function sendRestartAp($id)
+	{
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		$data = array(
+			'cmd'=>'restart',
+			'mac'=>$id);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/devmgr');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
+		$result = curl_exec ($ch);
+		$ch = $this->sendLogout($ch);
+		return $result;
+	}
+	
 	
 	public function getUser($array)
 	{

@@ -57,6 +57,13 @@ class UnifiController extends Controller {
 		$unifi->sendReconnect($mac);
 		return 1;
 	}
+	public function postRestartAp()
+	{
+		$mac = Input::get('mac');
+		$unifi = new Unifi();
+		$unifi->sendRestartAp($mac);
+		return 1;
+	}
 	public function postBlock()
 	{
 		$mac = Input::get('mac');
@@ -332,6 +339,14 @@ class UnifiController extends Controller {
 		}
 		
 		return Response::json(array('code'=>200,'aaData'=>$result));
+		
+	}
+	public function getApTable(){
+	
+		$unifi = new Unifi();
+		$ap = $unifi->getAp();
+		
+		return Response::json(array('code'=>200,'aaData'=>$ap));
 		
 	}
 	

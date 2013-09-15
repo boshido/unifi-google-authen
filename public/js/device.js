@@ -9,7 +9,6 @@ $(document).ready(function(){
 		"fnServerParams": function ( aoData ) {
 			aoData.push( { "name": "key", "value": "element" } );
 		},
-		//"sAjaxSource": "{{action('UnifiController@getUserTable')}}",
 		"aoColumns":[
 			{"sDefaultContent": "",
 				"mRender": function (data, type, full) {			
@@ -40,7 +39,7 @@ $(document).ready(function(){
 					
 					return getUnit(full.rx_bytes);
 				},
-				"sClass":'text-center'
+				"sClass":'text-right'
 			},
 			{
 				"sDefaultContent": 'None',

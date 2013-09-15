@@ -496,6 +496,28 @@
 				</table>
 			</div>
 			<div class="tab" id="ap" >
+				<div class="pure-form controller-bar">
+					<label for="search" style="width:40px;color:white;margin-right:5px;">Search</label> 
+					<input class="search" name="search" type="text" style="height:25px;padding:5px;">
+					
+				</div>
+				<table class="pure-table" id="ap-table" style="width:100%;">
+					<thead>
+						<tr>
+							<th>AP Name</th>
+							<th>IP Address</th>
+							<th>Status</th>
+							<th>Download</th>
+							<th>Upload</th>	
+							<th>Channel</th>
+							<th>Action</th>
+						</tr>
+					</thead>
+					<tbody>
+						
+						
+					</tbody>			
+				</table>
 			</div>
 			<div class="tab" id="authorize" >
 			</div>
@@ -622,6 +644,7 @@
 		<script src="/js/scrollbar.js" type="text/javascript" ></script>
 		<script src="/js/user.js" type="text/javascript" ></script>
 		<script src="/js/device.js" type="text/javascript" ></script>
+		<script src="/js/ap.js" type="text/javascript" ></script>
 		<script type="text/javascript">
 			var selected,selected_mac='',selected_google_id='';
 			
@@ -675,6 +698,7 @@
 				user();
 				user_table.fnReloadAjax('{{action('UnifiController@getUserTable')}}',function(parameter){},true);
 				device_table.fnReloadAjax('{{action('UnifiController@getDeviceTable')}}',function(parameter){},true);
+				ap_table.fnReloadAjax('{{action('UnifiController@getApTable')}}',function(parameter){},true);
 				autoload();
 				setTimeout(loading,5000);
 			}
@@ -1055,6 +1079,27 @@
 			function reconnect(mac){
 				var request = $.ajax({
 						url: "{{action('UnifiController@postReconnect')}}",
+						type: "post",
+						dataType: "json",
+						data:{
+							mac:mac,
+							_rand:encodeURIComponent(Math.random())
+						}
+				});	
+				request.done(function (response, textStatus, jqXHR){
+					loading();
+				});	
+				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log("The following error occured: "+textStatus, errorThrown);
+				});
+				request.always(function () {
+					
+				});
+			}
+			
+			function restartap(mac){
+				var request = $.ajax({
+						url: "{{action('UnifiController@postRestartAp')}}",
 						type: "post",
 						dataType: "json",
 						data:{
