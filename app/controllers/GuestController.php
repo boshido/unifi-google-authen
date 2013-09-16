@@ -187,6 +187,10 @@ class GuestController extends Controller {
 		return Response::view('auth/loading', array('url' => action('GuestController@getSignin'),'flag'=>'signout'));//->withCookie($cookie_refresh);
 	}	
 	
+	public function getClearSession(){
+		Session::flush();
+	}	
+	
 	public function getUserinfo(){
 		$unifi = new Unifi();
 		$guest = Session::has('id') ? $unifi->getCurrentGuest(Session::get('id')) : false;

@@ -18,7 +18,15 @@ class AdminController extends Controller {
 	
 	public function getIndex()
     {
-		return  Response::view('admin/manage');
+		$client = new Google_Client();
+		$client->setApplicationName("FITM Wifi Authentication Application");
+		//$client->setApprovalPrompt("auto");
+		$client->setAccessType('offline');
+		$oauth2 = new Google_Oauth2Service($client);
+		
+		$auth_url = $client->createAuthUrl();
+		$parameter = array('auth_url' => $auth_url);
+		return  Response::view('admin/manage',$parameter);
     }
 	
 	public function getSignin(){

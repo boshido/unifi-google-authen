@@ -10,38 +10,41 @@ $(document).ready(function(){
 			aoData.push( { "name": "key", "value": "element" } );
 		},
 		"aoColumns":[
-			{"mDataProp":"name","sDefaultContent": ""},	
+			{
+				"sDefaultContent": '',
+				"mRender": function (data, type, full) {	
+					if(typeof(full.name) != 'undefined')return full.name;
+					else return full.mac;
+				}
+			},	
 			{"mDataProp":"ip"},
 			{	
-				"sDefaultContent": "Disconnected",
+				"sDefaultContent": '<span class="text-alert">Disconnected</span>',
 				"mRender": function (data, type, full) {			
-					return full.state == 1 ? 'Connected' : + "Disconnected";
+					return full.state == 1 ? '<span class="text-success">Connected</span>' : '<span class="text-alert">Disconnected</span>';
 				},
 				"sClass":'text-center'
 			},
 			{
-				"sDefaultContent": 'None',
+				"sDefaultContent": '0.00',
 				"mRender": function (data, type, full) {			
-					
-					return getUnit(full.tx_bytes);
+					if(typeof(full.tx_bytes) != 'undefined')return getUnit(full.tx_bytes);
 				},
 				"sClass":'text-right'
 			},
 			{
-				"sDefaultContent": 'None',
+				"sDefaultContent": '0.00',
 				"mRender": function (data, type, full) {			
-					
-					return getUnit(full.rx_bytes);
+					if(typeof(full.rx_bytes) != 'undefined') return getUnit(full.rx_bytes);
 				},
 				"sClass":'text-right'
 			},
 			{"mDataProp":"ng-channel","sDefaultContent": "","sClass":'text-center'},
 			{
-				"sDefaultContent": 'None',
+				"sDefaultContent": '',
 				"bSortable": false,
 				"mRender": function (data, type, full) {			
-					
-					return '<a class="text-alert" style="cursor:pointer" onclick="restartap(\''+full.mac+'\',1)">Restart</a>'
+					if(full.state == 1 ) return '<a class="text-alert" style="cursor:pointer" onclick="restartap(\''+full.mac+'\',1)">Restart</a>'
 				},
 				"sClass":'text-center'
 			}

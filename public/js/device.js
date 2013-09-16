@@ -10,17 +10,17 @@ $(document).ready(function(){
 			aoData.push( { "name": "key", "value": "element" } );
 		},
 		"aoColumns":[
-			{"sDefaultContent": "",
-				"mRender": function (data, type, full) {			
-					if(typeof(full.hostname)!='undefined')return full.hostname;
+			{"sDefaultContent": "a",
+				"mRender": function (data, type, full) {
+					if(full.hostname != null)return full.hostname;
 					else return full.mac;
 				}
 			},	
 			{
-				"sDefaultContent": 'Pending',
+				"sDefaultContent": '<span class="text-alert">Pending</span>',
 				"mRender": function (data, type, full) {			
-					if(full.is_auth)return 'Authorized';
-					else return 'Pending';			
+					if(full.is_auth)return '<span class="text-success">Authorized</span>';
+					else return '<span class="text-alert">Pending</span>';			
 				},
 				"sClass":'text-center'
 			},
@@ -59,7 +59,9 @@ $(document).ready(function(){
 					}
 					else if(full.is_auth==1) return '<a class="text-alert" style="cursor:pointer" onclick="unauthorize(\''+full.mac+'\')">Unauthorize</a>'
 					else {
-						return '<a class="text-alert" style="cursor:pointer" onclick="reconnect(\''+full.mac+'\')">Reconnect</a> | '+
+						var hostname = full.hostname != null ? full.hostname : full.mac;
+						
+						return '<a class="text-success" style="cursor:pointer" onclick="goto_authorize(\''+full.mac+'\',\''+hostname+'\')">Authorize</a> | '+
 						'<a class="text-alert" style="cursor:pointer" onclick="block(\''+full.mac+'\',1)">Block</a>'
 					}
 				},
@@ -93,3 +95,10 @@ $(document).ready(function(){
 		$('.modal-footer').empty();
 	});
 });
+
+function goto_authorize(mac,hostname){
+	$('.menu-item-list[href="#authorize"]').click();
+	$('#device-name').val(hostname);
+	$('#device-mac').val(mac);
+	
+}

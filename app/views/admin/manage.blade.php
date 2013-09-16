@@ -62,7 +62,7 @@
 			.menu-list{
 				position:absolute;
 				top:-40px;
-				left:50%;
+				right:0%;
 				margin-left:-175px;
 				height:30px;
 				background-color:rgba(50,50,50,0.7);
@@ -76,8 +76,8 @@
 			.menu-item-list{
 				position:relative;
 				float:right;
-				text-align:center;
-				width:60px;
+			
+				width:80px;
 				padding:0px 5px;
 				font-size:14px;
 				line-height:30px;
@@ -88,7 +88,7 @@
 			}
 			.menu-selector{
 				position:absolute;
-				width:60px;
+				width:80px;
 				padding:0px 5px;
 				height:30px;
 				background-color:rgb(0, 150, 231);
@@ -281,15 +281,20 @@
 				background-color:rgba(70,70,70,1);
 				font-size:14px;
 			}
-			.modal .modal-footer > button{
+			.modal .modal-footer > .pure-button{
+				float:right;
+			}
+			.pure-button , .pure-form .pure-button{
 				height:30px;
 				line-height:30px;
 				padding:0px 10px;
-				float:right;
 				margin-top:4px;
 				margin-right:4px;
 				font-family: 'Oswald';
 				font-size:13px;
+			}
+			.pure-form input[type=text][readonly],.pure-form input[type=email][readonly]{
+				color:#000;
 			}
 			.modal-item-list{
 				height:100%;
@@ -423,19 +428,19 @@
 		<div class="container">
 			<div class="menu-list">
 				<a class="menu-item-list " href="#setting">
-					Setting
+					<img src="/img/admin/setting.png"  style="width:25px;height:25px;margin:2px 5px 0px 2px;float:left;"></img>Setting
 				</a>
 				<a class="menu-item-list" href="#authorize">
-					Authorize
+					<img src="/img/admin/authorize.png"  style="width:25px;height:25px;margin:2px 1px 0px 0px;float:left;"></img>Authorize
 				</a>
 				<a class="menu-item-list" href="#ap">
-					AP
+					<img src="/img/admin/ap.png"  style="width:25px;height:25px;margin:2px 5px 0px 17px;float:left;"></img>AP
 				</a>
 				<a class="menu-item-list" href="#device">
-					Device
+					<img src="/img/admin/device.png"  style="width:25px;height:25px;margin:2px 5px 0px 5px;float:left;"></img>Device
 				</a>
 				<a class="menu-item-list selected" href="#user">
-					User
+					<img src="/img/admin/user.png"  style="width:25px;height:25px;margin:2px 5px 0px 10px;float:left;"></img>User
 				</a>
 				<div class="menu-selector"> </div>
 			</div>
@@ -520,6 +525,64 @@
 				</table>
 			</div>
 			<div class="tab" id="authorize" >
+				<div class="pure-form controller-bar">
+					<form class="pure-form pure-form-stacked" id="device-form">
+						<fieldset>
+							<legend style="color:white">Device Information </legend>
+
+							<div class="pure-g">
+								<div class="pure-u-1-2">
+									<label for="device-search">Search</label>
+									<input id="device-search"  type="text" class="device typeahead" required>
+								</div>
+
+								<div class="pure-u-1-2">
+									<label for="device-name">Device Name</label>
+									<input id="device-name" name="device-name" type="text"  readonly>
+								</div>
+								<div class="pure-u-1-2">
+									<label for="device-mac">MAC Address</label>
+									<input id="device-mac" name="device-mac" type="text" class="required" readonly>
+								</div>
+
+							</div>
+						</fieldset>
+					</form>
+					<form class="pure-form pure-form-stacked" id="google-form">
+						<fieldset>
+							<legend style="color:white">Google Account <button class="pure-button float-right" onclick="add_google('{{$auth_url}}')">New Account</button></legend>
+
+							<div class="pure-g">
+								<div class="pure-u-1-2">
+									<label for="google-search">Search</label>
+									<input id="google-search" type="text" class="google typeahead" required>
+								</div>
+								
+								<div class="pure-u-1-2">
+									<label for="google-fname">First Name</label>
+									<input id="google-fname" name="google-fname" type="text" readonly>
+								</div>
+
+								<div class="pure-u-1-2">
+									<label for="google-lname">Last Name</label>
+									<input id="google-lname" name="google-lname" type="text" readonly>
+								</div>
+
+								<div class="pure-u-1-2">
+									<label for="google-email">E-Mail</label>
+									<input id="google-email" name="google-email" type="email" class="required" readonly>
+								</div>
+								<input id="google-id" name="google-id" type="hidden" class="required" readonly>
+							</div>
+						</fieldset>
+					</form>
+					
+				</div>
+				<div class="text-center">
+					<button type="submit" class="pure-button pure-button-primary" onclick="authorize()">Authorize</button>
+				</div>
+				<div class="text-center" style="font-size:13px;margin-top:10px;" id="message">
+				</div>
 			</div>
 			<div class="tab" id="setting" >
 			</div>
@@ -637,6 +700,8 @@
 			
 		</div>
 		<script src="/js/jquery-2.0.3.js" type="text/javascript" > </script>
+		<script src="/js/typeahead.min.js" type="text/javascript" ></script>
+		<script src="/js/hogan.min.js" type="text/javascript" ></script>
 		<script src="/js/highcharts.js" type="text/javascript" ></script>
 		<script src="/js/exporting.js" type="text/javascript" ></script>
 		<script src="/js/jquery.dataTables.min.js" type="text/javascript" ></script>
@@ -645,10 +710,12 @@
 		<script src="/js/user.js" type="text/javascript" ></script>
 		<script src="/js/device.js" type="text/javascript" ></script>
 		<script src="/js/ap.js" type="text/javascript" ></script>
+		<script src="/js/authorize.js" type="text/javascript" ></script>
+		
 		<script type="text/javascript">
 			var selected,selected_mac='',selected_google_id='';
 			
-			$(document).ready(function(){
+			$(document).ready(function(){	
 				initial();
 				$(window).resize(function(){
 					initial();
@@ -1137,7 +1204,51 @@
 				request.always(function () {
 					
 				});
+			}	
+			
+			function authorize(){
+				var check=true;
+				$('.required').each(function(){
+					if($(this).val() == '')check=false;
+				});
+				if(check){
+					var serialize = $('#google-form').serialize()+'&'+$('#device-form').serialize()+'&_rand='+encodeURIComponent(Math.random());
+					var request = $.ajax({
+							url: "{{action('UnifiController@postAuthorize')}}",
+							type: "post",
+							dataType: "json",
+							data:serialize
+					});	
+					request.done(function (response, textStatus, jqXHR){
+						if(response == '1'){
+							$('#message').removeClass('text-alert').addClass('text-success').html('Authorizing Success !');
+						}
+						else $('#message').removeClass('text-success').addClass('text-alert').html('Authorizing Fail !');
+						loading();
+					});	
+					request.fail(function (jqXHR, textStatus, errorThrown){
+						console.log("The following error occured: "+textStatus, errorThrown);
+					});
+					request.always(function () {
+						
+					});
+				}
+				else $('#message').removeClass('text-success').addClass('text-alert').html('Authorizing Fail !');
 			}
+			
+			function add_google(parameter){
+				var win         =   window.open(parameter, "windowname1", 'width=800, height=600'); 
+				var pollTimer   =   window.setInterval(function() { 
+					try {
+							if (win.document.URL.indexOf('{{action('GuestController@getSignin')}}') != -1) {
+								window.clearInterval(pollTimer);
+								win.close();
+							}
+						} 
+					catch(e) {
+					}
+				}, 500);
+			}	
 			
 			function getUnit(data){
 				data = parseInt(data);

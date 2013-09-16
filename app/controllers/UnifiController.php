@@ -43,6 +43,31 @@ class UnifiController extends Controller {
 		return Response::json(array('code'=>200,'data'=>$result));
 	}
 	
+	public function postAuthorize()
+	{
+		$mac = Input::get('device-mac');
+		$hostname = Input::get('device-name');
+		$google_id = Input::get('google-id');
+		$fname = Input::get('google-fname');
+		$lname = Input::get('google-lname');
+		$email = Input::get('google-email');
+		
+		$unifi = new Unifi();
+		$db = Database::Connect();
+		$user = $db->user;
+		$find = array('mac'=>$mac);
+		$set = array('$set'=>array('email'=>$email));
+		$user->update($find,$set);
+		
+		$unifi->sendAuthorization($mac,9999999); 
+		$guestinfo = array('google_id'=>$google_id,'email'=>$email,'auth_type'=>1);
+		if($hostname != '')$guestinfo['hostname']=$hostname;
+		
+		$unifi->setCurrentGuest($mac,$guestinfo);
+		
+		return 1;
+	}
+	
 	public function postDeactiveSession()
 	{
 		$mac = Input::get('mac');
@@ -350,6 +375,34 @@ class UnifiController extends Controller {
 		
 	}
 	
+	public function getTypeaheadDevice(){
+		$search = Input::get('search');
+		$regex = new MongoRegex('/'.$search.'/');
+		$db = Database::Connect();
+		$user = $db->user;
+		$cursor = $user->find(array('$or'=>array(array('hostname'=>$regex),array('mac'=>$regex))));
+		$result = array();
+		foreach($cursor as $key => $value){
+			$result[] = $value;
+		}
+		
+		return $result;
+	}
+	
+	public function getTypeaheadGoogle(){
+		$search = Input::get('search');
+		$regex = new MongoRegex('/'.$search.'/');
+		$db = Database::Connect();
+		$token = $db->token;
+		$cursor = $token->find(array('$or'=>array(array('fname'=>$regex),array('lname'=>$regex),array('email'=>$regex))));
+		$result = array();
+		foreach($cursor as $key => $value){
+			$result[] = $value;
+		}
+		
+		return $result;
+	}
+
 	protected function setupLayout()
 	{
 		if ( ! is_null($this->layout))
