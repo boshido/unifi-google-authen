@@ -163,7 +163,7 @@ class UnifiController extends Controller {
 				}
 			}	
 		}
-		return Response::json(array('code'=>200,'authorized'=>$authorized,'non_authorized'=>$non_authorized));
+		return Response::json(array('code'=>200,'data'=>array('authorized'=>$authorized,'non_authorized'=>$non_authorized)));
 	}
 	
 	public function getDevice()
@@ -192,12 +192,19 @@ class UnifiController extends Controller {
 		
 	}
 	
-	public function getAp()
+	public function getApCount()
 	{
 		$mac = Input::get('mac');
 		$unifi = new Unifi();
+		$ap = $unifi->getAp($mac);
+		$connected=0;
+		$disconnected=0;
+		foreach($ap as $key => $value){
+			if($value->state==1) $connected++;
+			else $disconnected++;
+		}
 		
-		return Response::json(array('code'=>200,'data'=>$unifi->getAp($mac)));
+		return Response::json(array('code'=>200,'data'=>array('connected'=>$connected,'disconnected'=>$disconnected)));
 	}
 	
 	public function getStat()

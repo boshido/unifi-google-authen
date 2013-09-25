@@ -295,6 +295,7 @@
 			}
 			.pure-form input[type=text][readonly],.pure-form input[type=email][readonly]{
 				color:#000;
+				background-color:rgb(200,200,200);
 			}
 			.modal-item-list{
 				height:100%;
@@ -1071,7 +1072,7 @@
 			
 			function ap(){
 				var request = $.ajax({
-						url: "{{action('UnifiController@getAp')}}",
+						url: "{{action('UnifiController@getApCount')}}",
 						type: "get",
 						dataType: "json",
 						data:{
@@ -1081,13 +1082,8 @@
 				request.done(function (response, textStatus, jqXHR){
 					
 					response=response.data;
-					var connected=0,disconnected=0;
-					for(var y in response){
-						if(response[y].state==1) connected++;
-						else disconnected++;
-					}
-					$('#connected').html(connected);
-					$('#disconnected').html(disconnected);
+					$('#connected').html(response.connected);
+					$('#disconnected').html(response.disconnected);
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
 					console.log("The following error occured: "+textStatus, errorThrown);
@@ -1107,6 +1103,7 @@
 						}
 				});	
 				request.done(function (response, textStatus, jqXHR){
+					response=response.data;
 					$('#authorized').html(response.authorized);
 					$('#pending').html(response.non_authorized);
 				});	
