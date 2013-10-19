@@ -282,6 +282,8 @@ class Unifi{
 		if($file_id != null)$find['file_id'] = $file_id;
 		
 		$cursor = $map->find($find);
+		$cursor->sort(array('order'=>1));
+		
 		foreach($cursor as $key => $value){
 			$value['_id']=(string)$value['_id'];
 			$result[] = $value;
