@@ -207,6 +207,35 @@ class UnifiController extends Controller {
 		return Response::json(array('code'=>200,'data'=>array('connected'=>$connected,'disconnected'=>$disconnected)));
 	}
 	
+	public function getAp()
+	{
+		$mac = Input::get('mac');
+		$unifi = new Unifi();
+		$ap = $unifi->getAp($mac);
+		$connected=0;
+		
+		return Response::json(array('code'=>200,'data'=>$ap));
+	}
+	
+	public function getMapList()
+	{
+		$id = Input::get('id');
+		$unifi = new Unifi();
+		$maplist = $unifi->getMapList($id);
+		
+		return Response::json(array('code'=>200,'data'=>$maplist));
+	}
+	
+	public function getMap()
+	{
+		$id = Input::get('id');
+		$unifi = new Unifi();
+		$map = $unifi->getMap($id);
+		$type = 'image/png';
+		if($map)return Response::make($map, 200)->header('Content-Type',$type);
+		else return Response::make('', 400);
+	}
+	
 	public function getStat()
 	{
 		$mac = Input::get('mac');

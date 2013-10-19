@@ -11,7 +11,7 @@ $(document).ready(function(){
 		},
 		//"sAjaxSource": "{{action('UnifiController@getUserTable')}}",
 		"aoColumns":[
-			{"mDataProp":"name","sDefaultContent": ""},	
+			{"mDataProp":"name","sDefaultContent": "","sClass":'table-overflow-hidden'},	
 			{"mDataProp":"email"},
 			{	
 				"sDefaultContent": "0",

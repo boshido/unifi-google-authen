@@ -15,7 +15,8 @@ $(document).ready(function(){
 				"mRender": function (data, type, full) {	
 					if(typeof(full.name) != 'undefined')return full.name;
 					else return full.mac;
-				}
+				},
+				"sClass":'table-overflow-hidden'
 			},	
 			{"mDataProp":"ip"},
 			{	
@@ -27,15 +28,37 @@ $(document).ready(function(){
 			},
 			{
 				"sDefaultContent": '0.00',
-				"mRender": function (data, type, full) {			
-					if(typeof(full.tx_bytes) != 'undefined')return getUnit(full.tx_bytes);
+				"mDataProp": function ( source, type, val ) {	
+					if(typeof(source.tx_bytes) != 'undefined'){
+						if (type === 'set') {
+						  source.download_rendered = getUnit(source.tx_bytes);
+						  return;
+						}
+						else if (type === 'display' || type === 'filter') {
+						  return source.download_rendered;
+						}
+						// 'sort' and 'type' both just use the raw data
+						return source.tx_bytes;
+					}
+					return;
 				},
 				"sClass":'text-right'
 			},
 			{
 				"sDefaultContent": '0.00',
-				"mRender": function (data, type, full) {			
-					if(typeof(full.rx_bytes) != 'undefined') return getUnit(full.rx_bytes);
+				"mDataProp": function ( source, type, val ) {	
+					if(typeof(source.rx_bytes) != 'undefined'){
+						if (type === 'set') {
+						  source.upload_rendered = getUnit(source.rx_bytes);
+						  return;
+						}
+						else if (type === 'display' || type === 'filter') {
+						  return source.upload_rendered;
+						}
+						// 'sort' and 'type' both just use the raw data
+						return source.rx_bytes;
+					}
+					return;
 				},
 				"sClass":'text-right'
 			},

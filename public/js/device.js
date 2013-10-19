@@ -10,11 +10,12 @@ $(document).ready(function(){
 			aoData.push( { "name": "key", "value": "element" } );
 		},
 		"aoColumns":[
-			{"sDefaultContent": "a",
+			{"sDefaultContent": "None",
 				"mRender": function (data, type, full) {
 					if(full.hostname != null)return full.hostname;
 					else return full.mac;
-				}
+				},
+				"sClass":'table-overflow-hidden'
 			},	
 			{
 				"sDefaultContent": '<span class="text-alert">Pending</span>',
@@ -27,25 +28,46 @@ $(document).ready(function(){
 			{"mDataProp":"ip","sDefaultContent": ""},	
 			{
 				"sDefaultContent": 'None',
-				"mRender": function (data, type, full) {			
-					
-					return getUnit(full.tx_bytes);
+				"mDataProp": function ( source, type, val ) {		
+					if (type === 'set') {
+					  source.download_rendered = getUnit(source.tx_bytes);
+					  return;
+					}
+					else if (type === 'display' || type === 'filter') {
+					  return source.download_rendered;
+					}
+					// 'sort' and 'type' both just use the raw data
+					return source.tx_bytes;
 				},
 				"sClass":'text-right'
 			},
 			{
 				"sDefaultContent": 'None',
-				"mRender": function (data, type, full) {			
-					
-					return getUnit(full.rx_bytes);
+				"mDataProp": function ( source, type, val ) {		
+					if (type === 'set') {
+					  source.upload_rendered = getUnit(source.rx_bytes);
+					  return;
+					}
+					else if (type === 'display' || type === 'filter') {
+					  return source.upload_rendered;
+					}
+					// 'sort' and 'type' both just use the raw data
+					return source.rx_bytes;
 				},
 				"sClass":'text-right'
 			},
 			{
 				"sDefaultContent": 'None',
-				"mRender": function (data, type, full) {			
-					
-					return getUnit(full['bytes.r'])+'/sec';
+				"mDataProp": function ( source, type, val ) {
+					if (type === 'set') {
+					  source.activity_rendered = getUnit(source['bytes.r'])+'/sec';
+					  return;
+					}
+					else if (type === 'display' || type === 'filter') {
+					  return source.activity_rendered;
+					}
+					// 'sort' and 'type' both just use the raw data
+					return source['bytes.r'];
 				},
 				"sClass":'text-center'
 			},

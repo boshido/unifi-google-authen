@@ -272,6 +272,45 @@ class Unifi{
 		return $value;
 	}*/
 	
+	public function getMapList($file_id=null)
+	{		
+		$db = Database::Connect();
+		$map = $db->map;
+		$result = array();
+		
+		$find = array();
+		if($file_id != null)$find['file_id'] = $file_id;
+		
+		$cursor = $map->find($find);
+		foreach($cursor as $key => $value){
+			$value['_id']=(string)$value['_id'];
+			$result[] = $value;
+		}
+		
+		if($result == null)$result=false;
+		
+		return $result;
+	}
+	
+	public function getMap($file_id=null)
+	{
+		$db = Database::Connect();
+		$chunks = new MongoCollection($db,'map.chunks');
+		$result = '';
+		
+		$find = array();
+		if($file_id != null){
+			$find['files_id'] = new MongoId($file_id);
+			$cursor = $chunks->find($find);
+			foreach($cursor as $key => $value){
+				$result = $result.$value['data']->bin;
+			}
+		}
+		if($result == '')$result=false;
+		return $result;
+		
+	}
+	
 	public function getCurrentGuest($mac=null,$findOne=true)
 	{		
 		$db = Database::Connect();
