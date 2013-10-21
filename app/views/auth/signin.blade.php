@@ -177,7 +177,7 @@
 				});	
 				request.done(function (response, textStatus, jqXHR){
 					if(response.status){
-						$('.overlay').fadeOut('slow');
+						$('.overlay').fadeOut('slow',function(){window.location.reload();});
 					}
 					else{
 						console.log(count);
@@ -185,9 +185,7 @@
 							setTimeout(initial,1000);
 						}
 						else{
-							cl.hide(function(){
-								window.location.reload();
-							});
+							cl.hide();
 							$('.message').animate({opacity:0},500,function(){ $(this).html('Error can not initialize your information.').css('color','red');}).animate({opacity:1},500);
 						}
 						count++;
@@ -195,6 +193,15 @@
 					console.log(response);
 				});	
 				request.fail(function (jqXHR, textStatus, errorThrown){
+					console.log(count);
+					if(count<100){
+						setTimeout(initial,1000);
+					}
+					else{
+						cl.hide();
+						$('.message').animate({opacity:0},500,function(){ $(this).html('Error can not initialize your information.').css('color','red');}).animate({opacity:1},500);
+					}
+					count++;
 					console.log("The following error occured: "+textStatus, errorThrown);
 				});
 				request.always(function () {

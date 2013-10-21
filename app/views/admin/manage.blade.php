@@ -701,7 +701,7 @@
 			
 		</div>
 		<script src="/js/jquery-2.0.3.js" type="text/javascript" > </script>
-		<script src="/js/typeahead.min.js" type="text/javascript" ></script>
+		<script src="/js/typeahead.js" type="text/javascript" ></script>
 		<script src="/js/hogan.min.js" type="text/javascript" ></script>
 		<script src="/js/highcharts.js" type="text/javascript" ></script>
 		<script src="/js/exporting.js" type="text/javascript" ></script>
