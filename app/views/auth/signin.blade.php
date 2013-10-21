@@ -88,10 +88,10 @@
 		<link href="/css/auth.css" rel="stylesheet" media="screen">
 	</head>
 	<body>		
-		<!--<div class="overlay" style="display:none">
+		<div class="overlay" style="display:none">
 			<div id="loading" style="width:200px;height:200px;position:relative;margin:100px auto 10px auto" ></div>
 			<h1 class="message" >Initializing your information.</h1>
-		</div>-->
+		</div>
 		<div class="overlay-help"></div>
 		<div class="modal">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
@@ -136,7 +136,7 @@
 		<script>
 			var init = {{isset($init) ? 'true' : 'false'}};
 			var request,count=0;
-			//var cl = new CanvasLoader('loading');
+			var cl = new CanvasLoader('loading');
 			$(document).ready(function(){
 	
 				$('body').on('click','.close, .overlay-help',function(){
@@ -147,7 +147,7 @@
 					$('.overlay-help').fadeIn('fast');
 					$('.modal').fadeIn('fast');
 				});
-				/*
+				
 				if(init){	
 					
 					cl.setColor('#F47063'); // default is '#000000'
@@ -161,7 +161,7 @@
 					$('.overlay').fadeIn('slow');
 					initial();
 				}
-				*/
+				
 			});
 			
 			function initial(){
@@ -178,7 +178,6 @@
 				request.done(function (response, textStatus, jqXHR){
 					if(response.status){
 						$('.overlay').fadeOut('slow');
-						$('.overlay').fadeOut('slow');
 					}
 					else{
 						console.log(count);
@@ -186,7 +185,9 @@
 							setTimeout(initial,1000);
 						}
 						else{
-							cl.hide();
+							cl.hide(function(){
+								window.location.reload();
+							});
 							$('.message').animate({opacity:0},500,function(){ $(this).html('Error can not initialize your information.').css('color','red');}).animate({opacity:1},500);
 						}
 						count++;
