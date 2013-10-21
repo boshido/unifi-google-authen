@@ -422,7 +422,7 @@ dl dd {
 	margin:0px 1em 0px 1em;
 	height:60px;
 	text-align:center;
-	
+	margin: 15px 20px 0 0;
 }
 .menu-btn{
 	-webkit-border-radius: 3px;
@@ -440,7 +440,6 @@ dl dd {
 	width:85px;
 	height:20px;
 	border: 1px solid rgba(0,0,0,.15);
-	margin: 15px 0 0 20px;
 }
 .overlay{
 	background-color:white;
@@ -475,4 +474,10 @@ dl dd {
      -moz-transition: all 0.3s ease-out;  /* Firefox 4-15 */
        -o-transition: all 0.3s ease-out;  /* Opera 10.50–12.00 */
           transition: all 0.3s ease-out;  /* Chrome 26, Firefox 16+, IE 10+, Opera 12.10+ */
+}
+.float-left{
+	float:left;
+}
+.float-right{
+	float:right;
 }

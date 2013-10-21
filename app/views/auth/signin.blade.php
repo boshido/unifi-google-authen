@@ -66,7 +66,9 @@
 				-webkit-appearance: none;
 			}
 			.close{
-				float: right;
+				position:absolute;
+				top:2px;
+				right:3px;
 				font-size: 20px;
 				font-weight: bold;
 				line-height: 20px;
@@ -74,18 +76,23 @@
 				text-shadow: 0 1px 0 #ffffff;
 				opacity: 0.2;
 				filter: alpha(opacity=20);
+				z-index:999;
 			}
 			#faq dt{
-				width:40px;
+				width:50px;
 			}
 			.text-orange{
 				color:rgb(247, 140, 1);
 			}
+			.underline{
+				text-decoration:underline;
+			}
 		</style>
-		<link rel="shortcut icon" href="/img/ico.png" type="image/x-icon" />
+		<link rel="shortcut icon" href="/img/ico.png" type="image/x-icon">
 		<link href="/css/pure-min.css" rel="stylesheet" media="screen">
 		<link href="/css/grids-min.css" rel="stylesheet" media="screen">
 		<link href="/css/auth.css" rel="stylesheet" media="screen">
+		<link href="/css/scrollbar.css" rel="stylesheet" media="screen">
 	</head>
 	<body>		
 		<div class="overlay" style="display:none">
@@ -95,24 +102,47 @@
 		<div class="overlay-help"></div>
 		<div class="modal">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<div style="margin:20px;">
-				<h4>คำถามที่พบบ่อย FAQ</h4>
-				<dl id="faq">		
-					<dt>คำถาม </dt>
-					<dd>ทำไมต้องมีใช้ e-mail FITM ในการเข้าใช้งาน</dd>
-					<dt class="text-orange">ตอบ </dt>
-					<dd>เพื่อเป็นการยืนยันว่า บุคคลใดเป็นผู้ใช้งาน</dd>
-					
-					<dt>คำถาม </dt>
-					<dd>หากจำ Account หรือ Password ไม่ได้ สามารถติดต่อได้ที่ใด</dd>
-					<dt class="text-orange">ตอบ </dt>
-					<dd>ห้องคอมพิวเตอร์ 101C</dd>
-					
-					<dt>คำถาม </dt>
-					<dd>หลังจากยืนยันตัวตนเข้าใช้งานเสร็จสิ้น สามารถใช้งานโดยตลอดเลยหรือไม่</dd>
-					<dt class="text-orange">ตอบ </dt>
-					<dd>สามารถใช้ได้ 6ชม. /ครั้ง หรือ ใช้งานได้ตลอดเวลาหากเลือกจดจำอุปกรณ์</dd>
-				</dl>
+			<div style="height:100%;" class="nano">
+				<div class="content" style="padding:0px 22px 0px 10px;">
+					<h4 style="margin-left:5px;">คำถามที่พบบ่อย FAQ <form method="get" action="/help.pdf" class="float-right"><input type="submit" style="width:100px;height:28px;"class="menu-btn" value="วิธีการใช้งาน"></form></h4>
+					<dl id="faq">
+						<dt>คำถาม </dt>
+						<dd>หากต้อง Login หรือ Logout ให้ทำอย่างไร</dd>
+						<dt class="text-orange underline">ตอบ </dt>
+						<dd>ให้ทำการเชื่อมต่อ เข้าไปที่  URL : http://fitmwifi.4th.in/</dd>
+						
+						<dt>คำถาม </dt>
+						<dd>ทำไมต้องมีใช้ e-mail FITM ในการเข้าใช้งาน</dd>
+						<dt class="text-orange underline">ตอบ </dt>
+						<dd>เพื่อเป็นการยืนยันว่า บุคคลใดเป็นผู้ใช้งาน</dd>
+						
+						<dt>คำถาม </dt>
+						<dd>หากจำ Account หรือ Password ไม่ได้ สามารถติดต่อได้ที่ใด</dd>
+						<dt class="text-orange underline">ตอบ </dt>
+						<dd>ให้ผู้ใช้งานติดต่อ เจ้าหน้าที่ ที่ห้องคอมพิวเตอร์ 101C</dd>
+						
+						<dt>คำถาม </dt>
+						<dd>หากอุปกรณ์ไม่รองรับการยืนยันตัวตน หากต้องการใช้งานต้องทำอย่างไร</dd>
+						<dt class="text-orange underline">ตอบ </dt>
+						<dd>ให้ผู้ใช้งานติดต่อ เจ้าหน้าที่ ที่ห้องคอมพิวเตอร์ 101C</dd>
+						
+						<dt>คำถาม </dt>
+						<dd>หลังจากยืนยันตัวตนเข้าใช้งานเสร็จสิ้น สามารถใช้งานโดยตลอดเลยหรือไม่</dd>
+						<dt class="text-orange underline">ตอบ </dt>
+						<dd>สามารถใช้ได้ 6ชม.  ต่อ ครั้ง หรือ ใช้งานได้ตลอดเวลาหากเลือกจดจำอุปกรณ์</dd>
+						
+						<dt>คำถาม </dt>
+						<dd>ทำไมเมื่อทำการเชื่อมต่อเข้าใช้งาน FITM WiFi พบว่ายังไม่สามารถใช้ Internet ได้ทันทีถึงแม้ได้เคยทำการยืนยันตัวตัวแล้ว</dd>
+						<dt class="text-orange underline">ตอบ </dt>
+						<dd>ผู้ใช้จำเป็นต้องรอให้ระบบทำการยืนยันตัวตนของผู้ใช้งานกับจุดกระจายสัญญาน เพื่อให้ให้ผู้ใช้งานเข้าใช้งานได้ โดยจะใช้เวลาไม่มาก</dd>
+						
+						<dt>คำถาม </dt>
+						<dd>ทำไมขณะที่ใช่งาน Internet อยู่พบว่าไม่สามารถใช้งาน Internet ในบางครั้ง</dd>
+						<dt class="text-orange underline">ตอบ </dt>
+						<dd>ให้ผู้ใช้งานทำการเชื่อมต่อเข้า FITM WiFi ใหม่อีกครั้ง</dd>
+						
+					</dl>
+				</div>
 			</div>
 		</div>
 		
@@ -132,6 +162,7 @@
 			</form>	
 		</div>
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"> </script>
+		<script src="/js/scrollbar.js" type="text/javascript" ></script>
 		<script src="/js/heartcode-canvasloader-min.js" type="text/javascript"> </script>
 		<script>
 			var init = {{isset($init) ? 'true' : 'false'}};
@@ -145,7 +176,9 @@
 				});
 				$('.help').on('click',function(){
 					$('.overlay-help').fadeIn('fast');
-					$('.modal').fadeIn('fast');
+					$('.modal').fadeIn('fast',function(){
+						$('.nano').nanoScroller({ alwaysVisible: false,preventPageScrolling: true});
+					});
 				});
 				
 				if(init){	
