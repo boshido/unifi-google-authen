@@ -33,7 +33,54 @@
 				//-moz-filter: blur(3px);
 				//-o-filter: blur(3px); -ms-filter: blur(3px);
 			}
-
+			.overlay-help {
+				position: fixed;
+				z-index:100;
+				top: 0px;
+				left: 0px;
+				height:100%;
+				width:100%;
+				background: rgba(0,0,0,0.5);
+				display:none;
+			}
+			.modal{
+				position:absolute;
+				top:0px;
+				border-style:solid;
+				border-width:1px;
+				border-color:rgb(100, 100, 100);
+				margin:5%;
+				width:90%;
+				height:90%;
+				background-color:#FFFFFF;
+				z-index:150;
+				color:black;
+				display:none;
+				font-size:14px;
+			}
+			button.close {
+				padding: 0px 4px 0px 0px;
+				cursor: pointer;
+				background: transparent;
+				border: 0;
+				-webkit-appearance: none;
+			}
+			.close{
+				float: right;
+				font-size: 20px;
+				font-weight: bold;
+				line-height: 20px;
+				color: #000000;
+				text-shadow: 0 1px 0 #ffffff;
+				opacity: 0.2;
+				filter: alpha(opacity=20);
+			}
+			#faq dt{
+				width:40px;
+			}
+			.text-orange{
+				color:rgb(247, 140, 1);
+			}
 		</style>
 		<link rel="shortcut icon" href="/img/ico.png" type="image/x-icon" />
 		<link href="/css/pure-min.css" rel="stylesheet" media="screen">
@@ -41,11 +88,34 @@
 		<link href="/css/auth.css" rel="stylesheet" media="screen">
 	</head>
 	<body>		
-		<div class="overlay" style="display:none">
+		<!--<div class="overlay" style="display:none">
 			<div id="loading" style="width:200px;height:200px;position:relative;margin:100px auto 10px auto" ></div>
 			<h1 class="message" >Initializing your information.</h1>
+		</div>-->
+		<div class="overlay-help"></div>
+		<div class="modal">
+			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+			<div style="margin:20px;">
+				<h4>คำถามที่พบบ่อย FAQ</h4>
+				<dl id="faq">		
+					<dt>คำถาม </dt>
+					<dd>ทำไมต้องมีใช้ e-mail FITM ในการเข้าใช้งาน</dd>
+					<dt class="text-orange">ตอบ </dt>
+					<dd>เพื่อเป็นการยืนยันว่า บุคคลใดเป็นผู้ใช้งาน</dd>
+					
+					<dt>คำถาม </dt>
+					<dd>หากจำ Account หรือ Password ไม่ได้ สามารถติดต่อได้ที่ใด</dd>
+					<dt class="text-orange">ตอบ </dt>
+					<dd>ห้องคอมพิวเตอร์ 101C</dd>
+					
+					<dt>คำถาม </dt>
+					<dd>หลังจากยืนยันตัวตนเข้าใช้งานเสร็จสิ้น สามารถใช้งานโดยตลอดเลยหรือไม่</dd>
+					<dt class="text-orange">ตอบ </dt>
+					<dd>สามารถใช้ได้ 6ชม. /ครั้ง หรือ ใช้งานได้ตลอดเวลาหากเลือกจดจำอุปกรณ์</dd>
+				</dl>
+			</div>
 		</div>
-
+		
 		<div class="help"><div class="menu-btn" >Help !</div></div>
 		<div class="shadow-fade">
 		</div>
@@ -58,7 +128,7 @@
 				<input class="btn" type="image" src="/img/sign-in-with-fitm.png" alt="Sign in with FITM 2.0"  style="width:246px;height:54px;"/>
 				<input type="hidden" name="auth_url" value="{{$auth_url}}">
 				<input type="hidden" name="auth_code" value="{{$auth_code}}">
-				<div class="checkbox"><input type="checkbox" name="remember" value="1"> จดจำอุปกรณ์</div>
+				<div class="checkbox"><input type="checkbox" id="remember" name="remember" value="1"> <label for="remember">จดจำอุปกรณ์</label></div>
 			</form>	
 		</div>
 		<script src="/js/jquery-2.0.3.js" type="text/javascript"> </script>
@@ -66,9 +136,18 @@
 		<script>
 			var init = {{isset($init) ? 'true' : 'false'}};
 			var request,count=0;
-			var cl = new CanvasLoader('loading');
+			//var cl = new CanvasLoader('loading');
 			$(document).ready(function(){
 	
+				$('body').on('click','.close, .overlay-help',function(){
+					$('.overlay-help').fadeOut('fast');
+					$('.modal').fadeOut('fast');
+				});
+				$('.help').on('click',function(){
+					$('.overlay-help').fadeIn('fast');
+					$('.modal').fadeIn('fast');
+				});
+				/*
 				if(init){	
 					
 					cl.setColor('#F47063'); // default is '#000000'
@@ -82,7 +161,7 @@
 					$('.overlay').fadeIn('slow');
 					initial();
 				}
-
+				*/
 			});
 			
 			function initial(){
@@ -98,6 +177,7 @@
 				});	
 				request.done(function (response, textStatus, jqXHR){
 					if(response.status){
+						$('.overlay').fadeOut('slow');
 						$('.overlay').fadeOut('slow');
 					}
 					else{

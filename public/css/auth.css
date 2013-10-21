@@ -455,8 +455,20 @@ dl dd {
 	color:#F47063;
 }
 .checkbox{
-	color:white;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	-webkit-box-shadow: none;
+	box-shadow: none;
+	background-color: rgba(0,0,0,.7);
+	background-image: none;
+	color: #fff;
+	cursor: pointer;
 	font-size:17px;
+	width:120px;
+	outline: none;
+	padding: 3px 8px;
+	border: 1px solid rgba(0,0,0,.15);
+	margin:	auto;
 }
 .hide{
   -webkit-transition: all 0.3s ease-out;  /* Chrome 1-25, Safari 3.2+ */

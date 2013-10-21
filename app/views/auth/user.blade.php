@@ -46,18 +46,29 @@
 				-ms-filter: "progid:DXImageTransform.Microsoft.AlphaImageLoader(src='/img/bg1.jpg', sizingMethod='scale')";
 				
 			}
+			.describe{
+				position:absolute;
+				left:0px;
+				width:40px;
+				text-center:center;
+				margin-top:13px;
+				font-size:8px;
+			}
+			
 		</style>
 	</head>
 	<body>
 		
 		<div class="navicon toggle">
 			<img src="/img/navicon-bg.png" width="20px">
+			<span class="describe">Menu</span>
 		</div>
 		<div class="timer">
 			<span class="icon" aria-hidden="true" data-icon="&#xe002;" alt="Home"></span><span>Time Remain : </span><span id="time-remain">00:00:00</span>
 		</div>
 		<div class="signout">
 			<span aria-hidden="true" data-icon="&#xe005;" alt="Signout"></span>
+			<span class="describe">Signout</span>
 		</div>
 		<div class="navigator hidden">
 			<header >
