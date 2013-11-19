@@ -245,7 +245,6 @@ class UnifiController extends Controller {
 						if(isset($device['google_id'])){
 							$tmp[$device['mac']]['google_id'] = $device['google_id'];
 							$tmp[$device['mac']]['email'] = $device['email'];
-							$tmp[$device['mac']]['hostname'] = $device['hostname'];
 							$tmp[$device['mac']]['auth_type'] = $device['auth_type'];
 							if(!isset($device['name']) || $device['name'] == '-'){
 								if($device['fname'] != '-' && $device['lname'] != '-'){
