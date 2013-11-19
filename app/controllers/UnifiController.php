@@ -206,7 +206,7 @@ class UnifiController extends Controller {
 		
 		return Response::json(array('code'=>200,'data'=>array('connected'=>$connected,'disconnected'=>$disconnected)));
 	}
-	
+
 	public function getAp()
 	{
 		$mac = Input::get('mac');
@@ -240,28 +240,28 @@ class UnifiController extends Controller {
 			}
 			if(count($find)>0){
 				$is_auth =  $unifi->getCurrentGuest($find,false);
-				if($is_auth != false){
+				if($is_auth){
 					foreach($is_auth as $key => $device){
-						$tmp[$device['mac']]['google_id'] = $device['google_id'];
-						$tmp[$device['mac']]['email'] = $device['email'];
-						$tmp[$device['mac']]['hostname'] = $device['hostname'];
-						$tmp[$device['mac']]['auth_type'] = $device['auth_type'];
-						if(!isset($device['name']) || $device['name'] == '-'){
-							if($device['fname'] != '-' && $device['lname'] != '-'){
-								$tmp[$device['mac']]['name'] = $device['fname'].' '.$device['lname'];
+						if(isset($device['google_id'])){
+							$tmp[$device['mac']]['google_id'] = $device['google_id'];
+							$tmp[$device['mac']]['email'] = $device['email'];
+							$tmp[$device['mac']]['hostname'] = $device['hostname'];
+							$tmp[$device['mac']]['auth_type'] = $device['auth_type'];
+							if(!isset($device['name']) || $device['name'] == '-'){
+								if($device['fname'] != '-' && $device['lname'] != '-'){
+									$tmp[$device['mac']]['name'] = $device['fname'].' '.$device['lname'];
+								}
 							}
+							else $tmp[$device['mac']]['name'] = $device['name'];
+							array_push($result,$tmp[$device['mac']]);
+							unset($tmp[$device['mac']]);
 						}
-						else $tmp[$device['mac']]['name'] = $device['name'];
-
-						array_push($result,$tmp[$device['mac']]);
-						unset($tmp[$device['mac']]);
 					}
-
-					return Response::json(array('code'=>200,'data'=>$result));
 				}
-				else return Response::json(array('code'=>204 ,'data'=>array()));
+				if(count($result)>0)return Response::json(array('code'=>200,'data'=>$result));
+				else return Response::json(array('code'=>204 ,'data'=>array('message'=>'No user authorized to this AP.')));
 			}
-			else return Response::json(array('code'=>204 ,'data'=>array()));
+			else return Response::json(array('code'=>204 ,'data'=>array('message'=>'No user accessed to this AP.')));
 		}
 		else return Response::json(array('code'=>404));
 		
