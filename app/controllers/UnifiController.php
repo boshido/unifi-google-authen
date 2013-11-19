@@ -243,7 +243,7 @@ class UnifiController extends Controller {
 					foreach($is_auth as $key => $device){
 						$tmp[$device['mac']]['google_id'] = $device['google_id'];
 						$tmp[$device['mac']]['email'] = $device['email'];
-						$tmp[$device['mac']]['hostname'] = $device['email'];
+						$tmp[$device['mac']]['hostname'] = $device['hostname'];
 						$tmp[$device['mac']]['auth_type'] = $device['auth_type'];
 					
 						array_push($result,$tmp[$device['mac']]);
