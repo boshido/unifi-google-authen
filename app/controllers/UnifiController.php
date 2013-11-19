@@ -200,12 +200,13 @@ class UnifiController extends Controller {
 		$connected=0;
 		$disconnected=0;
 		foreach($ap as $key => $value){
-			if($value->state==1) $connected++;
+			if($value['state']==1) $connected++;
 			else $disconnected++;
 		}
 		
 		return Response::json(array('code'=>200,'data'=>array('connected'=>$connected,'disconnected'=>$disconnected)));
 	}
+	
 	public function getAp()
 	{
 		$mac = Input::get('mac');
@@ -245,7 +246,13 @@ class UnifiController extends Controller {
 						$tmp[$device['mac']]['email'] = $device['email'];
 						$tmp[$device['mac']]['hostname'] = $device['hostname'];
 						$tmp[$device['mac']]['auth_type'] = $device['auth_type'];
-					
+						if(!isset($device['name']) || $device['name'] == '-'){
+							if($device['fname'] != '-' && $device['lname'] != '-'){
+								$tmp[$device['mac']]['name'] = $device['fname'].' '.$device['lname'];
+							}
+						}
+						else $tmp[$device['mac']]['name'] = $device['name'];
+
 						array_push($result,$tmp[$device['mac']]);
 						unset($tmp[$device['mac']]);
 					}

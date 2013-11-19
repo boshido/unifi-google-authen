@@ -103,7 +103,7 @@ class GuestController extends Controller {
 				$data = $user->findOne($find);
 				$unifi->sendAuthorization(Session::get('id'), Session::get('auth_type') == 0 ? 360 : 9999999, Session::get('ap')); //authorizing user for 6 hours(6*60)
 				//$cookie_id = Cookie::forever('id',Session::get('id'));
-				$guestinfo = array('google_id'=>$google_id,'email'=>$email,'auth_type'=>Session::get('auth_type'));
+				$guestinfo = array('name'=>$name,'fname'=>$fname,'lname'=>$lname,'google_id'=>$google_id,'email'=>$email,'auth_type'=>Session::get('auth_type'));
 				if(isset($data['hostname']))$guestinfo['hostname']=$data['hostname'];
 				$unifi->setCurrentGuest(Session::get('id'),$guestinfo);
 			}
