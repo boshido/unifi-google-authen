@@ -206,15 +206,58 @@ class UnifiController extends Controller {
 		
 		return Response::json(array('code'=>200,'data'=>array('connected'=>$connected,'disconnected'=>$disconnected)));
 	}
-	
 	public function getAp()
 	{
 		$mac = Input::get('mac');
 		$unifi = new Unifi();
 		$ap = $unifi->getAp($mac);
-		$connected=0;
-		
+		unset($ap['vap_table']);
 		return Response::json(array('code'=>200,'data'=>$ap));
+	}
+
+	public function getApDevice()
+	{
+		$mac = Input::get('mac');
+
+		$db = Database::Connect();
+		$user = $db->user;
+
+		$unifi = new Unifi();
+		$ap = $unifi->getAp($mac);
+		if( $mac != null &&  $ap != false){
+			$find = array();
+			$tmp = array();
+			$result = array();
+			foreach($ap['vap_table'] as $key => $ssid){
+				if($ssid['is_guest']){
+					$device = $ssid['sta_table'];
+					for($i=0;$i<count($device);$i++){
+						array_push($find,$device[$i]['mac']);
+						$tmp[$device[$i]['mac']]=$device[$i];
+					}
+				}
+			}
+			if(count($find)>0){
+				$is_auth =  $unifi->getCurrentGuest($find,false);
+				if($is_auth != false){
+					foreach($is_auth as $key => $device){
+						$tmp[$device['mac']]['google_id'] = $device['google_id'];
+						$tmp[$device['mac']]['email'] = $device['email'];
+						$tmp[$device['mac']]['hostname'] = $device['email'];
+						$tmp[$device['mac']]['auth_type'] = $device['auth_type'];
+					
+						array_push($result,$tmp[$device['mac']]);
+						unset($tmp[$device['mac']]);
+					}
+
+					return Response::json(array('code'=>200,'data'=>$result));
+				}
+				else return Response::json(array('code'=>204 ,'data'=>array()));
+			}
+			else return Response::json(array('code'=>204 ,'data'=>array()));
+		}
+		else return Response::json(array('code'=>404));
+		
 	}
 	
 	public function getMapList()

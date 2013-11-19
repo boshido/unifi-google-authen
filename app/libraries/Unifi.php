@@ -194,14 +194,14 @@ class Unifi{
 		$json = curl_exec ($ch);
 		
 		$result = false;
-		$json = json_decode($json);
+		$json = json_decode($json,1);
 		if($json != null){
 			if($mac==null){
-				$result = $json->data;
+				$result = $json['data'];
 			}
 			else{
-				foreach($json->data as $key => $device){
-					if($device->mac == $mac ){
+				foreach($json['data'] as $key => $device){
+					if($device['mac'] == $mac ){
 						$result = $device;
 						break;
 					}
@@ -321,8 +321,14 @@ class Unifi{
 		$time = time();
 		
 		$find = array('$and'=>array(array('start'=>array('$lte'=>$time)),array('end'=>array('$gte'=>$time))));
-		if($mac != null)$find['mac'] = $mac;
-		
+		if($mac != null){
+			if(is_array($mac)){
+				$find['mac'] = array('$in' => $mac);
+			}
+			else {
+				$find['mac'] = $mac;
+			}
+		}
 		if($findOne)$result = $guest->findOne($find);
 		else 
 		{
