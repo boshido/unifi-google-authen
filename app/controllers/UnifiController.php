@@ -140,9 +140,12 @@ class UnifiController extends Controller {
 		if($mac != null)$find['mac']=$mac;
 		
 		$unifi = new Unifi();
-		$mac = $unifi->getUser($find);
+		if(!is_array($mac)){
+			$mac = $unifi->getUser($find);
+			if($mac != false)$mac = $mac->mac;
+		}
 		if($mac != false){
-			$user = $unifi->getCurrentGuest($mac->mac);
+			$user = $unifi->getCurrentGuest($mac,false);
 			if($user != false)return Response::json(array('code'=>200,'data'=>$user));
 			else return Response::json(array('code'=>404));
 		}
@@ -314,6 +317,13 @@ class UnifiController extends Controller {
 		$unifi = new Unifi();
 		
 		return Response::json(array('code'=>200,'data'=>$unifi->getStatSummary($type,$data)));
+	}
+
+	public function getTrafficReport()
+	{	
+		$type = Input::get('type');
+		$unifi = new Unifi();
+		return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($type)));
 	}
 	
 	public function getAuthorizedDevice(){
