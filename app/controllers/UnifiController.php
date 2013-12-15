@@ -323,9 +323,12 @@ class UnifiController extends Controller {
 	{	
 		$time = (int)Input::get('time');
 		$type = Input::get('type');
+		//echo $time;
 		if(($type == "hourly" || $type == "daily") && $time !=0){
 			$unifi = new Unifi();
-			return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport(strtotime("midnight", $time),$type)));
+			if($type == "daily") $time = strtotime("midnight", $time);
+			
+			return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
 		}
 		else return Response::json(array('code'=>404));
 	}

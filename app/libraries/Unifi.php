@@ -432,12 +432,26 @@ class Unifi{
 		if($type=='hourly'){
 			$stat = $db->stat->hourly->system;
 			$result = array();
-			$cursor = $stat->find( array('datetime'=>array('$gte'=> new MongoDate(strtotime('-7 hours',$time)))) );
+			$cursor = $stat->find( 
+				array('$and' => 
+					array(
+						array('datetime' => array('$gte' => new MongoDate(strtotime('-7 hours',$time)))),
+						array('datetime' => array('$lte' => new MongoDate($time) )) 
+					)
+				)
+			);
 		}
 		else{
 			$stat = $db->stat->daily->system;
 			$result = array();
-			$cursor = $stat->find( array('datetime'=>array('$gte'=> new MongoDate(strtotime('-7 day',$time)))) );
+			$cursor = $stat->find( 
+				array('$and' => 
+					array(
+						array('datetime' => array('$gte' => new MongoDate(strtotime('-7 day',$time)))),
+						array('datetime' => array('$lte' => new MongoDate($time) )) 
+					)
+				)
+			);
 		}
 
 		$cursor->sort(array('datetime'=>-1))->limit(10);
