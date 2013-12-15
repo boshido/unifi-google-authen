@@ -425,13 +425,20 @@ class Unifi{
 		
 		return $result;
 	}
-	public function getTrafficReport($type)
+	public function getTrafficReport($time,$type)
 	{	
 
 		$db = Database::Connect();
-		$stat = $db->stat->hourly->system;
-		$result = array();
-		$cursor = $stat->find( array('datetime'=>array('$gte'=> new MongoDate(strtotime('-7 hours',time())))) );
+		if($type=='hourly'){
+			$stat = $db->stat->hourly->system;
+			$result = array();
+			$cursor = $stat->find( array('datetime'=>array('$gte'=> new MongoDate(strtotime('-7 hours',$time)))) );
+		}
+		else{
+			$stat = $db->stat->daily->system;
+			$result = array();
+			$cursor = $stat->find( array('datetime'=>array('$gte'=> new MongoDate(strtotime('-7 day',$time)))) );
+		}
 
 		$cursor->sort(array('datetime'=>-1))->limit(10);
 		foreach($cursor as $key => $value){

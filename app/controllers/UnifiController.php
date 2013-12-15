@@ -321,9 +321,26 @@ class UnifiController extends Controller {
 
 	public function getTrafficReport()
 	{	
+		$time = (int)Input::get('time');
 		$type = Input::get('type');
+		if(($type == "hourly" || $type == "daily") && $time !=0){
+			$unifi = new Unifi();
+			return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport(strtotime("midnight", $time),$type)));
+		}
+		else return Response::json(array('code'=>404));
+	}
+
+	public function getUserReport()
+	{
+		$mac = Input::get('mac');
+		
 		$unifi = new Unifi();
-		return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($type)));
+		if($mac != false){
+			$user = $unifi->getCurrentGuest($mac,false);
+			if($user != false)return Response::json(array('code'=>200,'data'=>$user));
+			else return Response::json(array('code'=>404));
+		}
+		else return Response::json(array('code'=>404));
 	}
 	
 	public function getAuthorizedDevice(){
