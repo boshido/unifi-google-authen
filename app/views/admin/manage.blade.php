@@ -764,9 +764,9 @@
 			function loading(){
 				ap();		
 				user();
-				user_table.fnReloadAjax('{{action('UnifiController@getUserTable')}}',function(parameter){},true);
-				device_table.fnReloadAjax('{{action('UnifiController@getDeviceTable')}}',function(parameter){},true);
-				ap_table.fnReloadAjax('{{action('UnifiController@getApTable')}}',function(parameter){},true);
+				user_table.fnReloadAjax('{{action('UnifiController@getUserList')}}',function(parameter){},true);
+				device_table.fnReloadAjax('{{action('UnifiController@getDeviceList')}}',function(parameter){},true);
+				ap_table.fnReloadAjax('{{action('UnifiController@getApList')}}',function(parameter){},true);
 				autoload();
 				setTimeout(loading,5000);
 			}

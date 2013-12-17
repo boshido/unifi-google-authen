@@ -2,6 +2,7 @@ var user_table;
 $(document).ready(function(){	
 	
 	user_table = $('#user-table').dataTable( {
+		"sAjaxDataProp": "data",
 		"sDom": "<r><t><i><p>",
 		"sPaginationType": "full_numbers",
 		"bAutoWidth":false,

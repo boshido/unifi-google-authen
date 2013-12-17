@@ -74,6 +74,7 @@ class GuestController extends Controller {
 			$name =  isset($userinfo['name']) ? $userinfo['name'] : '-';
 			$fname = isset($userinfo['given_name']) ? $userinfo['given_name'] : '-';
 			$lname = isset($userinfo['family_name']) ? $userinfo['family_name'] : '-';
+			$picture = isset($userinfo['picture']) ? $userinfo['picture'] : null;
 			
 			$accesstoken = json_decode($client->getAccessToken());
 			if(isset($accesstoken->refresh_token)){					// store refresh token with userinfo 
@@ -81,7 +82,7 @@ class GuestController extends Controller {
 				$refresh_token = $accesstoken->refresh_token;
 				$token = $db->token;
 				$find = array('google_id'=>$google_id);
-				$set = array('$set'=>array('name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'refresh_token'=>$refresh_token));
+				$set = array('$set'=>array('name'=>$name,'fname'=>$fname,'lname'=>$lname,'email'=>$email,'picture'=>$picture,'refresh_token'=>$refresh_token));
 				$token->update($find,$set,array("upsert" => true));	
 				Session::put('refresh_token',$refresh_token);
 				//$cookie_refresh = Cookie::forever('refresh_token', $refresh_token);

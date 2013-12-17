@@ -2,6 +2,7 @@ var device_table;
 $(document).ready(function(){	
 	
 	device_table = $('#device-table').dataTable( {
+		"sAjaxDataProp": "data",
 		"sDom": "<r><t><i><p>",
 		"sPaginationType": "full_numbers",
 		"bAutoWidth":false,

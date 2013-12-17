@@ -2,6 +2,7 @@ var ap_table;
 $(document).ready(function(){	
 	
 	ap_table = $('#ap-table').dataTable( {
+		"sAjaxDataProp": "data",
 		"sDom": "<r><t><i><p>",
 		"sPaginationType": "full_numbers",
 		"bAutoWidth":false,

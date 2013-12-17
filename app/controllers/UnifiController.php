@@ -326,7 +326,7 @@ class UnifiController extends Controller {
 		//echo $time;
 		if(($type == "hourly" || $type == "daily") && $time !=0){
 			$unifi = new Unifi();
-			if($type == "daily") $time = strtotime("midnight", $time);
+			//if($type == "daily") $time = strtotime("midnight", $time);
 			
 			return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
 		}
@@ -378,7 +378,7 @@ class UnifiController extends Controller {
 		else return Response::json(array('code'=>404));
 	}
 	
-	public function getUserTable(){
+	public function getUserList(){
 	
 		$unifi = new Unifi();
 		$db = Database::Connect();
@@ -416,9 +416,10 @@ class UnifiController extends Controller {
 		foreach($guest as $key =>$value){
 			if(isset($value['google_id'])){
 				$user[$value['google_id']]['authorized'] = true;
-				$tmp = array('auth_type'=>$value['auth_type'],'mac'=>$value['mac'],'start'=>$value['start'],'end'=>$value['end']);	
-				if(isset($value['hostname'])) $tmp['hostname'] = $value['hostname'];
-				
+				//$tmp = array('auth_type'=>$value['auth_type'],'mac'=>$value['mac'],'start'=>$value['start'],'end'=>$value['end']);	
+				//if(isset($value['hostname'])) $tmp['hostname'] = $value['hostname'];
+				//$tmp['picture'] = $value['hostname'];
+
 				if(isset($value['online'])){
 					$user[$value['google_id']]['status']=1;
 					$user[$value['google_id']]['online']++;
@@ -432,11 +433,11 @@ class UnifiController extends Controller {
 			$result[]=$value;
 		}
 		
-		return Response::json(array('code'=>200,'aaData'=>$result));
+		return Response::json(array('code'=>200,'data'=>$result));
 		
 	}
 	
-	public function getDeviceTable(){
+	public function getDeviceList(){
 	
 		$unifi = new Unifi();
 		$db = Database::Connect();
@@ -478,15 +479,15 @@ class UnifiController extends Controller {
 			}	
 		}
 		
-		return Response::json(array('code'=>200,'aaData'=>$result));
+		return Response::json(array('code'=>200,'data'=>$result));
 		
 	}
-	public function getApTable(){
+	public function getApList(){
 	
 		$unifi = new Unifi();
 		$ap = $unifi->getAp();
 		
-		return Response::json(array('code'=>200,'aaData'=>$ap));
+		return Response::json(array('code'=>200,'data'=>$ap));
 		
 	}
 	
