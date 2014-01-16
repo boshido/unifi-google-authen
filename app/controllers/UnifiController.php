@@ -461,7 +461,7 @@ class UnifiController extends Controller {
 		
 	}
 	
-	public function getDeviceLists(){
+	public function getDeviceListBackup(){
 	
 		$unifi = new Unifi();
 		$db = Database::Connect();
