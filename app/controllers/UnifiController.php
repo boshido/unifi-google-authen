@@ -142,7 +142,7 @@ class UnifiController extends Controller {
 		$unifi = new Unifi();
 		if(!is_array($mac)){
 			$mac = $unifi->getDevice($find);
-			if($mac != false)$mac = $mac->mac;
+			if($mac != false)$mac = $mac['mac'];
 		}
 		if($mac != false){
 			$user = $unifi->getCurrentGuest($mac,false);
@@ -154,14 +154,14 @@ class UnifiController extends Controller {
 	
 	public function getDeviceCount(){
 		$unifi = new Unifi();
-		$user  = $unifi->getDevice(array('all'=>true));
+		$device  = $unifi->getDevice(array('all'=>true));
 		$guest = array();
 		$authorized = 0;
 		$non_authorized = 0;
-		if($user){
-			foreach($user as $key => $value){
-				if($value->is_guest == 1){
-					if($unifi->getCurrentGuest($value->mac))$authorized++;
+		if($device){
+			foreach($device as $key => $value){
+				if($value['is_guest'] == 1){
+					if($unifi->getCurrentGuest($value['mac']))$authorized++;
 					else $non_authorized++;
 				}
 			}	
@@ -182,7 +182,7 @@ class UnifiController extends Controller {
 		$is_auth =  $unifi->getCurrentGuest($mac);
 		$is_auth = $is_auth ? true : false; 
 		
-		if($device != false && $device->is_guest){
+		if($device != false && $device['is_guest']){
 			$result = array('code'=>200,'data'=>$device,'is_auth'=>$is_auth);
 		}
 		else{
@@ -384,13 +384,13 @@ class UnifiController extends Controller {
 		$online = $unifi->getDevice(array('all'=>true));
 		if($online){
 			foreach($online as $key => $value){
-				$tmp[$value->mac]=$value;
+				$tmp[$value['mac']]=$value;
 			}
 		}
 		
 		foreach($cursor as $key => $value){
 			$value['_id']=(string)$value['_id'];
-			if(isset($tmp[$value['mac']]) && $tmp[$value['mac']]->is_guest == 1){
+			if(isset($tmp[$value['mac']]) && $tmp[$value['mac']]['is_guest'] == 1){
 				$result['online'][]=$value;
 			}
 			else{
@@ -419,9 +419,9 @@ class UnifiController extends Controller {
 		
 		if($online){ // Online check with       Online User  and  Guest table
 			foreach($online as $key => $value){
-				if($value->is_guest == 1){
-					if(isset($guest[$value->mac])){
-						$guest[$value->mac]['online']=true;
+				if($value['is_guest'] == 1){
+					if(isset($guest[$value['mac']])){
+						$guest[$value['mac']]['online']=true;
 					}
 				}
 			}	
@@ -461,7 +461,7 @@ class UnifiController extends Controller {
 		
 	}
 	
-	public function getDeviceList(){
+	public function getDeviceLists(){
 	
 		$unifi = new Unifi();
 		$db = Database::Connect();
@@ -480,22 +480,22 @@ class UnifiController extends Controller {
 		}
 		if($device){ // Online check with  
 			foreach($device as $key => $value){
-				if($value->is_guest == 1){
-					if(isset($authorized[$value->mac])){
-						$value->is_auth=1;
-						if(isset($authorized[$value->mac]['google_id'])){
-							$value->google_id=$authorized[$value->mac]['google_id'];
-							$google = $user[$value->google_id];
+				if($value['is_guest'] == 1){
+					if(isset($authorized[$value['mac']])){
+						$value['is_auth']=1;
+						if(isset($authorized[$value['mac']]['google_id'])){
+							$value['google_id']=$authorized[$value['mac']]['google_id'];
+							$google = $user[$value['google_id']];
 							if(!isset($google['name']) || $google['name'] == '-'){
 								if($google['fname'] != '-' && $google['lname'] != '-'){
-									$value->name = $google['fname'].' '.$google['lname'];
+									$value['name'] = $google['fname'].' '.$google['lname'];
 								}
 							}
-							else $value->name = $google['name'];
+							else $value['name'] = $google['name'];
 						}
 					}
 					else{
-						$value->is_auth=0;
+						$value['is_auth']=0;
 					}
 					$result[] = $value;
 				}
@@ -505,7 +505,7 @@ class UnifiController extends Controller {
 		return Response::json(array('code'=>200,'data'=>$result));
 		
 	}
-	public function getDeviceLists(){
+	public function getDeviceList(){
 	
 		$unifi = new Unifi();
 		$db = Database::Connect();
@@ -515,41 +515,57 @@ class UnifiController extends Controller {
 		$tokenCursor = $tokenCol->find();
 		$deviceCursor = $deviceCol->find();
 
-		$deviceCursor = 
-		// $tmp = $unifi->getCurrentGuest(null,false);
-		// $device = $unifi->getDevice(array('all'=>true));
-		// $user = array();
-		// $result = array();
+		 
+		$tmp = $unifi->getCurrentGuest(null,false);
+		$onlineDevice = $unifi->getDevice(array('all'=>true));
+		$user = array();
+		$device = array();
+		$result = array();
 		
-		// foreach($tmp as $key =>$value){			
-		// 	$authorized[$value['mac']]=$value;
-		// }
-		// foreach($tokenCursor as $key =>$value){
-		// 	$user[$value['google_id']]=$value;
-		// }
-		// if($device){ // Online check with  
-		// 	foreach($device as $key => $value){
-		// 		if($value->is_guest == 1){
-		// 			if(isset($authorized[$value->mac])){
-		// 				$value->is_auth=1;
-		// 				if(isset($authorized[$value->mac]['google_id'])){
-		// 					$value->google_id=$authorized[$value->mac]['google_id'];
-		// 					$google = $user[$value->google_id];
-		// 					if(!isset($google['name']) || $google['name'] == '-'){
-		// 						if($google['fname'] != '-' && $google['lname'] != '-'){
-		// 							$value->name = $google['fname'].' '.$google['lname'];
-		// 						}
-		// 					}
-		// 					else $value->name = $google['name'];
-		// 				}
-		// 			}
-		// 			else{
-		// 				$value->is_auth=0;
-		// 			}
-		// 			$result[] = $value;
-		// 		}
-		// 	}	
-		// }
+		foreach($deviceCursor as $key => $value){ //All Device
+			unset($value['is_guest']);
+			$device[$value['mac']] = $value;
+		}
+		foreach($onlineDevice as $key =>$value){
+			$device[$value['mac']] = $value;
+		}
+
+		foreach($tmp as $key =>$value){			  //Authorized Device
+			$authorized[$value['mac']]=$value;
+		}
+		foreach($tokenCursor as $key =>$value){   
+			$user[$value['google_id']]=$value;
+		}
+
+		if(count($device)>0){ // Online check with  
+			foreach($device as $key => $value){
+				if(isset($value['is_guest'])){
+					$value['is_online']=1;
+				}
+				else{
+					$value['is_online']=0;
+				}
+
+				if(isset($authorized[$value['mac']])){
+					$value['is_auth']=1;
+					if(isset($authorized[$value['mac']]['google_id'])){
+						$value['google_id']=$authorized[$value['mac']]['google_id'];
+						$google = $user[$value['google_id']];
+						if(!isset($google['name']) || $google['name'] == '-'){
+							if($google['fname'] != '-' && $google['lname'] != '-'){
+								$value['name'] = $google['fname'].' '.$google['lname'];
+							}
+						}
+						else $value['name'] = $google['name'];
+					}
+				}
+				else{
+					$value['is_auth']=0;
+				}
+				
+				$result[] = $value;
+			}	
+		}
 		
 		return Response::json(array('code'=>200,'data'=>$result));
 		

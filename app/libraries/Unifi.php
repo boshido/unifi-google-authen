@@ -136,17 +136,17 @@ class Unifi{
 			// Send the command to the API
 			curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/stat/sta');
 			$json = curl_exec ($ch);
-			$json = json_decode($json);
+			$json = json_decode($json,true);
 			$result = false;
 			if(isset($array['all'])){
-				foreach($json->data as $key => $user){
+				foreach($json['data'] as $key => $user){
 					$result[] = $user;
 				}
 			}
 			else if(isset($array['mac'])&& isset($array['ip'])){
-				foreach($json->data as $key => $user){
-					if(isset($user->mac) && isset($user->ip)){
-						if($user->mac == $array['mac'] && $user->ip == $array['ip']){
+				foreach($json['data'] as $key => $user){
+					if(isset($user['mac']) && isset($user['ip'])){
+						if($user['mac'] == $array['mac'] && $user['ip'] == $array['ip']){
 							$result = $user;
 							break;
 						}
@@ -154,9 +154,9 @@ class Unifi{
 				}
 			}
 			else if(isset($array['mac'])){
-				foreach($json->data as $key => $user){
-					if(isset($user->mac)){
-						if($user->mac == $array['mac']){
+				foreach($json['data'] as $key => $user){
+					if(isset($user['mac'])){
+						if($user['mac'] == $array['mac']){
 							$result = $user;
 							break;
 						}
@@ -164,9 +164,9 @@ class Unifi{
 				}
 			}
 			else if(isset($array['ip'])){
-				foreach($json->data as $key => $user){
-					if(isset($user->ip)){
-						if($user->ip == $array['ip']){
+				foreach($json['data'] as $key => $user){
+					if(isset($user['ip'])){
+						if($user['ip'] == $array['ip']){
 							$result = $user;
 							break;
 						}
@@ -194,7 +194,7 @@ class Unifi{
 		$json = curl_exec ($ch);
 		
 		$result = false;
-		$json = json_decode($json,1);
+		$json = json_decode($json,true);
 		if($json != null){
 			if($mac==null){
 				$result = $json['data'];
@@ -257,7 +257,7 @@ class Unifi{
 		$json = curl_exec ($ch);
 		
 		$value = false;
-		$json = json_decode($json);
+		$json = json_decode($json,true);
 		$time = time();
 		if($json != null){
 			foreach($json->data as $key => $user){

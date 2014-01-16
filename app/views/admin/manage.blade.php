@@ -494,6 +494,7 @@
 							<th>Activity</th>	
 							<th>Action</th>
 							<th>toggle</th>
+							<th>toggle</th>
 						</tr>
 					</thead>
 					<tbody>

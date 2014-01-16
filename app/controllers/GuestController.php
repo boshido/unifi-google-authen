@@ -258,9 +258,9 @@ class GuestController extends Controller {
 		$unifi = new Unifi();
 		$info = $unifi->getDevice(array('ip'=> $_SERVER['REMOTE_ADDR']));
 		if($info){
-			Session::put('id', $info->mac);     				// user's mac address
-			Session::put('ap', $info->ap_mac);   				// AP mac
-			Session::put('ssid',$info->essid);   				// ssid the user is on (POST 2.3.2)    	
+			Session::put('id', $info['mac']);     				// user's mac address
+			Session::put('ap', $info['ap_mac']);   				// AP mac
+			Session::put('ssid',$info['essid']);   				// ssid the user is on (POST 2.3.2)    	
 			Session::put('ref_url','http://www.google.co.th');	// url the user attempted to reach
 			$response['status'] = true;
 		}
