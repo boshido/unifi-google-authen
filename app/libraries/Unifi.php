@@ -127,7 +127,7 @@ class Unifi{
 	}
 	
 	
-	public function getUser($array)
+	public function getDevice($array)
 	{
 		if(isset($array['mac']) || isset($array['ip']) || isset($array['all'])){
 			$ch = curl_init();

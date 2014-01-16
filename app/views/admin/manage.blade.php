@@ -450,9 +450,9 @@
 					<label for="search" style="width:40px;color:white;margin-right:5px;">Search</label> 
 					<input class="search" name="search" type="text" style="height:25px;padding:5px;">
 					
-					<input id="toggle-all-user" 	class="toggle toggle-right" name="user-toggle"  	type="radio" ><label for="toggle-all-user" >All</label
-					><input id="toggle-offline" class="toggle" 				name="user-toggle" 	type="radio" ><label for="toggle-offline" style=""  >Offline</label
-					><input id="toggle-online" 	class="toggle toggle-left" 	name="user-toggle"  type="radio" checked><label for="toggle-online" >Online</label
+					<input id="toggle-user-all" 	class="toggle toggle-right" name="user-toggle"  	type="radio" ><label for="toggle-user-all" >All</label
+					><input id="toggle-user-offline" class="toggle" 				name="user-toggle" 	type="radio" ><label for="toggle-user-offline" style=""  >Offline</label
+					><input id="toggle-user-online" 	class="toggle toggle-left" 	name="user-toggle"  type="radio" checked><label for="toggle-user-online" >Online</label
 					>
 				</div>
 			
@@ -478,9 +478,10 @@
 					<label for="search" style="width:40px;color:white;margin-right:5px;">Search</label> 
 					<input class="search" name="search" type="text" style="height:25px;padding:5px;">
 					
-					<input id="toggle-all-device" 	class="toggle toggle-right" name="device-toggle" 	type="radio" ><label for="toggle-all-device" >All</label
-					><input id="toggle-pending" class="toggle" 	name="device-toggle"  	type="radio" ><label for="toggle-pending" style=""  >Pending</label>
-					<input id="toggle-authorized" class="toggle" 	name="device-toggle"  	type="radio" checked><label for="toggle-authorized" style=""  >Authorized</label>
+					<input id="toggle-device-all" 	class="toggle toggle-right" name="device-toggle" 	type="radio" ><label for="toggle-device-all" >All</label
+					><input id="toggle-device-offline" class="toggle" 			name="device-toggle"  	type="radio" ><label for="toggle-device-offline" style=""  >Offline</label
+					><input id="toggle-device-pending" class="toggle" 			name="device-toggle"  	type="radio" ><label for="toggle-device-pending" style=""  >Pending</label>
+					<input id="toggle-device-authorized" class="toggle" 		name="device-toggle"  	type="radio" checked><label for="toggle-device-authorized" style=""  >Authorized</label>
 				</div>
 				<table class="pure-table" id="device-table" style="width:100%;">
 					<thead>
@@ -768,7 +769,7 @@
 				device_table.fnReloadAjax('{{action('UnifiController@getDeviceList')}}',function(parameter){},true);
 				ap_table.fnReloadAjax('{{action('UnifiController@getApList')}}',function(parameter){},true);
 				autoload();
-				setTimeout(loading,5000);
+				setTimeout(loading,20000);
 			}
 			
 			function authorized(google_id,mac){

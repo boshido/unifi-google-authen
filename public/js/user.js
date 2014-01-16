@@ -38,9 +38,9 @@ $(document).ready(function(){
 		user_table.fnFilter( $(this).val() );
 	});
 	$('#user .toggle').on('change',function(){
-		if($(this).attr('id')=='toggle-online') user_table.fnFilter( 1,4);
-		else if($(this).attr('id')=='toggle-offline') user_table.fnFilter( 0,4);
-		else if($(this).attr('id')=='toggle-all-user') user_table.fnFilter( '',4);
+		if($(this).attr('id')=='toggle-user-online') user_table.fnFilter( 1,4);
+		else if($(this).attr('id')=='toggle-user-offline') user_table.fnFilter( 0,4);
+		else if($(this).attr('id')=='toggle-user-all') user_table.fnFilter( '',4);
 	});
 	$('#user').on('click','.modal-button',function(event){
 		selected_google_id= $(this).attr('data-id');

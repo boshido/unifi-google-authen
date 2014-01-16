@@ -98,9 +98,10 @@ $(document).ready(function(){
 		device_table.fnFilter( $(this).val() );
 	});
 	$('#device .toggle').on('change',function(){
-		if($(this).attr('id')=='toggle-authorized') device_table.fnFilter( 1,7);
-		else if($(this).attr('id')=='toggle-pending') device_table.fnFilter( 0,7);
-		else if($(this).attr('id')=='toggle-all-device') device_table.fnFilter( '',7);
+		if($(this).attr('id')=='toggle-device-offline') device_table.fnFilter( 2,7);
+		else if($(this).attr('id')=='toggle-device-authorized') device_table.fnFilter( 1,7);
+		else if($(this).attr('id')=='toggle-device-pending') device_table.fnFilter( 0,7);
+		else if($(this).attr('id')=='toggle-device-all') device_table.fnFilter( '',7);
 	});
 	$('#device').on('click','.modal-button',function(event){
 		selected_google_id= $(this).attr('data-id');

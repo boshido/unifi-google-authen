@@ -256,7 +256,7 @@ class GuestController extends Controller {
 	
 	public function getInitinfo(){
 		$unifi = new Unifi();
-		$info = $unifi->getUser(array('ip'=> $_SERVER['REMOTE_ADDR']));
+		$info = $unifi->getDevice(array('ip'=> $_SERVER['REMOTE_ADDR']));
 		if($info){
 			Session::put('id', $info->mac);     				// user's mac address
 			Session::put('ap', $info->ap_mac);   				// AP mac
