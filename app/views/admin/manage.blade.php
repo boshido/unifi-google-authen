@@ -479,8 +479,8 @@
 					<input class="search" name="search" type="text" style="height:25px;padding:5px;">
 					
 					<input id="toggle-device-all" 	class="toggle toggle-right" name="device-toggle" 	type="radio" ><label for="toggle-device-all" >All</label
-					><input id="toggle-device-offline" class="toggle" 			name="device-toggle"  	type="radio" ><label for="toggle-device-offline" style=""  >Offline</label
-					><input id="toggle-device-pending" class="toggle" 			name="device-toggle"  	type="radio" ><label for="toggle-device-pending" style=""  >Pending</label>
+					><!-- <input id="toggle-device-offline" class="toggle" 			name="device-toggle"  	type="radio" ><label for="toggle-device-offline" style=""  >Offline</label
+					> --><input id="toggle-device-pending" class="toggle" 			name="device-toggle"  	type="radio" ><label for="toggle-device-pending" style=""  >Pending</label>
 					<input id="toggle-device-authorized" class="toggle" 		name="device-toggle"  	type="radio" checked><label for="toggle-device-authorized" style=""  >Authorized</label>
 				</div>
 				<table class="pure-table" id="device-table" style="width:100%;">

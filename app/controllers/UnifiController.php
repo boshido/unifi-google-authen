@@ -401,7 +401,126 @@ class UnifiController extends Controller {
 		if(count($result)>0)return Response::json(array('code'=>200,'data'=>$result));
 		else return Response::json(array('code'=>404));
 	}
+	public function getUnauthorizedDevice(){
+
+
+	}
+
+	public function getOnlineUserList(){
 	
+		$search = Input::get('search');
+		$searchType = Input::get('search_type');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+		
+		$unifi = new Unifi();
+
+		$allOnlineDevice = $unifi->getDevice(array('all'=>true));
+		$onlineMac= array();
+		if($allOnlineDevice){ // Online check with       Online User  and  Guest table
+			foreach($allOnlineDevice as $key => $value){
+				if($value['is_guest'] == 1){
+					$onlineMac[] = $value['mac'];
+				}
+			}		
+		}
+
+		$googleId = array();
+		if(count($onlineMac)>0){
+			$guestCursor = $unifi->getCurrentGuest($onlineMac,false);
+			if($guestCursor){
+				foreach($guestCursor as $key =>$value){
+					$googleId[]=$value['google_id'];
+				}
+			}
+		}
+
+		$regex = new MongoRegex('/'.$search.'/i');
+		$db = Database::Connect();
+		$token = $db->token;
+		$userCursor = $token->find(
+			array(
+				'$and'=>array(
+					array(
+						'$or'=>array(
+							array('fname'=>$regex),array('lname'=>$regex),
+							array('email'=>$regex)
+						)
+					),
+					array(
+						'google_id'=>array('$in' => $googleId)
+					)
+				)
+			)
+		);
+		$userCursor->skip($start);
+		$userCursor->limit($length);
+		$userCursor->sort(array('_id'=>-1));
+
+		$result=[];
+		foreach($userCursor as $key =>$value) $result[]=$value;
+
+		return Response::json(array('code'=>200,'data'=>$result));
+		
+	}
+
+	public function getOfflineUserList(){
+	
+		$search = Input::get('search');
+		$searchType = Input::get('search_type');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+		
+		$unifi = new Unifi();
+
+		$allOnlineDevice = $unifi->getDevice(array('all'=>true));
+		$onlineMac= array();
+		if($allOnlineDevice){ // Online check with       Online User  and  Guest table
+			foreach($allOnlineDevice as $key => $value){
+				if($value['is_guest'] == 1){
+					$onlineMac[] = $value['mac'];
+				}
+			}		
+		}
+
+		$googleId = array();
+		if(count($onlineMac)>0){
+			$guestCursor = $unifi->getCurrentGuest($onlineMac,false);
+			if($guestCursor){
+				foreach($guestCursor as $key =>$value){
+					$googleId[]=$value['google_id'];
+				}
+			}
+		}
+
+		$regex = new MongoRegex('/'.$search.'/i');
+		$db = Database::Connect();
+		$token = $db->token;
+		$userCursor = $token->find(
+			array(
+				'$and'=>array(
+					array(
+						'$or'=>array(
+							array('fname'=>$regex),array('lname'=>$regex),
+							array('email'=>$regex)
+						)
+					),
+					array(
+						'google_id'=>array('$nin' => $googleId)
+					)
+				)
+			)
+		);
+		$userCursor->skip($start);
+		$userCursor->limit($length);
+		$userCursor->sort(array('_id'=>-1));
+
+		$result=[];
+		foreach($userCursor as $key =>$value) $result[]=$value;
+
+		return Response::json(array('code'=>200,'data'=>$result));
+	}
+
 	public function getUserList(){
 	
 		$unifi = new Unifi();
@@ -458,10 +577,9 @@ class UnifiController extends Controller {
 		}
 		
 		return Response::json(array('code'=>200,'data'=>$result));
-		
 	}
 	
-	public function getDeviceListBackup(){
+	public function getDeviceList(){
 	
 		$unifi = new Unifi();
 		$db = Database::Connect();
@@ -481,8 +599,9 @@ class UnifiController extends Controller {
 		if($device){ // Online check with  
 			foreach($device as $key => $value){
 				if($value['is_guest'] == 1){
+					$value['is_online'] = 1;
 					if(isset($authorized[$value['mac']])){
-						$value['is_auth']=1;
+						$value['is_auth'] = 1;
 						if(isset($authorized[$value['mac']]['google_id'])){
 							$value['google_id']=$authorized[$value['mac']]['google_id'];
 							$google = $user[$value['google_id']];
@@ -505,7 +624,7 @@ class UnifiController extends Controller {
 		return Response::json(array('code'=>200,'data'=>$result));
 		
 	}
-	public function getDeviceList(){
+	public function getDeviceListNewPrototype(){
 	
 		$unifi = new Unifi();
 		$db = Database::Connect();
@@ -526,8 +645,10 @@ class UnifiController extends Controller {
 			unset($value['is_guest']);
 			$device[$value['mac']] = $value;
 		}
-		foreach($onlineDevice as $key =>$value){
-			$device[$value['mac']] = $value;
+		if($onlineDevice){
+			foreach($onlineDevice as $key =>$value){
+				$device[$value['mac']] = $value;
+			}
 		}
 
 		foreach($tmp as $key =>$value){			  //Authorized Device
@@ -582,7 +703,7 @@ class UnifiController extends Controller {
 	
 	public function getTypeaheadDevice(){
 		$search = Input::get('search');
-		$regex = new MongoRegex('/'.$search.'/');
+		$regex = new MongoRegex('/'.$search.'/i');
 		$db = Database::Connect();
 		$user = $db->user;
 		$cursor = $user->find(array('$or'=>array(array('hostname'=>$regex),array('mac'=>$regex))));
@@ -596,7 +717,7 @@ class UnifiController extends Controller {
 	
 	public function getTypeaheadGoogle(){
 		$search = Input::get('search');
-		$regex = new MongoRegex('/'.$search.'/');
+		$regex = new MongoRegex('/'.$search.'/i');
 		$db = Database::Connect();
 		$token = $db->token;
 		$cursor = $token->find(array('$or'=>array(array('fname'=>$regex),array('lname'=>$regex),array('email'=>$regex))));
