@@ -398,7 +398,8 @@ class UnifiController extends Controller {
 				$value['ip']=$tmp[$value['mac']]['ip'];
 				$value['map_id']=$tmp[$value['mac']]['map_id'];
 				$value['uptime']=$tmp[$value['mac']]['uptime'];
-				
+				$value['bytes.r']=$tmp[$value['mac']]['bytes.r'];
+
 				$result['online'][]=$value;
 			}
 			else{
@@ -410,47 +411,101 @@ class UnifiController extends Controller {
 		else return Response::json(array('code'=>404));
 	}
 
-	public function getUnauthorizedDeviceList(){
+	public function getPendingDeviceList(){
 		$search = Input::get('search');
-		$searchType = Input::get('search_type');
 		$start = Input::get('start');
 		$length = Input::get('length') != null ? Input::get('length') : 0;
 		
 		$unifi = new Unifi();
 	
-		$guestCursor = $unifi->getCurrentGuest(null,false);
-		$result = array();
-		if($guestCursor){
-			foreach($guestCursor as $key =>$value){
-				$result[]=$value;
+		$authorizedCursor = $unifi->getCurrentGuest(null,false);
+		$authorizedMac = array();
+		if($authorizedCursor){
+			foreach($authorizedCursor as $key =>$value){
+				if(isset($value['google_id']))
+					$authorizedMac[$value['mac']]=true;
+			}
+		}
+
+		$result=[];
+		$allOnlineDevice = $unifi->getDevice(array('all'=>true));
+		if($allOnlineDevice){
+			foreach($allOnlineDevice as $key => $value){
+				if(!isset($authorizedMac[$value['mac']])){
+					$result[]=$value;
+				}
+			}		
+		}
+
+		function fixem($a, $b){
+		  if ($a["_id"] == $b["_id"]) { return 0; }
+		  return ($a["_id"] < $b["_id"]) ? -1 : 1;
+		}
+		function search($find, $originalArray) {
+			$resultArray=[];
+		   	foreach ($originalArray as $key => $value) {
+		       if (stristr($value['hostname'] , $find)) {
+		          	$resultArray[]=$value;
+		       }
+		       else if(stristr($value['ip'] , $find)){
+					$resultArray[]=$value;
+		       }
+		       else if(stristr($value['mac'] , $find)){
+		       		$resultArray[]=$value;
+		       }
+		   }
+		 
+		    return $resultArray;
+		}
+		if($search != null)
+			$result = search($search,$result);
+
+		// Our Call to Sort the Data
+		usort($result, "fixem");
+
+		return Response::json(array('code'=>200,'data'=>$result));
+	}
+
+	public function getUnauthorizedDeviceList(){
+		$search = Input::get('search');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+		
+		$unifi = new Unifi();
+	
+		$authorizedCursor = $unifi->getCurrentGuest(null,false);
+		$authorizedMac = array();
+		if($authorizedCursor){
+			foreach($authorizedCursor as $key =>$value){
+				if(isset($value['google_id']))
+					$authorizedMac[]=$value['mac'];
 			}
 		}
 		
+		$regex = new MongoRegex('/'.$search.'/i');
+		$db = Database::Connect();
+		$device = $db->user;
+		$deviceCursor = $device->find(
+			array(
+				'$and'=>array(
+					array(
+						'$or'=>array(
+							array('hostname'=>$regex),
+							array('mac'=>$regex)
+						)
+					),
+					array(
+						'mac'=>array('$nin' => $authorizedMac)
+					)
+				)
+			)
+		);
+		$deviceCursor->skip($start);
+		$deviceCursor->limit($length);
+		$deviceCursor->sort(array('_id'=>-1));
 
-		// $regex = new MongoRegex('/'.$search.'/i');
-		// $db = Database::Connect();
-		// $token = $db->token;
-		// $userCursor = $token->find(
-		// 	array(
-		// 		'$and'=>array(
-		// 			array(
-		// 				'$or'=>array(
-		// 					array('fname'=>$regex),array('lname'=>$regex),
-		// 					array('email'=>$regex)
-		// 				)
-		// 			),
-		// 			array(
-		// 				'google_id'=>array('$in' => $googleId)
-		// 			)
-		// 		)
-		// 	)
-		// );
-		// $userCursor->skip($start);
-		// $userCursor->limit($length);
-		// $userCursor->sort(array('_id'=>-1));
-
-		// $result=[];
-		// foreach($userCursor as $key =>$value) $result[]=$value;
+		$result=[];
+		foreach($deviceCursor as $key =>$value) $result[]=$value;
 
 		return Response::json(array('code'=>200,'data'=>$result));
 	}
@@ -458,7 +513,6 @@ class UnifiController extends Controller {
 	public function getOnlineUserList(){
 	
 		$search = Input::get('search');
-		$searchType = Input::get('search_type');
 		$start = Input::get('start');
 		$length = Input::get('length') != null ? Input::get('length') : 0;
 		
@@ -476,9 +530,9 @@ class UnifiController extends Controller {
 
 		$googleId = array();
 		if(count($onlineMac)>0){
-			$guestCursor = $unifi->getCurrentGuest($onlineMac,false);
-			if($guestCursor){
-				foreach($guestCursor as $key =>$value){
+			$authorizedCursor = $unifi->getCurrentGuest($onlineMac,false);
+			if($authorizedCursor){
+				foreach($authorizedCursor as $key =>$value){
 					if(isset($value['google_id']))
 						$googleId[]=$value['google_id'];
 				}
@@ -516,7 +570,6 @@ class UnifiController extends Controller {
 	public function getOfflineUserList(){
 	
 		$search = Input::get('search');
-		$searchType = Input::get('search_type');
 		$start = Input::get('start');
 		$length = Input::get('length') != null ? Input::get('length') : 0;
 		
@@ -534,9 +587,9 @@ class UnifiController extends Controller {
 
 		$googleId = array();
 		if(count($onlineMac)>0){
-			$guestCursor = $unifi->getCurrentGuest($onlineMac,false);
-			if($guestCursor){
-				foreach($guestCursor as $key =>$value){
+			$authorizedCursor = $unifi->getCurrentGuest($onlineMac,false);
+			if($authorizedCursor){
+				foreach($authorizedCursor as $key =>$value){
 					if(isset($value['google_id']))
 						$googleId[]=$value['google_id'];
 				}
