@@ -352,8 +352,9 @@ class Unifi{
 		
 		$find = array('mac' => $mac,'$and'=>array(array('start'=>array('$lte'=>$time)),array('end'=>array('$gte'=>$time))));
 		$set = array('$set'=>$data);
-		$cursor = $guest->update($find,$set);
+		$result = $guest->update($find,$set);
 
+		return $result;
 	}
 	
 	public function getStat($mac,$limit,$sort,$sort_type=1)

@@ -62,8 +62,11 @@ class UnifiController extends Controller {
 		$unifi->sendAuthorization($mac,9999999); 
 		$guestinfo = array('google_id'=>$google_id,'email'=>$email,'auth_type'=>1);
 		if($hostname != '')$guestinfo['hostname']=$hostname;
-		
-		$unifi->setCurrentGuest($mac,$guestinfo);
+		if($fname != '')$guestinfo['fname']=$fname;
+		if($lname != '')$guestinfo['lname']=$lname;
+		if($fname != '' && $lname != '')$guestinfo['name']=$fname.' '.$lname;
+
+		while(!$unifi->setCurrentGuest($mac,$guestinfo));
 		
 		return 1;
 	}
@@ -182,7 +185,8 @@ class UnifiController extends Controller {
 		$is_auth =  $unifi->getCurrentGuest($mac);
 		$is_auth = $is_auth ? true : false; 
 		
-		if($device != false && $device['is_guest']){
+		// if($device != false && $device['is_guest']){
+		if($device != false ){
 			$result = array('code'=>200,'data'=>$device,'is_auth'=>$is_auth);
 		}
 		else{
@@ -312,6 +316,57 @@ class UnifiController extends Controller {
 		else return Response::make('', 400);
 	}
 	
+	public function getDevicesStatReport(){
+
+		$mac = Input::get('mac');
+		$at = Input::get('at') ;
+		$to = Input::get('to') ; 
+		if(!is_array($mac)) return Response::json(array('code'=>404));
+
+		$db = Database::Connect();
+
+		$at = $at != null ? strtotime("midnight", $at) : strtotime("midnight", time());
+		$to = $to != null ? strtotime("tomorrow", $to)- 1 : strtotime("tomorrow", time())- 1; 
+		$result = array();
+
+		$sessionCol = $db->session;
+		$deviceCol = $db->user;
+		$deviceCursor = $deviceCol->find(array('mac' => array('$in' => $mac)));
+		foreach ($deviceCursor as $key => $value) {
+			$value["tx_bytes"]=0;
+			$value["rx_bytes"]=0;
+			$value["bytes"]=0;
+			$result[$value['mac']]= $value;
+		}
+		$sessionCursor = $sessionCol->find(array('mac' => array('$in' => $mac),'$and'=>array(array('assoc_time'=>array('$gte'=>$at)),array('assoc_time'=>array('$lte'=>$to)))));
+		foreach ($sessionCursor as $key => $value) {
+		 	$result[$value['mac']]['tx_bytes']+=$value['tx_bytes'];
+		 	$result[$value['mac']]['rx_bytes']+=$value['rx_bytes'];
+		 	$result[$value['mac']]['bytes']+=$value['bytes'];
+		}
+
+		// $tmp = array();
+		// $stamp = strtotime("midnight", $at); 
+		// do{
+		// 	$tmp[$stamp]['date']=$stamp;
+		// 	$tmp[$stamp]['tx_bytes']=0;
+		// 	$tmp[$stamp]['rx_bytes']=0;
+		// 	$stamp = strtotime("tomorrow", $stamp);
+		// }while($stamp <= strtotime("midnight",$to));
+		
+		// foreach($cursor as $key => $value){
+		// 	$time = strtotime("midnight", $value['assoc_time']);
+		// 	$tmp[$time]['tx_bytes'] = $tmp[$time]['tx_bytes']+$value['tx_bytes'];
+		// 	$tmp[$time]['rx_bytes'] = $tmp[$time]['rx_bytes']+$value['rx_bytes'];
+		// }
+		
+		// foreach($tmp as $key => $value){
+		// 	$result[] = $value;
+		// }
+		
+		return Response::json(array('code'=>200,'data'=>$result));
+	}
+
 	public function getStat()
 	{
 		$mac = Input::get('mac');
@@ -369,7 +424,7 @@ class UnifiController extends Controller {
 		}
 		else return Response::json(array('code'=>404));
 	}
-	
+
 	public function getAuthorizedDevice(){
 		
 		$google_id = Input::get('google_id');
@@ -409,6 +464,142 @@ class UnifiController extends Controller {
 		
 		if(count($result)>0)return Response::json(array('code'=>200,'data'=>$result));
 		else return Response::json(array('code'=>404));
+	}
+
+	public function getOnlineDeviceList(){
+		$search = Input::get('search');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+		
+		$unifi = new Unifi();
+	
+		$authorizedCursor = $unifi->getCurrentGuest(null,false);
+		$authorizedDevice = array();
+		if($authorizedCursor){
+			foreach($authorizedCursor as $key =>$value){
+				if(isset($value['google_id']))
+					$authorizedDevice[$value['mac']]=$value;
+			}
+		}
+
+		$result=[];
+		$allOnlineDevice = $unifi->getDevice(array('all'=>true));
+		if($allOnlineDevice){
+			foreach($allOnlineDevice as $key => $value){
+				if(isset($authorizedDevice[$value['mac']])){
+
+					$value['google_id']=$authorizedDevice[$value['mac']]['google_id'];
+					$value['name']=$authorizedDevice[$value['mac']]['name'];
+					$value['email']=$authorizedDevice[$value['mac']]['email'];
+					$value['is_auth']=true;
+					$result[]=$value;
+				}
+				else{
+					$value['is_auth']=false;
+					$result[]=$value;
+				}
+			}		
+		}
+
+		function fixem($a, $b){
+		  if ($a["_id"] == $b["_id"]) { return 0; }
+		  return ($a["_id"] < $b["_id"]) ? -1 : 1;
+		}
+		function search($find, $originalArray) {
+			$resultArray=[];
+		   	foreach ($originalArray as $key => $value) {
+		       if (stristr($value['hostname'] , $find)) {
+		          	$resultArray[]=$value;
+		       }
+		       else if(stristr($value['ip'] , $find)){
+					$resultArray[]=$value;
+		       }
+		       else if(stristr($value['mac'] , $find)){
+		       		$resultArray[]=$value;
+		       }
+		       else if(isset($value['name'])){
+		       		if(stristr($value['name'] , $find)){
+		       			$resultArray[]=$value;
+		       		}
+		       }
+		   }
+		 
+		    return $resultArray;
+		}
+		if($search != null)
+			$result = search($search,$result);
+
+		// Our Call to Sort the Data
+		usort($result, "fixem");
+
+		return Response::json(array('code'=>200,'data'=>$result));
+	}
+
+	public function getOfflineDeviceList(){
+		$search = Input::get('search');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+		
+		$unifi = new Unifi();
+		
+		$authorizedCursor = $unifi->getCurrentGuest(null,false);
+		$authorizedDevice = array();
+		if($authorizedCursor){
+			foreach($authorizedCursor as $key =>$value){
+				if(isset($value['google_id']))
+					$authorizedDevice[$value['mac']]=$value;
+			}
+		}
+
+		$result=[];
+		$allOnlineDevice = $unifi->getDevice(array('all'=>true));
+		$onlineMac = array();
+		if($allOnlineDevice){
+			foreach($allOnlineDevice as $key => $value){
+				$onlineMac[] = $value['mac'];
+			}		
+		}
+
+		
+		$regex = new MongoRegex('/'.$search.'/i');
+		$db = Database::Connect();
+		$device = $db->user;
+		$deviceCursor = $device->find(
+			array(
+				'$and'=>array(
+					array(
+						'$or'=>array(
+							array('hostname'=>$regex),
+							array('mac'=>$regex)
+						)
+					),
+					array(
+						'mac'=>array('$nin' => $onlineMac)
+					)
+				)
+			)
+		);
+		$deviceCursor->skip($start);
+		$deviceCursor->limit($length);
+		$deviceCursor->sort(array('_id'=>-1));
+
+		$result=[];
+		foreach($deviceCursor as $key =>$value) {
+			if(isset($authorizedDevice[$value['mac']])){
+
+				$value['google_id']=$authorizedDevice[$value['mac']]['google_id'];
+				$value['name']=$authorizedDevice[$value['mac']]['name'];
+				$value['email']=$authorizedDevice[$value['mac']]['email'];
+				$value['is_auth']=true;
+				$result[]=$value;
+			}
+			else{
+				$value['is_auth']=false;
+				$result[]=$value;
+			}
+		};
+
+		return Response::json(array('code'=>200,'data'=>$result));
 	}
 
 	public function getPendingDeviceList(){
