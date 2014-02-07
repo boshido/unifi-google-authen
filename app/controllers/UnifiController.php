@@ -406,8 +406,12 @@ class UnifiController extends Controller {
 		if(($type == "hourly" || $type == "daily") && $time !=0){
 			$unifi = new Unifi();
 			//if($type == "daily") $time = strtotime("midnight", $time);
-			
-			return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
+			// return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
+
+			// if()
+			// $db = Database::Connect();
+			// $userStatistic = $db->stat->hourly->user;
+
 		}
 		else return Response::json(array('code'=>404));
 	}
