@@ -1,7 +1,8 @@
 <?php
 	error_reporting(E_ALL ^ E_NOTICE);
-	require('../libraries/Unifi.php');
-	require('../libraries/Database.php');
+	set_include_path('/Users/boshido/Desktop/git/unifi-google-authen/app/libraries'); // Edit when change path
+	require('Unifi.php');
+	require('Database.php');
 	$unifi = new Unifi();
 	$onlineTmp = $unifi->getDevice(array('all'=>true));
 	$db = Database::Connect();

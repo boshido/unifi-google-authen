@@ -416,6 +416,26 @@ class UnifiController extends Controller {
 		else return Response::json(array('code'=>404));
 	}
 
+	public function getUserForNetmon()
+	{	
+		$ip = Input::get('ip');
+		$db = Database::Connect();
+		$userStatistic = $db->stat->hourly->user;
+		$cursor = $userStatistic->find(	array(
+											'user'=>array('$elemMatch'=>array('ip'=>$ip,'is_auth'=>true))
+										),
+										array('user'=> 1)
+									   );
+		$cursor->sort(array('datetime'=>-1));
+		$device = $cursor->getNext();
+		if($device){
+			foreach($device['user'] as $key => $value){
+				if($value['ip']==$ip) return Response::json(array('code'=>200,'data'=>$value));
+			}
+		}
+		else return Response::json(array('code'=>404));
+	}
+
 	public function getUserReport()
 	{
 		$mac = Input::get('mac');
