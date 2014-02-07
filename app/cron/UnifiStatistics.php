@@ -50,12 +50,9 @@
 					
 					echo "New connection\n";
 				}
-				
+
 				$oldOnlineDevice[$value['mac']] = array(	"ip"				=>$value["ip"] != null ? $value["ip"] : $oldOnlineDevice[$value['mac']]['ip'] ,
 												"mac"				=>$value["mac"],
-												"google_id"			=>$authorizedDevice[$value['mac']]['google_id'] != null ? $authorizedDevice[$value['mac']]['google_id'] : $oldOnlineDevice[$value['mac']]['google_id'] ,
-												"email"				=>$authorizedDevice[$value['mac']]['google_id'] != null ?  $authorizedDevice[$value['mac']]['email'] : $oldOnlineDevice[$value['mac']]['email'],
-												"name"				=>$authorizedDevice[$value['mac']]['google_id'] != null ? $authorizedDevice[$value['mac']]['name'] : $oldOnlineDevice[$value['mac']]['name'],
 												"tx_bytes_start"	=> new MongoInt64($value["tx_bytes"]),
 												"rx_bytes_start"	=> new MongoInt64($value["rx_bytes"]),
 												"tx_bytes"			=> new MongoInt64($tx_bytes),
@@ -64,6 +61,12 @@
 												"bytes.r"			=> new MongoInt64(($value["bytes.r"]+$oldOnlineDevice[$value['mac']]['bytes.r'])/2),
 												"assoc_time"		=>new MongoInt64($value["assoc_time"])
 											);
+				if(isset($authorizedDevice[$value['mac']]['google_id']) && $authorizedDevice[$value['mac']]['google_id'] != null){
+						$oldOnlineDevice[$value['mac']]["google_id"] = $authorizedDevice[$value['mac']]['google_id'];
+						$oldOnlineDevice[$value['mac']]["email"]	 = $authorizedDevice[$value['mac']]['email'];
+						$oldOnlineDevice[$value['mac']]["name"]		 = $authorizedDevice[$value['mac']]['name'];
+				}
+				
 				$bytes += $tx_bytes+$rx_bytes;
 				$bytes_r += $value["bytes.r"];
 			}
