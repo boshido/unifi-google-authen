@@ -9,7 +9,8 @@
 	$userStatistic = $db->stat->hourly->user;
 	$session = $db->session;
 
-	$stamp = strtotime("next hours",time());
+	// $stamp = strtotime("next hours",time());
+	$stamp = time();
 	$stamp = $stamp - ($stamp % 3600);
 	$oldStatistic = $userStatistic->findOne(array("datetime"=>new MongoDate($stamp)));
 
@@ -90,6 +91,7 @@
 
 				$oldOnlineDevice[$value['mac']] = array(	"ip"				=>$ip,
 															"mac"				=>$value["mac"],
+															"hostname"			=>$value["hostname"],
 															"tx_bytes_start"	=> new MongoInt64($value["tx_bytes"]),
 															"rx_bytes_start"	=> new MongoInt64($value["rx_bytes"]),
 															"tx_bytes"			=> new MongoInt64($tx_bytes),
@@ -120,6 +122,7 @@
 			foreach($onlineTmp as $key => $value){
 				$onlineDevice[] = array(	"ip"				=>$value["ip"],
 											"mac"				=>$value["mac"],
+											"hostname"			=>$value["hostname"],
 											"tx_bytes_start"	=> new MongoInt64($value["tx_bytes"]),
 											"rx_bytes_start"	=> new MongoInt64($value["rx_bytes"]),
 											"tx_bytes"			=> new MongoInt64(0),

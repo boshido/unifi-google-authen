@@ -403,16 +403,29 @@ class UnifiController extends Controller {
 		$time = (int)Input::get('time');
 		$type = Input::get('type');
 
-		if(($type == "hourly" || $type == "daily") && $time !=0){
+		function fixem($a, $b){
+		  if ($a['datetime']->sec == $b['datetime']->sec) { return 0; }
+		  return ($a['datetime']->sec < $b['datetime']->sec) ? -1 : 1;
+		}
+
+		if(($type == "hourly" || $type == "daily") && $time != 0){
+
+			$result = array();
+			$resultTmp = array();
 			$unifi = new Unifi();
 			//if($type == "daily") $time = strtotime("midnight", $time);
 			// return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
 
 			if($type=='hourly'){
+				$timeIndex = strtotime('-6 hours',$time);
+				while($timeIndex <= $time){
+					$resultTmp[$timeIndex-($timeIndex%3600)] = array("_id"=>null,"datetime"=>new MongoDate($timeIndex-($timeIndex%3600)),"bytes"=>0,"bytes.r"=>0,"user_count"=>0);
+					$timeIndex = strtotime("next hours",$timeIndex);
+				}
+				
 				$db = Database::Connect();
 				$userStatistic = $db->stat->hourly->user;
-
-				$result = array();
+				
 				$cursor = $userStatistic->find( 
 					array('$and' => 
 						array(
@@ -422,13 +435,59 @@ class UnifiController extends Controller {
 					)
 				,array('user'=>0));
 				foreach ($cursor as $key => $value) {
+					$value['_id'] = (string)$value['_id'];
+					$resultTmp[$value['datetime']->sec]=$value;
+				}
+				foreach ($resultTmp as $key => $value) {
 					$result[]=$value;
 				}
 				
+				
 			}
 			else{
-			
+				
 			}
+			usort($result, "fixem");
+			return Response::json(array('code'=>200,'data'=>$result));
+
+		}
+		else return Response::json(array('code'=>404));
+	}
+
+	public function getTrafficUserReport()
+	{	
+		$time = (int)Input::get('time');
+		$type = Input::get('type');
+
+		function fixem($a, $b){
+		  if ($a['bytes'] == $b['bytes']) { return 0; }
+		  return ($a['bytes'] < $b['bytes']) ? 1 : -1;
+		}
+
+		if(($type == "hourly" || $type == "daily") && $time != 0){
+
+			$result = array();
+			$resultTmp = array();
+			$unifi = new Unifi();
+			//if($type == "daily") $time = strtotime("midnight", $time);
+			// return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
+
+			if($type=='hourly'){	
+				$db = Database::Connect();
+				$userStatistic = $db->stat->hourly->user;
+				
+				$cursor = $userStatistic->findOne( 
+					array( 'datetime' =>new MongoDate($time-($time%3600))
+					)
+				,array('user'=>1));
+				foreach ($cursor['user'] as $key => $value) {
+					$result[]=$value;
+				}
+			}
+			else{
+				
+			}
+			usort($result, "fixem");
 			return Response::json(array('code'=>200,'data'=>$result));
 
 		}
