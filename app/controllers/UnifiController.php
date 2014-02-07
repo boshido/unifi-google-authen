@@ -468,7 +468,7 @@ class UnifiController extends Controller {
 
 	public function getOnlineDeviceList(){
 		$search = Input::get('search');
-		$start = Input::get('start');
+		$start = Input::get('start') != null ? Input::get('start') : 0;
 		$length = Input::get('length') != null ? Input::get('length') : 0;
 		
 		$unifi = new Unifi();
@@ -489,7 +489,8 @@ class UnifiController extends Controller {
 				if(isset($authorizedDevice[$value['mac']])){
 
 					$value['google_id']=$authorizedDevice[$value['mac']]['google_id'];
-					$value['name']=$authorizedDevice[$value['mac']]['name'];
+					if(isset($authorizedDevice[$value['mac']]['name']))$value['name']=$authorizedDevice[$value['mac']]['name'];
+					
 					$value['email']=$authorizedDevice[$value['mac']]['email'];
 					$value['is_auth']=true;
 					$result[]=$value;
@@ -502,8 +503,8 @@ class UnifiController extends Controller {
 		}
 
 		function fixem($a, $b){
-		  if ($a["_id"] == $b["_id"]) { return 0; }
-		  return ($a["_id"] < $b["_id"]) ? -1 : 1;
+		  if ($a["assoc_time"] == $b["assoc_time"]) { return 0; }
+		  return ($a["assoc_time"] < $b["assoc_time"]) ? -1 : 1;
 		}
 		function search($find, $originalArray) {
 			$resultArray=[];
@@ -531,6 +532,7 @@ class UnifiController extends Controller {
 
 		// Our Call to Sort the Data
 		usort($result, "fixem");
+		$result = array_slice($result,$start,$length);
 
 		return Response::json(array('code'=>200,'data'=>$result));
 	}
@@ -604,7 +606,7 @@ class UnifiController extends Controller {
 
 	public function getPendingDeviceList(){
 		$search = Input::get('search');
-		$start = Input::get('start');
+		$start = Input::get('start') != null ? Input::get('start') : 0;
 		$length = Input::get('length') != null ? Input::get('length') : 0;
 		
 		$unifi = new Unifi();
@@ -629,8 +631,8 @@ class UnifiController extends Controller {
 		}
 
 		function fixem($a, $b){
-		  if ($a["_id"] == $b["_id"]) { return 0; }
-		  return ($a["_id"] < $b["_id"]) ? -1 : 1;
+		  if ($a["assoc_time"] == $b["assoc_time"]) { return 0; }
+		  return ($a["assoc_time"] < $b["assoc_time"]) ? -1 : 1;
 		}
 		function search($find, $originalArray) {
 			$resultArray=[];
@@ -653,6 +655,7 @@ class UnifiController extends Controller {
 
 		// Our Call to Sort the Data
 		usort($result, "fixem");
+		$result = array_slice($result,$start,$length);
 
 		return Response::json(array('code'=>200,'data'=>$result));
 	}
