@@ -158,9 +158,11 @@
 	$insert = array(	"datetime"		=> new MongoDate($stamp),
 						"bytes"			=> new MongoInt64($bytes_sum),
 						"bytes.r"		=> new MongoInt64($bytes_r_sum),
-						"user"			=>$onlineDevice
+						"user_count"	=> count($onlineDevice),
+						"user"			=> $onlineDevice
 					);
 	$userStatistic->update(array("datetime"=>new MongoDate($stamp)),$insert,array('upsert'=>true));
 
 	echo "Successful\n";
+	echo $stamp."\n";
 ?>

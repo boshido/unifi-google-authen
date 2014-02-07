@@ -400,43 +400,39 @@ class UnifiController extends Controller {
 
 	public function getTrafficReport()
 	{	
-		// $time = (int)Input::get('time');
-		// $type = Input::get('type');
-		// //echo $time;
-		// if(($type == "hourly" || $type == "daily") && $time !=0){
-		// 	$unifi = new Unifi();
-		// 	//if($type == "daily") $time = strtotime("midnight", $time);
-		// 	// return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
+		$time = (int)Input::get('time');
+		$type = Input::get('type');
 
-		// 	if($type=='hourly'){
-		// 		$db = Database::Connect();
-		// 		$userStatistic = $db->stat->hourly->user;
+		if(($type == "hourly" || $type == "daily") && $time !=0){
+			$unifi = new Unifi();
+			//if($type == "daily") $time = strtotime("midnight", $time);
+			// return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
 
-		// 		$result = array();
-		// 		$cursor = $stat->find( 
-		// 			array('$and' => 
-		// 				array(
-		// 					array('datetime' => array('$gte' => new MongoDate(strtotime('-7 hours',$time)))),
-		// 					array('datetime' => array('$lte' => new MongoDate($time) )) 
-		// 				)
-		// 			)
-		// 		);
-		// 	}
-		// 	else{
-		// 		$stat = $db->stat->daily->system;
-		// 		$result = array();
-		// 		$cursor = $stat->find( 
-		// 			array('$and' => 
-		// 				array(
-		// 					array('datetime' => array('$gte' => new MongoDate(strtotime('-7 day',$time)))),
-		// 					array('datetime' => array('$lte' => new MongoDate($time) )) 
-		// 				)
-		// 			)
-		// 		);
-		// 	}
+			if($type=='hourly'){
+				$db = Database::Connect();
+				$userStatistic = $db->stat->hourly->user;
 
-		// }
-		// else return Response::json(array('code'=>404));
+				$result = array();
+				$cursor = $userStatistic->find( 
+					array('$and' => 
+						array(
+							array('datetime' => array('$gte' => new MongoDate(strtotime('-7 hours',$time)))),
+							array('datetime' => array('$lte' => new MongoDate($time) )) 
+						)
+					)
+				,array('user'=>0));
+				foreach ($cursor as $key => $value) {
+					$result[]=$value;
+				}
+				
+			}
+			else{
+			
+			}
+			return Response::json(array('code'=>200,'data'=>$result));
+
+		}
+		else return Response::json(array('code'=>404));
 	}
 
 	public function getUserForNetmon()
