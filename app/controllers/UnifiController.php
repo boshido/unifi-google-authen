@@ -400,40 +400,90 @@ class UnifiController extends Controller {
 
 	public function getTrafficReport()
 	{	
-		$time = (int)Input::get('time');
-		$type = Input::get('type');
-		//echo $time;
-		if(($type == "hourly" || $type == "daily") && $time !=0){
-			$unifi = new Unifi();
-			//if($type == "daily") $time = strtotime("midnight", $time);
-			// return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
+		// $time = (int)Input::get('time');
+		// $type = Input::get('type');
+		// //echo $time;
+		// if(($type == "hourly" || $type == "daily") && $time !=0){
+		// 	$unifi = new Unifi();
+		// 	//if($type == "daily") $time = strtotime("midnight", $time);
+		// 	// return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
 
-			// if()
-			// $db = Database::Connect();
-			// $userStatistic = $db->stat->hourly->user;
+		// 	if($type=='hourly'){
+		// 		$db = Database::Connect();
+		// 		$userStatistic = $db->stat->hourly->user;
 
-		}
-		else return Response::json(array('code'=>404));
+		// 		$result = array();
+		// 		$cursor = $stat->find( 
+		// 			array('$and' => 
+		// 				array(
+		// 					array('datetime' => array('$gte' => new MongoDate(strtotime('-7 hours',$time)))),
+		// 					array('datetime' => array('$lte' => new MongoDate($time) )) 
+		// 				)
+		// 			)
+		// 		);
+		// 	}
+		// 	else{
+		// 		$stat = $db->stat->daily->system;
+		// 		$result = array();
+		// 		$cursor = $stat->find( 
+		// 			array('$and' => 
+		// 				array(
+		// 					array('datetime' => array('$gte' => new MongoDate(strtotime('-7 day',$time)))),
+		// 					array('datetime' => array('$lte' => new MongoDate($time) )) 
+		// 				)
+		// 			)
+		// 		);
+		// 	}
+
+		// }
+		// else return Response::json(array('code'=>404));
 	}
 
 	public function getUserForNetmon()
 	{	
 		$ip = Input::get('ip');
+
+		$unifi = new Unifi();
 		$db = Database::Connect();
 		$userStatistic = $db->stat->hourly->user;
-		$cursor = $userStatistic->find(	array(
-											'user'=>array('$elemMatch'=>array('ip'=>$ip,'is_auth'=>true))
-										),
-										array('user'=> 1)
-									   );
-		$cursor->sort(array('datetime'=>-1));
-		$device = $cursor->getNext();
-		if($device){
-			foreach($device['user'] as $key => $value){
-				if($value['ip']==$ip) return Response::json(array('code'=>200,'data'=>$value));
+		
+
+		$mac = $unifi->getDevice(array('ip'=>$ip));
+		if($mac != false){
+			$mac = $mac['mac'];
+			$user = $unifi->getCurrentGuest($mac,false);
+			if($user != false && isset($user[0]['google_id']))return Response::json(array('code'=>200,'data'=>$user));
+			else { // Same Method
+				$cursor = $userStatistic->find(	array(
+													'user'=>array('$elemMatch'=>array('ip'=>$ip,'is_auth'=>true))
+												),
+												array('user'=> 1,'datetime'=>1)
+											   );
+				$cursor->sort(array('datetime'=>-1));
+				$device = $cursor->getNext();
+				if($device){
+					foreach($device['user'] as $key => $value){
+						if($value['ip']==$ip) return Response::json(array('code'=>201,'datetime'=>$device['datetime'],'data'=>array($value)));
+					}
+				}
+				else return Response::json(array('code'=>404));
 			}
 		}
-		else return Response::json(array('code'=>404));
+		else { // Same Method
+			$cursor = $userStatistic->find(	array(
+												'user'=>array('$elemMatch'=>array('ip'=>$ip,'is_auth'=>true))
+											),
+											array('user'=> 1,'datetime'=>1)
+										   );
+			$cursor->sort(array('datetime'=>-1));
+			$device = $cursor->getNext();
+			if($device){
+				foreach($device['user'] as $key => $value){
+					if($value['ip']==$ip) return Response::json(array('code'=>201,'datetime'=>$device['datetime'],'data'=>array($value)));
+				}
+			}
+			else return Response::json(array('code'=>404));
+		}
 	}
 
 	public function getUserReport()
