@@ -447,7 +447,30 @@ class UnifiController extends Controller {
 				
 			}
 			else{
+				$timeIndex = strtotime('-6 day',$time);
+				while($timeIndex <= $time){
+					$resultTmp[$timeIndex-($timeIndex%86400)] = array("_id"=>null,"datetime"=>new MongoDate($timeIndex-($timeIndex%86400)),"bytes"=>0,"bytes.r"=>0,"user_count"=>0);
+					$timeIndex = strtotime("next hours",$timeIndex);
+				}
 				
+				$db = Database::Connect();
+				$userStatistic = $db->stat->daily->user;
+				
+				$cursor = $userStatistic->find( 
+					array('$and' => 
+						array(
+							array('datetime' => array('$gte' => new MongoDate(strtotime('-7 day',$time)))),
+							array('datetime' => array('$lte' => new MongoDate($time) )) 
+						)
+					)
+				,array('user'=>0));
+				foreach ($cursor as $key => $value) {
+					$value['_id'] = (string)$value['_id'];
+					$resultTmp[$value['datetime']->sec]=$value;
+				}
+				foreach ($resultTmp as $key => $value) {
+					$result[]=$value;
+				}
 			}
 			usort($result, "fixem");
 			return Response::json(array('code'=>200,'data'=>$result));
@@ -482,14 +505,25 @@ class UnifiController extends Controller {
 					array( 'datetime' =>new MongoDate($time-($time%3600))
 					)
 				,array('user'=>1));
-				if($cursor != null){
+				if(isset($cursor['user'])){
 					foreach ($cursor['user'] as $key => $value) {
 						$result[]=$value;
 					}
 				}
 			}
 			else{
+				$db = Database::Connect();
+				$userStatistic = $db->stat->daily->user;
 				
+				$cursor = $userStatistic->findOne( 
+					array( 'datetime' =>new MongoDate($time-($time%86400))
+					)
+				,array('user'=>1));
+				if(isset($cursor['user'])){
+					foreach ($cursor['user'] as $key => $value) {
+						$result[]=$value;
+					}
+				}
 			}
 			usort($result, "fixem");
 			if(count($result)>0)return Response::json(array('code'=>200,'data'=>$result));

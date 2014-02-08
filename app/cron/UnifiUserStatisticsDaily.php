@@ -6,12 +6,12 @@
 	$unifi = new Unifi();
 	$onlineTmp = $unifi->getDevice(array('all'=>true));
 	$db = Database::Connect();
-	$userStatistic = $db->stat->hourly->user;
+	$userStatistic = $db->stat->daily->user;
 	$session = $db->session;
 
 	// $stamp = strtotime("next hours",time());
 	$stamp = time();
-	$stamp = $stamp - ($stamp % 3600);
+	$stamp = $stamp - ($stamp % 86400);
 	$oldStatistic = $userStatistic->findOne(array("datetime"=>new MongoDate($stamp)));
 
 	if($onlineTmp){ // When found users online
@@ -30,6 +30,7 @@
 			}
 
 			foreach($onlineTmp as $key => $value){
+
 				if(isset($oldOnlineDevice[$value['mac']])){ // Old device
 					if($value["assoc_time"] == $oldOnlineDevice[$value['mac']]["assoc_time"]){ // Old connection
 						$tx_bytes = $oldOnlineDevice[$value['mac']]['tx_bytes'] + $value["tx_bytes"] - $oldOnlineDevice[$value['mac']]['tx_bytes_start'];
