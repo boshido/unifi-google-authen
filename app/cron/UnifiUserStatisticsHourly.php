@@ -47,10 +47,11 @@
 					else{ // New connection
 						$find = array(
 									'mac' => $value['mac'],
-									'$and'=>array(
-												array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$value['mac']]["assoc_time"])),								
-												array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$value['mac']]["assoc_time"]))
-									)
+									'assoc_time'=>$oldOnlineDevice[$value['mac']]["assoc_time"]
+									// '$and'=>array(
+									// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$value['mac']]["assoc_time"])),								
+									// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$value['mac']]["assoc_time"]))
+									// )
 								);
 
 						$oldDeviceSession = $session->findOne($find);
