@@ -228,8 +228,10 @@ class UnifiController extends Controller {
 		$maplist = array();
 
 		foreach($ap as $key => $value){
-			if($value['state']==1) $tmplist[$value['map_id']]['connected']++;
-			else $tmplist[$value['map_id']]['disconnected']++;
+			if(isset($value['map_id'])){
+				if($value['state']==1) $tmplist[$value['map_id']]['connected']++;
+				else $tmplist[$value['map_id']]['disconnected']++;
+			}
 		}
 		foreach($tmplist as $key => $value){
 			$maplist[]=$value;
@@ -480,16 +482,18 @@ class UnifiController extends Controller {
 					array( 'datetime' =>new MongoDate($time-($time%3600))
 					)
 				,array('user'=>1));
-				foreach ($cursor['user'] as $key => $value) {
-					$result[]=$value;
+				if($cursor != null){
+					foreach ($cursor['user'] as $key => $value) {
+						$result[]=$value;
+					}
 				}
 			}
 			else{
 				
 			}
 			usort($result, "fixem");
-			return Response::json(array('code'=>200,'data'=>$result));
-
+			if(count($result)>0)return Response::json(array('code'=>200,'data'=>$result));
+			else return Response::json(array('code'=>404));
 		}
 		else return Response::json(array('code'=>404));
 	}
@@ -1153,6 +1157,16 @@ class UnifiController extends Controller {
 		}
 		
 		return $result;
+	}
+
+	public function getGoogleAccount(){
+		$google_id = Input::get('google_id');
+		$db = Database::Connect();
+		$token = $db->token;
+		$result = $token->findOne(array('google_id'=>$google_id));
+
+		if(isset($result))return Response::json(array('code'=>200,'data'=>$result));
+		else return Response::json(array('code'=>404));
 	}
 
 	protected function setupLayout()
