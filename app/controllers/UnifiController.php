@@ -303,8 +303,26 @@ class UnifiController extends Controller {
 	{
 		$id = Input::get('id');
 		$unifi = new Unifi();
+		$ap = $unifi->getAp();
 		$maplist = $unifi->getMapList($id);
-		
+		$tmplist = array();
+
+		foreach($maplist as $key => $value){
+			$value['_id'] = (string)$value['_id'];
+			$tmplist[$value['_id']] = ['name'=>$value['name'],"file_id" =>$value['file_id'],'ap'=>['connected'=>0,'disconnected'=>0]];
+		}
+		$maplist = array();
+
+		foreach($ap as $key => $value){
+			if(isset($value['map_id'])){
+				if($value['state']==1) $tmplist[$value['map_id']]['connected']++;
+				else $tmplist[$value['map_id']]['disconnected']++;
+			}
+		}
+		foreach($tmplist as $key => $value){
+			$maplist[]=$value;
+		}
+
 		return Response::json(array('code'=>200,'data'=>$maplist));
 	}
 	
