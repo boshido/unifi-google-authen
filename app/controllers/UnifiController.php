@@ -89,8 +89,19 @@ class UnifiController extends Controller {
 	{
 		$mac = Input::get('mac');
 		$unifi = new Unifi();
-		$unifi->sendRestartAp($mac);
-		return 1;
+		$data = $unifi->sendRestartAp($mac);
+		if(count($data['data'])>0) return Response::json(array('code'=>200,'data'=>$data['data']));
+		else return Response::json(array('code'=>404));
+	}
+	public function postEditApName()
+	{
+		$id = Input::get('id');
+		$name = Input::get('name');
+		$unifi = new Unifi();
+		$data = $unifi->sendEditApName($id,$name);
+		if(count($data['data'])>0) return Response::json(array('code'=>200,'data'=>$data['data']));
+		else return Response::json(array('code'=>404));
+		
 	}
 	public function postBlock()
 	{
@@ -306,26 +317,61 @@ class UnifiController extends Controller {
 		$ap = $unifi->getAp();
 		$maplist = $unifi->getMapList($id);
 		$tmplist = array();
-
-		foreach($maplist as $key => $value){
-			$value['_id'] = (string)$value['_id'];
-			$tmplist[$value['_id']] = ['name'=>$value['name'],"file_id" =>$value['file_id'],'ap'=>['connected'=>0,'disconnected'=>0]];
-		}
-		$maplist = array();
-
-		foreach($ap as $key => $value){
-			if(isset($value['map_id'])){
-				if($value['state']==1) $tmplist[$value['map_id']]['connected']++;
-				else $tmplist[$value['map_id']]['disconnected']++;
+		if($maplist){
+			foreach($maplist as $key => $value){
+				$value['_id'] = (string)$value['_id'];
+				$tmplist[$value['_id']] = ['_id'=>$value['_id'],'name'=>$value['name'],"file_id" =>$value['file_id'],"device_count" =>0,'ap'=>['connected'=>0,'disconnected'=>0]];
 			}
-		}
-		foreach($tmplist as $key => $value){
-			$maplist[]=$value;
-		}
+			$maplist = array();
 
-		return Response::json(array('code'=>200,'data'=>$maplist));
+			foreach($ap as $key => $value){
+
+				if(isset($value['map_id'])){
+					if(isset($value['num_sta']))$tmplist[$value['map_id']]['device_count'] += $value['num_sta'];
+					if($value['state']==1) $tmplist[$value['map_id']]['ap']['connected']++;
+					else $tmplist[$value['map_id']]['ap']['disconnected']++;
+				}
+			}
+			foreach($tmplist as $key => $value){
+				$maplist[]=$value;
+			}
+
+			return Response::json(array('code'=>200,'data'=>$maplist));
+		}
+		else return Response::json(array('code'=>404));
 	}
-	
+
+	public function getMapApList()
+	{
+		$id = Input::get('id');
+		$unifi = new Unifi();
+		$ap = $unifi->getAp();
+		$maplist = $unifi->getMapList($id);
+		$tmplist = array();
+		if($maplist){
+			foreach($maplist as $key => $value){
+				$value['_id'] = (string)$value['_id'];
+				$tmplist[$value['_id']] = array('_id'=>$value['_id'],'ap'=>array());
+			}
+			$maplist = array();
+
+			foreach($ap as $key => $value){
+				if(isset($value['map_id'])){
+					$value['a'] = (float)$value['x'];
+					$value['y'] = (float)$value['y'];
+					$tmplist[$value['map_id']]['ap'][] = $value;
+				}
+			}
+			foreach($tmplist as $key => $value){
+
+				$maplist[]=$value;
+			}
+
+			return Response::json(array('code'=>200,'data'=>$maplist));
+		}
+		else return Response::json(array('code'=>404));
+	}
+
 	public function getMap()
 	{
 		$id = Input::get('id');

@@ -123,10 +123,28 @@ class Unifi{
 		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/cmd/devmgr');
 		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
 		$result = curl_exec ($ch);
+		$result = json_decode($result,true);
 		$ch = $this->sendLogout($ch);
+		
 		return $result;
 	}
-	
+
+	public function sendEditApName($id,$name)
+	{
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		$data = array(
+			'name'=>$name);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/upd/device/'.$id);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
+		$result = curl_exec ($ch);
+		$result = json_decode($result,true);
+		$ch = $this->sendLogout($ch);
+
+		return $result;
+	}
 	
 	public function getDevice($array)
 	{
@@ -280,7 +298,7 @@ class Unifi{
 		$result = array();
 		
 		$find = array();
-		if($file_id != null)$find['file_id'] = $file_id;
+		if($file_id != null)$find['_id'] = new MongoId($file_id);
 		
 		$cursor = $map->find($find);
 		$cursor->sort(array('order'=>1));
