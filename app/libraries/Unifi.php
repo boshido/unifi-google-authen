@@ -146,6 +146,92 @@ class Unifi{
 		return $result;
 	}
 	
+	public function sendChangeDeviceToGroup($id,$data)
+	{
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		// $data = array(
+		// 	'name'=>$name);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/upd/user/'.$id);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
+		$result = curl_exec ($ch);
+		$result = json_decode($result,true);
+		$ch = $this->sendLogout($ch);
+
+		return $result;
+	}
+
+	public function sendAddGroup($data)
+	{
+		//{"name":"UserGroup","downRate_enabled":true,"qos_rate_max_down":"4000","upRate_enabled":true,"qos_rate_max_up":"4000"}
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		// $data = array(
+		// 	'name'=>$name);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/add/usergroup');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
+		$result = curl_exec ($ch);
+		$result = json_decode($result,true);
+		$ch = $this->sendLogout($ch);
+
+		return $result;
+	}
+	public function sendEditGroup($id,$data)
+	{
+		//{"name":"UserGroup","downRate_enabled":true,"qos_rate_max_down":"4000","upRate_enabled":true,"qos_rate_max_up":"4000"}
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		// $data = array(
+		// 	'name'=>$name);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/upd/usergroup/'.$id);
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
+		$result = curl_exec ($ch);
+		$result = json_decode($result,true);
+		$ch = $this->sendLogout($ch);
+
+		return $result;
+	}
+	public function sendDeleteGroup($id)
+	{
+		//{"name":"UserGroup","downRate_enabled":true,"qos_rate_max_down":"4000","upRate_enabled":true,"qos_rate_max_up":"4000"}
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		// $data = array(
+		// 	'name'=>$name);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/del/usergroup/'.$id);
+		$result = curl_exec ($ch);
+		$result = json_decode($result,true);
+		$ch = $this->sendLogout($ch);
+
+		return $result;
+	}
+
+	public function sendEditLoadBalancing($data)
+	{
+		//{"name":"UserGroup","downRate_enabled":true,"qos_rate_max_down":"4000","upRate_enabled":true,"qos_rate_max_up":"4000"}
+		$ch = curl_init();
+		$ch = $this->sendLogin($ch);
+		// $data = array(
+		// 	'name'=>$name);
+		
+		// Send the command to the API
+		curl_setopt($ch, CURLOPT_URL, $this->data['unifiServer'].'/api/set/setting/load_balance');
+		curl_setopt($ch, CURLOPT_POSTFIELDS, 'json='.json_encode($data));
+		$result = curl_exec ($ch);
+		$result = json_decode($result,true);
+		$ch = $this->sendLogout($ch);
+
+		return $result;
+	}
+
 	public function getDevice($array)
 	{
 		if(isset($array['mac']) || isset($array['ip']) || isset($array['all'])){
@@ -481,6 +567,9 @@ class Unifi{
 		}
 
 		return $result;
+	}
+	public function getAlarm(){
+
 	}
 }
 

@@ -74,7 +74,8 @@ class GuestController extends Controller {
 			$name =  isset($userinfo['name']) ? $userinfo['name'] : '-';
 			$fname = isset($userinfo['given_name']) ? $userinfo['given_name'] : '-';
 			$lname = isset($userinfo['family_name']) ? $userinfo['family_name'] : '-';
-			$picture = isset($userinfo['picture']) ? $userinfo['picture'] : null;
+			$picture = isset($userinfo['picture']) ? str_replace("?sz=50", "", $userinfo['picture']) : null;
+
 			
 			$accesstoken = json_decode($client->getAccessToken());
 			if(isset($accesstoken->refresh_token)){					// store refresh token with userinfo 
@@ -237,7 +238,7 @@ class GuestController extends Controller {
 				$fname = isset($userinfo['given_name']) ? $userinfo['given_name'] : '-';
 				$lname = isset($userinfo['family_name']) ? $userinfo['family_name'] : '-';
 				$email = filter_var($userinfo['email'], FILTER_SANITIZE_EMAIL);
-				$img = isset($userinfo['picture']) ? $userinfo['picture'] : '/img/photo.jpg';
+				$img = isset($userinfo['picture']) ? str_replace("?sz=50", "", $userinfo['picture']) : '/img/photo.jpg';
 				$device = isset($guest['hostname']) ? $guest['hostname'] : '-';
 				$signin_at = date("d/m/y H:i:s",$guest['start']);
 				$signin_at = substr_replace($signin_at,(int)date("y",$guest['start'])+43,6,2);

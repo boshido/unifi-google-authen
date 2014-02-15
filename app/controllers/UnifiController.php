@@ -43,81 +43,6 @@ class UnifiController extends Controller {
 		return Response::json(array('code'=>200,'data'=>$result));
 	}
 	
-	public function postAuthorize()
-	{
-		$mac = Input::get('device-mac');
-		$hostname = Input::get('device-name');
-		$google_id = Input::get('google-id');
-		$fname = Input::get('google-fname');
-		$lname = Input::get('google-lname');
-		$email = Input::get('google-email');
-		
-		$unifi = new Unifi();
-		$db = Database::Connect();
-		$user = $db->user;
-		$find = array('mac'=>$mac);
-		$set = array('$set'=>array('email'=>$email));
-		$user->update($find,$set);
-		
-		$unifi->sendAuthorization($mac,9999999); 
-		$guestinfo = array('google_id'=>$google_id,'email'=>$email,'auth_type'=>1);
-		if($hostname != '')$guestinfo['hostname']=$hostname;
-		if($fname != '')$guestinfo['fname']=$fname;
-		if($lname != '')$guestinfo['lname']=$lname;
-		if($fname != '' && $lname != '')$guestinfo['name']=$fname.' '.$lname;
-
-		while(!$unifi->setCurrentGuest($mac,$guestinfo));
-		
-		return 1;
-	}
-	
-	public function postDeactiveSession()
-	{
-		$mac = Input::get('mac');
-		$unifi = new Unifi();
-		$unifi->sendUnAuthorization($mac);
-		return 1;
-	}
-	public function postReconnect()
-	{
-		$mac = Input::get('mac');
-		$unifi = new Unifi();
-		$unifi->sendReconnect($mac);
-		return 1;
-	}
-	public function postRestartAp()
-	{
-		$mac = Input::get('mac');
-		$unifi = new Unifi();
-		$data = $unifi->sendRestartAp($mac);
-		if(count($data['data'])>0) return Response::json(array('code'=>200,'data'=>$data['data']));
-		else return Response::json(array('code'=>404));
-	}
-	public function postEditApName()
-	{
-		$id = Input::get('id');
-		$name = Input::get('name');
-		$unifi = new Unifi();
-		$data = $unifi->sendEditApName($id,$name);
-		if(count($data['data'])>0) return Response::json(array('code'=>200,'data'=>$data['data']));
-		else return Response::json(array('code'=>404));
-		
-	}
-	public function postBlock()
-	{
-		$mac = Input::get('mac');
-		$unifi = new Unifi();
-		$unifi->sendBlock($mac);
-		return 1;
-	}
-	public function postUnBlock()
-	{
-		$mac = Input::get('mac');
-		$unifi = new Unifi();
-		$unifi->sendUnBlock($mac);
-		return 1;
-	}
-	
 	public function getUserHistory()
 	{	
 		$google_id = Input::get('google_id');
@@ -1265,6 +1190,395 @@ class UnifiController extends Controller {
 
 		if(isset($result))return Response::json(array('code'=>200,'data'=>$result));
 		else return Response::json(array('code'=>404));
+	}
+
+	public function getSettingsInformation(){
+		$token_id = Input::get('token_id');
+		$db = Database::Connect();
+		$token = $db->token->ios;
+		$tokenCursor = $token->findOne(array('token_id'=>$token_id));
+		$result=array();
+		$result['unread']=0;
+
+		if(isset($tokenCursor)){
+			$result['token'] = $tokenCursor;
+		}
+		else {
+			$result['token'] = null;
+		}
+	
+		$usergroup = $db->usergroup;
+		$usergroupCursor = $usergroup->find();
+		foreach ($usergroupCursor as $key => $value) {
+			$value['_id'] = (string)$value['_id'];
+			$result['usergroup'][] = $value;
+		}
+
+		$alarm = $db->alarm;
+		$usergroupCursor = $alarm->find(array('read'=>array('$nin'=>array($token_id))));
+		foreach ($usergroupCursor as $key => $value) {
+			$result['unread']++;
+		}
+
+		$wlan = $db->wlanconf;
+		$wlanCursor = $wlan->find();
+		foreach ($wlanCursor as $key => $value ){
+			$value['_id'] = (string)$value['_id'];
+			$result['wlan'][] = $value;
+		}
+
+		$setting = $db->setting;
+		$settingCursor = $setting->findOne(array('key'=>'load_balance'));
+		$settingCursor['_id'] = (string)$settingCursor['_id'];
+		$result['load_balance'] = $settingCursor;
+
+
+		return Response::json(array('code'=>200,'data'=>$result));
+	}
+
+	public function getAlarm(){
+		// $type = Input::get('type');
+		// $start = Input::get('start');
+		// $length = Input::get('length') != null ? Input::get('length') : 0;
+
+		// if(isset($type))$find = array('archived'=>(bool)$type);
+		// else $find = array();
+
+		// $db = Database::Connect();
+		// $alarm = $db->alarm;
+		// $cursor = $alarm->find($find);
+		// $cursor->skip($start);
+		// $cursor->limit($length);
+		// $cursor->sort(array('_id'=>-1));
+
+		// $result = array();
+		// foreach ($cursor as $key => $value) {
+		// 	$result[]=$value;
+		// }
+
+		// return Response::json(array('code'=>200,'data'=>$result));
+	}
+
+	public function getIosToken(){
+		$token_id = Input::get('token_id');
+		$db = Database::Connect();
+		$token = $db->token->ios;
+		$result = $token->findOne(array('token_id'=>$token_id));
+
+		if(isset($result)){
+			return Response::json(array('code'=>200,'data'=>$result));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+	}
+
+	public function getGroup(){
+		$id = Input::get('id');
+		$db = Database::Connect();
+		$usergroup = $db->usergroup;
+
+		$usergroupCursor = $usergroup->find(array('_id'=> new MongoId($id)));
+		$result=array();
+		foreach ($usergroupCursor as $key => $value) {
+			$value['_id'] = (string)$value['_id'];
+			$result[] = $value;
+		}
+
+		if(count($result)>0){
+			return Response::json(array('code'=>200,'data'=>$result));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+	}
+
+	public function getDeviceInGroup(){
+		$id = Input::get('id');
+		$search = Input::get('search');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+
+		$db = Database::Connect();
+		$user = $db->user;
+		$regex = new MongoRegex('/'.$search.'/i');
+
+		$userCursor = $user->find(array(
+				'$and'=>array(
+					array(
+						'$or'=>array(
+							array('hostname'=>$regex),
+							array('mac'=>$regex)
+						)
+					),
+					array('usergroup_id'=> $id)
+				)
+		));
+		$userCursor->skip($start);
+		$userCursor->limit($length);
+		$userCursor->sort(array('_id'=>-1));
+
+		$result=array();
+		foreach ($userCursor as $key => $value) {
+			$value['_id'] = (string)$value['_id'];
+			$result[] = $value;
+		}
+
+		if(count($result)>0){
+			return Response::json(array('code'=>200,'data'=>$result));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+	}
+
+	public function getDeviceForAdding(){
+		$id = Input::get('id');
+		$search = Input::get('search');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+
+		$db = Database::Connect();
+		$user = $db->user;
+		$regex = new MongoRegex('/'.$search.'/i');
+
+		$userCursor = $user->find(array(
+				'$and'=>array(
+					array(
+						'$or'=>array(
+							array('hostname'=>$regex),
+							array('mac'=>$regex)
+						)
+					),
+					array('usergroup_id'=> array('$ne'=>$id))
+				)
+		));
+		$userCursor->skip($start);
+		$userCursor->limit($length);
+		$userCursor->sort(array('_id'=>-1));
+
+		$result=array();
+		foreach ($userCursor as $key => $value) {
+			$value['_id'] = (string)$value['_id'];
+			$result[] = $value;
+		}
+
+		if(count($result)>0){
+			return Response::json(array('code'=>200,'data'=>$result));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+
+	}
+
+	public function postChangeDeviceToGroup(){
+		$group_id = Input::get('group_id') != "null" ? Input::get('group_id')  : null;
+		$user_id = Input::get('user_id');
+
+		$unifi = new Unifi();
+		$result = $unifi->sendChangeDeviceToGroup($user_id,array(
+						"note"=>"",
+						"noted"=>false,
+						"usergroup_id"=>$group_id
+				));
+		if(count($result['data'])>0){
+			return Response::json(array('code'=>200,'data'=>array('message'=>'Change group complete.')));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+	}
+
+	public function postDeleteDeviceFromGroup(){
+		$mac = Input::get('mac');
+		$db = Database::Connect();
+		$user = $db->user;
+
+		$userCursor = $user->update(array('mac'=>$mac),array('$set'=>array('usergroup_id'=>null)));
+
+		if($userCursor){
+			return Response::json(array('code'=>200));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+
+	}
+
+	public function postIosToken(){
+		$token_id = Input::get('token_id');
+		$enabled = Input::get('enabled');
+		$db = Database::Connect();
+		$token = $db->token->ios;
+		$result = $token->findOne(array('token_id'=>$token_id));
+
+		if(isset($result)){
+			$find = array("last_seen"=>time(),'token_id'=>$token_id);
+			if($enabled != '')$find['enabled'] = $enabled; 
+			$status = $token->update(array('token_id'=>$token_id), array('$set'=>$find));
+			if($status)return Response::json(array('code'=>200,'data'=>array('message'=>'Update Token.')));
+			else return Response::json(array('code'=>404));
+		}
+		else {
+			$status = $token->insert(array("first_seen"=>time(),"last_seen"=>time(),'token_id'=>$token_id,'enabled'=>true));
+			if($status)return Response::json(array('code'=>200,'data'=>array('message'=>'Insert New Token.')));
+			else return Response::json(array('code'=>404));
+		}
+	}
+
+	public function postGroup(){
+		$id 					= Input::get('id');
+		$name   				= Input::get('name') != null ? Input::get('name') : 'Unknown';
+		$qos_rate_max_down 		= (int)Input::get('qos_rate_max_down') > 0 ? (int)Input::get('qos_rate_max_down') : -1;
+		$qos_rate_max_up		= (int)Input::get('qos_rate_max_up') > 0 ? (int)Input::get('qos_rate_max_up') : -1;
+
+		$unifi = new Unifi();
+		$db = Database::Connect();
+		$usergroup = $db->usergroup;
+		$usergroupCursor = $usergroup->findOne(array('_id'=> new MongoId($id)));
+		if($usergroupCursor){
+			$result = $unifi->sendEditGroup($id,array(
+							"name"=>$name,
+							"downRate_enabled"=>$qos_rate_max_down != -1,
+							"qos_rate_max_down"=>$qos_rate_max_down ,
+							"upRate_enabled"=>$qos_rate_max_up != -1,
+							"qos_rate_max_up"=>$qos_rate_max_up
+					));
+
+			if(count($result['data'])>0){
+				return Response::json(array('code'=>200,'data'=>array('message'=>'Update UserGroup.')));
+			}
+			else {
+				return Response::json(array('code'=>404));
+			}
+		}
+		else{
+			$result = $unifi->sendAddGroup(array(
+							"name"=>$name,
+							"downRate_enabled"=>$qos_rate_max_down != -1,
+							"qos_rate_max_down"=>$qos_rate_max_down ,
+							"upRate_enabled"=>$qos_rate_max_up != -1,
+							"qos_rate_max_up"=>$qos_rate_max_up
+					));
+
+			if(count($result['data'])>0){
+				return Response::json(array('code'=>200,'data'=>array('message'=>'Insert UserGroup.')));
+			}
+			else {
+				return Response::json(array('code'=>404));
+			}
+		}
+	}
+
+	public function postDeleteGroup(){
+		$id = Input::get('id');
+
+		$unifi = new Unifi();
+		$db = Database::Connect();
+		$user = $db->user;
+		$userCursor = $user->update(array('usergroup_id'=> $id),array('$set'=>array('usergroup_id'=>null)));
+
+		$result = $unifi->sendDeleteGroup($id);
+		if($result['meta']['rc']=='ok'){
+			return Response::json(array('code'=>200,'data'=>array('message'=>'Delete UserGroup.')));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+
+	}
+
+	public function postLoadBalancing(){
+		$enabled 				= Input::get('enabled');
+		$max_sta 				= (int)Input::get('max_sta') > 0 ? (int)Input::get('max_sta') : -1;
+
+		$unifi = new Unifi();
+		$result = $unifi->sendEditLoadBalancing(array(
+						"enabled"=>$enabled,
+						"max_sta"=>$max_sta 
+				));
+		if(count($result['data'])>0){
+			return Response::json(array('code'=>200,'data'=>array('message'=>'Update Load Balancing.')));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+	}
+
+	public function postAuthorize()
+	{
+		$mac = Input::get('device-mac');
+		$hostname = Input::get('device-name');
+		$google_id = Input::get('google-id');
+		$fname = Input::get('google-fname');
+		$lname = Input::get('google-lname');
+		$email = Input::get('google-email');
+		
+		$unifi = new Unifi();
+		$db = Database::Connect();
+		$user = $db->user;
+		$find = array('mac'=>$mac);
+		$set = array('$set'=>array('email'=>$email));
+		$user->update($find,$set);
+		
+		$unifi->sendAuthorization($mac,9999999); 
+		$guestinfo = array('google_id'=>$google_id,'email'=>$email,'auth_type'=>1);
+		if($hostname != '')$guestinfo['hostname']=$hostname;
+		if($fname != '')$guestinfo['fname']=$fname;
+		if($lname != '')$guestinfo['lname']=$lname;
+		if($fname != '' && $lname != '')$guestinfo['name']=$fname.' '.$lname;
+
+		while(!$unifi->setCurrentGuest($mac,$guestinfo));
+		
+		return 1;
+	}
+	
+	public function postDeactiveSession()
+	{
+		$mac = Input::get('mac');
+		$unifi = new Unifi();
+		$unifi->sendUnAuthorization($mac);
+		return 1;
+	}
+	public function postReconnect()
+	{
+		$mac = Input::get('mac');
+		$unifi = new Unifi();
+		$unifi->sendReconnect($mac);
+		return 1;
+	}
+	public function postRestartAp()
+	{
+		$mac = Input::get('mac');
+		$unifi = new Unifi();
+		$data = $unifi->sendRestartAp($mac);
+		if(count($data['data'])>0) return Response::json(array('code'=>200,'data'=>$data['data']));
+		else return Response::json(array('code'=>404));
+	}
+	public function postEditApName()
+	{
+		$id = Input::get('id');
+		$name = Input::get('name');
+		$unifi = new Unifi();
+		$data = $unifi->sendEditApName($id,$name);
+		if(count($data['data'])>0) return Response::json(array('code'=>200,'data'=>$data['data']));
+		else return Response::json(array('code'=>404));
+		
+	}
+	public function postBlock()
+	{
+		$mac = Input::get('mac');
+		$unifi = new Unifi();
+		$unifi->sendBlock($mac);
+		return 1;
+	}
+	public function postUnBlock()
+	{
+		$mac = Input::get('mac');
+		$unifi = new Unifi();
+		$unifi->sendUnBlock($mac);
+		return 1;
 	}
 
 	protected function setupLayout()
