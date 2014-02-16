@@ -1237,26 +1237,23 @@ class UnifiController extends Controller {
 	}
 
 	public function getAlarm(){
-		// $type = Input::get('type');
-		// $start = Input::get('start');
-		// $length = Input::get('length') != null ? Input::get('length') : 0;
+		$token_id = Input::get('token_id');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
 
-		// if(isset($type))$find = array('archived'=>(bool)$type);
-		// else $find = array();
+		$db = Database::Connect();
+		$alarm = $db->alarm;
+		$cursor = $alarm->find(array('read'=>array('$nin'=>array($token_id))));
+		$cursor->skip($start);
+		$cursor->limit($length);
+		$cursor->sort(array('_id'=>-1));
 
-		// $db = Database::Connect();
-		// $alarm = $db->alarm;
-		// $cursor = $alarm->find($find);
-		// $cursor->skip($start);
-		// $cursor->limit($length);
-		// $cursor->sort(array('_id'=>-1));
+		$result = array();
+		foreach ($cursor as $key => $value) {
+			$result[]=$value;
+		}
 
-		// $result = array();
-		// foreach ($cursor as $key => $value) {
-		// 	$result[]=$value;
-		// }
-
-		// return Response::json(array('code'=>200,'data'=>$result));
+		return Response::json(array('code'=>200,'data'=>$result));
 	}
 
 	public function getIosToken(){
