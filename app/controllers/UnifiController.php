@@ -1198,7 +1198,7 @@ class UnifiController extends Controller {
 		$token = $db->token->ios;
 		$tokenCursor = $token->findOne(array('token_id'=>$token_id));
 		$result=array();
-		$result['unread']=0;
+		$result['notification']=0;
 
 		if(isset($tokenCursor)){
 			$result['token'] = $tokenCursor;
@@ -1217,7 +1217,7 @@ class UnifiController extends Controller {
 		$alarm = $db->alarm;
 		$usergroupCursor = $alarm->find(array('read'=>array('$nin'=>array($token_id))));
 		foreach ($usergroupCursor as $key => $value) {
-			$result['unread']++;
+			$result['notification']++;
 		}
 
 		$wlan = $db->wlanconf;
@@ -1236,21 +1236,56 @@ class UnifiController extends Controller {
 		return Response::json(array('code'=>200,'data'=>$result));
 	}
 
-	public function getAlarm(){
+	public function getNotificationList(){
 		$token_id = Input::get('token_id');
 		$start = Input::get('start');
 		$length = Input::get('length') != null ? Input::get('length') : 0;
 
 		$db = Database::Connect();
 		$alarm = $db->alarm;
-		$cursor = $alarm->find(array('read'=>array('$nin'=>array($token_id))));
-		$cursor->skip($start);
-		$cursor->limit($length);
-		$cursor->sort(array('_id'=>-1));
+		$ap    = $db->device;
+		$apCursor = $ap->find(array(),array('name'=>1,'mac'=>1));
+		$apList = array();
+		foreach ($apCursor as $key => $value) {
+			$value['_id'] = (string)$value['_id']; 
+			$apList[$value['mac']] = $value;
+		}
+		$alarmCursor = $alarm->find(array(),array('read'=>0,'msg'=>0));
+		$alarmCursor->skip($start);
+		$alarmCursor->limit($length);
+		$alarmCursor->sort(array('_id'=>-1));
 
 		$result = array();
-		foreach ($cursor as $key => $value) {
+		foreach ($alarmCursor as $key => $value) {
+			if($value['key']=="EVT_AP_Lost_Contact"){
+				if(isset($apList[$value['ap']]))
+					if(isset($apList[$value['ap']]['name']))
+						$value['ap_name'] = $apList[$value['ap']]['name'];
+			}
+
+			$value['_id'] = (string)$value['_id']; 
 			$result[]=$value;
+		}
+
+		$alarm->update(
+						array('read'  => array('$nin'=>array($token_id))),
+						array('$push' => array('read'=>$token_id)),
+						array('multiple' => true)
+				);
+
+		return Response::json(array('code'=>200,'data'=>$result));
+	}
+
+	public function getNotification(){
+		$token_id = Input::get('token_id');
+
+		$db = Database::Connect();
+		$alarm = $db->alarm;
+		$usergroupCursor = $alarm->find(array('read'=>array('$nin'=>array($token_id))));
+		$result = array();
+		$result['notification']=0;
+		foreach ($usergroupCursor as $key => $value) {
+			$result['notification']++;
 		}
 
 		return Response::json(array('code'=>200,'data'=>$result));
@@ -1369,6 +1404,40 @@ class UnifiController extends Controller {
 
 	}
 
+	public function postNotification(){
+		$token_id = Input::get('token_id');
+
+		$db = Database::Connect();
+		$alarm = $db->alarm;
+		$cursor = $alarm->update(
+									array('read'  => array('$nin'=>array($token_id))),
+									array('$push' => array('read'=>$token_id)),
+									array('multiple' => true)
+								);
+		if($cursor){
+			return Response::json(array('code'=>200,'data'=>array('message'=>'Read all notification.')));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+	}
+	public function getClearNotification(){
+		$token_id = Input::get('token_id');
+
+		$db = Database::Connect();
+		$alarm = $db->alarm;
+		$cursor = $alarm->update(
+									array('read'  => array('$in'=>array($token_id))),
+									array('$pop' => array('read'=>$token_id)),
+									array('multiple' => true)
+								);
+		if($cursor){
+			return Response::json(array('code'=>200,'data'=>array('message'=>'Read all notification.')));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+	}
 	public function postChangeDeviceToGroup(){
 		$group_id = Input::get('group_id') != "null" ? Input::get('group_id')  : null;
 		$user_id = Input::get('user_id');
@@ -1412,7 +1481,7 @@ class UnifiController extends Controller {
 
 		if(isset($result)){
 			$find = array("last_seen"=>time(),'token_id'=>$token_id);
-			if($enabled != '')$find['enabled'] = $enabled; 
+			if($enabled != '')$find['enabled'] = (bool)$enabled; 
 			$status = $token->update(array('token_id'=>$token_id), array('$set'=>$find));
 			if($status)return Response::json(array('code'=>200,'data'=>array('message'=>'Update Token.')));
 			else return Response::json(array('code'=>404));
@@ -1487,7 +1556,7 @@ class UnifiController extends Controller {
 	}
 
 	public function postLoadBalancing(){
-		$enabled 				= Input::get('enabled');
+		$enabled 				= (bool)Input::get('enabled');
 		$max_sta 				= (int)Input::get('max_sta') > 0 ? (int)Input::get('max_sta') : -1;
 
 		$unifi = new Unifi();
