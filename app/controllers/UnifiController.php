@@ -1209,19 +1209,22 @@ class UnifiController extends Controller {
 	
 		$usergroup = $db->usergroup;
 		$usergroupCursor = $usergroup->find();
+		$usergroupCursor->sort(array('_id'=>1));
 		foreach ($usergroupCursor as $key => $value) {
 			$value['_id'] = (string)$value['_id'];
 			$result['usergroup'][] = $value;
 		}
 
 		$alarm = $db->alarm;
-		$usergroupCursor = $alarm->find(array('read'=>array('$nin'=>array($token_id))));
-		foreach ($usergroupCursor as $key => $value) {
+		$alarmCursor = $alarm->find(array('read'=>array('$nin'=>array($token_id))));
+		foreach ($alarmCursor as $key => $value) {
 			$result['notification']++;
 		}
 
 		$wlan = $db->wlanconf;
 		$wlanCursor = $wlan->find();
+		$wlanCursor->sort(array('_id'=>1));
+
 		foreach ($wlanCursor as $key => $value ){
 			$value['_id'] = (string)$value['_id'];
 			$result['wlan'][] = $value;
