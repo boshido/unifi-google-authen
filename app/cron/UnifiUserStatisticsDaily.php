@@ -1,5 +1,6 @@
 <?php
 	error_reporting(E_ALL ^ E_NOTICE);
+	//set_include_path('E:/web/htdocs/app/libraries');// Edit when change path
 	set_include_path('/Users/boshido/Desktop/git/unifi-google-authen/app/libraries');// Edit when change path
 	require('Unifi.php');
 	require('Database.php');
@@ -14,180 +15,219 @@
 	$stamp = $stamp - ($stamp % 86400);
 	$bytes_sum = 0;
 	$bytes_r_sum = 0;
-	$onlineDevice = array();
+	$saveToDB = array();
 
 	$oldStatistic = $userStatistic->findOne(array("datetime"=>new MongoDate($stamp)));
-	
+	$authorizedCursor = $unifi->getCurrentGuest($onlineDeviceMac,false);
+	$authorizedDevice = array();
+	if($authorizedCursor)
+		foreach ($authorizedCursor as $key => $value) {
+			if(isset($value['google_id']))
+				$authorizedDevice[$value['mac']] = $value;
+		}
+
 	if($onlineTmp){ // When found users online
-		echo "----------- Online Mode ---------\n";
-		foreach($onlineTmp as $key => $value) $onlineDeviceMac[] = $value["mac"];
-		$authorizedCursor = $unifi->getCurrentGuest($onlineDeviceMac,false);
-		$authorizedDevice = array();
-		if($authorizedCursor)
-			foreach ($authorizedCursor as $key => $value) $authorizedDevice[$value['mac']] = $value;
+		echo "----------- Found Users ---------\n";
+
+		foreach($onlineTmp as $key => $value) {
+			$onlineDeviceMac[] = $value["mac"];
+			if( isset($authorizedDevice[$value['mac']]) ){
+				$value['is_auth']	= true;
+				$value['google_id'] = $authorizedDevice[$value['mac']]['google_id'];
+				$value['email']	 	= $authorizedDevice[$value['mac']]['email'];
+				$value['name']		= $authorizedDevice[$value['mac']]['name'];
+			}
+			else{
+				$value['is_auth']	= false;
+				$value['google_id']	= null;
+				$value['email'] 	= null;
+				$value['name']	 	= null;
+			}
+			$value["tx_bytes_start"] = $value["tx_bytes"];
+			$value["rx_bytes_start"] = $value["rx_bytes"];
+			$value['bytes'] = 0;
+			$value['tx_bytes'] = 0;
+			$value['rx_bytes'] = 0;
+			$value['new'] = true;
+			$onlineTmp[$key]   = $value;
+		}
 		
+	//----------------------------------------------------------------------------------------------------------------------------------------//
+		for ($i=0; $i <count($onlineTmp) ; $i++) { 
+			echo 'NEW '. $onlineTmp[$i]['mac']."\n";
+		}
 		if($oldStatistic){ // Run with old record
 			echo "Old Record\n";
-
+			$dbDeviceList = array();
 			foreach ($oldStatistic['user'] as $key => $value) {
-				$oldOnlineDevice[$value['mac']] = $value;
+				if( isset($authorizedDevice[$value['mac']]) ){
+					$value['is_auth']	= true;
+					$value['google_id'] = $authorizedDevice[$value['mac']]['google_id'];
+					$value['email']	 	= $authorizedDevice[$value['mac']]['email'];
+					$value['name']		= $authorizedDevice[$value['mac']]['name'];
+				}
+				$dbDeviceList[$value['mac']] = $value;
 			}
+			
+			foreach ($dbDeviceList as $key => $value) { // Old Device
+				$offlineFlag = false;
+				for ($i=0; $i <count($onlineTmp) ; $i++) { 
 
-			foreach($onlineTmp as $key => $value){
+					echo $value['mac'].' OLD -- NEW '. $onlineTmp[$i]['mac']."\n";
+					if($value['mac'] == $onlineTmp[$i]['mac']){
+						echo "Online\n"; 
+						//Online
+						if($value["assoc_time"] == $onlineTmp[$i]["assoc_time"]){ // Old Session
+							echo "Old Session\n";
+							$value['tx_bytes'] += $onlineTmp[$i]['tx_bytes_start'] - $value['tx_bytes_start'];
+							$value['rx_bytes'] += $onlineTmp[$i]['rx_bytes_start'] - $value['rx_bytes_start'];
+							
+						}
+						else{ // New Session
+							echo "New Session\n";
+							$find = array(
+										'mac' => $value['mac'],
+										'assoc_time'=>$value["assoc_time"]
+										// '$and'=>array(
+										// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$value['mac']]["assoc_time"])),								
+										// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$value['mac']]["assoc_time"]))
+										// )
+									);
 
-				if(isset($oldOnlineDevice[$value['mac']])){ // Old device
-					echo "Old device ";
-					if($value["assoc_time"] == $oldOnlineDevice[$value['mac']]["assoc_time"]){ // Old connection
-						$tx_bytes = $oldOnlineDevice[$value['mac']]['tx_bytes'] + $value["tx_bytes"] - $oldOnlineDevice[$value['mac']]['tx_bytes_start'];
-						$rx_bytes = $oldOnlineDevice[$value['mac']]['rx_bytes'] + $value["rx_bytes"] - $oldOnlineDevice[$value['mac']]['rx_bytes_start'];
+							$oldDeviceSession = $session->findOne($find);
+							if($oldDeviceSession){
+								$value['tx_bytes'] += $oldDeviceSession['tx_bytes'] - $value['tx_bytes_start'] + $onlineTmp[$i]['tx_bytes_start'];
+								$value['rx_bytes'] += $oldDeviceSession['rx_bytes'] - $value['rx_bytes_start'] + $onlineTmp[$i]['rx_bytes_start'];
+							}
+							else{
+								$value['tx_bytes'] += $onlineTmp[$i]['tx_bytes_start'];
+							 	$value['rx_bytes'] += $onlineTmp[$i]['rx_bytes_start'];
+							}
+						}
+
+						if(isset($onlineTmp[$i]["ip"]))	$value['ip'] = $onlineTmp[$i]["ip"];
+						$value['assoc_time'] = $onlineTmp[$i]['assoc_time'];
+						$value['bytes.r']  += $onlineTmp[$i]['bytes.r'];
+						$value['bytes'] = $value['tx_bytes']  + $value['rx_bytes'];
+						$value['tx_bytes_start'] = $onlineTmp[$i]['tx_bytes_start'];
+						$value['rx_bytes_start'] = $onlineTmp[$i]['rx_bytes_start'];
+
+						$onlineTmp[$i]['new'] = false;
 						
-						
-						echo "Old connection\n";
-					}
-					else{ // New connection
-						$find = array(
-									'mac' => $value['mac'],
-									'assoc_time'=>$oldOnlineDevice[$value['mac']]["assoc_time"]
-									// '$and'=>array(
-									// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$value['mac']]["assoc_time"])),								
-									// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$value['mac']]["assoc_time"]))
-									// )
-								);
-
-						$oldDeviceSession = $session->findOne($find);
-						$tx_bytes = $oldOnlineDevice[$value['mac']]['tx_bytes'] + $value["tx_bytes"] + $oldDeviceSession["tx_bytes"] - $oldOnlineDevice[$value['mac']]['tx_bytes_start'];
-						$rx_bytes = $oldOnlineDevice[$value['mac']]['rx_bytes'] + $value["rx_bytes"] + $oldDeviceSession["rx_bytes"] - $oldOnlineDevice[$value['mac']]['rx_bytes_start'];
-						
-						echo "New connection\n";
-					}
-
-					$bytes_r = ($value["bytes.r"]+$oldOnlineDevice[$value['mac']]['bytes.r']);
-					$ip = $value["ip"] != null ? $value["ip"] : $oldOnlineDevice[$value['mac']]['ip'];
-					if(isset($authorizedDevice[$value['mac']]['google_id']) && $authorizedDevice[$value['mac']]['google_id'] != null){
-						$is_auth	= true;
-						$google_id 	= $authorizedDevice[$value['mac']]['google_id'];
-						$email	 	= $authorizedDevice[$value['mac']]['email'];
-						$name		= $authorizedDevice[$value['mac']]['name'];
+						$offlineFlag = false;
+						break;
 					}
 					else{
-						$is_auth	= $oldOnlineDevice[$value['mac']]['is_auth'];
-						$google_id	= $oldOnlineDevice[$value['mac']]['google_id'];
-						$email 		= $oldOnlineDevice[$value['mac']]['email'];
-						$name	 	= $oldOnlineDevice[$value['mac']]['name'];
+						$offlineFlag = true;
 					}
 				}
-				else{ // New device
+
+				if($offlineFlag){
+				    //Offline
+					echo "Offline\n";
+					$find = array(
+								'mac' => $value['mac'],
+								'assoc_time'=>$value["assoc_time"]
+								// '$and'=>array(
+								// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$i]["assoc_time"])),								
+								// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$i]["assoc_time"]))
+								// )
+							);
+
+					$oldDeviceSession = $session->findOne($find);
+					if($oldDeviceSession){
+						$value['tx_bytes'] += $oldDeviceSession['tx_bytes'] - $value['tx_bytes_start'];
+						$value['rx_bytes'] += $oldDeviceSession['rx_bytes'] - $value['rx_bytes_start'];
+					}
+					$value['assoc_time'] = -1;
+					$value['bytes'] = $value['tx_bytes']  + $value['rx_bytes'];
+					$value['tx_bytes_start'] = -1;
+					$value['rx_bytes_start'] = -1;
+				}
+
+				$saveToDB[]=$value;
+			}
+
+			foreach ($onlineTmp as $key => $value) { // New Device
+				if($value['new']){
 					echo "New device \n";
-
-					$tx_bytes = 0;
-					$rx_bytes = 0;
-					$bytes_r = $value["bytes.r"]*2;
-					$ip = $value["ip"];
-					if(isset($authorizedDevice[$value['mac']]['google_id']) && $authorizedDevice[$value['mac']]['google_id'] != null){
-						$is_auth	= true;
-						$google_id 	= $authorizedDevice[$value['mac']]['google_id'];
-						$email	 	= $authorizedDevice[$value['mac']]['email'];
-						$name		= $authorizedDevice[$value['mac']]['name'];
-					}
-					else{
-						$is_auth	= false;
-						$google_id	= null;
-						$email 		= null;
-						$name	 	= null;
-					}
+					$value['bytes.r'] = $value['bytes.r']*2;
+					$onlineDevice[]=$value;
 				}
-				$oldOnlineDevice[$value['mac']] = array(	"ip"				=>$ip,
-															"mac"				=>$value["mac"],
-															"hostname"			=>$value["hostname"],
-															"tx_bytes_start"	=> new MongoInt64($value["tx_bytes"]),
-															"rx_bytes_start"	=> new MongoInt64($value["rx_bytes"]),
-															"tx_bytes"			=> new MongoInt64($tx_bytes),
-															"rx_bytes"			=> new MongoInt64($rx_bytes),
-															"bytes"				=> $tx_bytes+$rx_bytes,
-															"bytes.r"			=> $bytes_r,
-															"assoc_time"		=> new MongoInt64($value["assoc_time"]),
-															"is_auth"			=> $is_auth,
-															"google_id"			=> $google_id,
-															"email"				=> $email,
-															"name"				=> $name
-														);
-
-			}
-			foreach ($oldOnlineDevice as $key => $value) {
-				
-				$bytes_sum += $value["bytes"];
-				if($value['bytes.r'] >0) $value['bytes.r'] = floor($value['bytes.r'] / 2);
-				$bytes_r_sum += $value["bytes.r"];
-				
-				$value["bytes"] = new MongoInt64($value["bytes"]);
-				$value['bytes.r'] = new MongoInt64($value["bytes.r"]);
-				$onlineDevice[] = $value;
-				
 			}
 
-			//if($bytes_r_sum>0)$bytes_r_sum = $bytes_r_sum/count($onlineDevice);
 		}
 		else{ // Save with new record
 			echo "New record\n";
-			foreach($onlineTmp as $key => $value){
-				$onlineDevice[] = array(	"ip"				=>$value["ip"],
-											"mac"				=>$value["mac"],
-											"hostname"			=>$value["hostname"],
-											"tx_bytes_start"	=> new MongoInt64($value["tx_bytes"]),
-											"rx_bytes_start"	=> new MongoInt64($value["rx_bytes"]),
-											"tx_bytes"			=> new MongoInt64(0),
-											"rx_bytes"			=> new MongoInt64(0),
-											"bytes"				=> new MongoInt64(0),
-											"bytes.r"			=> new MongoInt64($value["bytes.r"]),
-											"assoc_time"		=> new MongoInt64($value["assoc_time"]),
-											"is_auth"			=> isset($authorizedDevice[$value['mac']]['google_id']),
-											"google_id"			=> isset($authorizedDevice[$value['mac']]['google_id']) ? $authorizedDevice[$value['mac']]['google_id'] : null,
-											"email"				=> isset($authorizedDevice[$value['mac']]['google_id']) ? $authorizedDevice[$value['mac']]['email'] : null,
-											"name"				=> isset($authorizedDevice[$value['mac']]['google_id']) ? $authorizedDevice[$value['mac']]['name'] : null
-										);
-				$bytes_r_sum += $value["bytes.r"];
+			foreach ($onlineTmp as $key => $value) { // New Device
+				echo "New device \n";
+				$value['bytes.r'] = $value['bytes.r']*2;
+				$saveToDB[]=$value;
 			}
-			//if($bytes_r_sum>0)$bytes_r_sum = $bytes_r_sum/count($onlineDevice);
+			//if($bytes_r_sum>0)$bytes_r_sum = $bytes_r_sum/count($saveToDB);
 		}
 	}
 	else{ // When not found any users 
-		echo "----------- Offline Mode ---------\n";
+		echo "----------- Not Found Users ---------\n";
 		if($oldStatistic){
 			echo "Old record\n";
-
+			echo "Offline\n";
 			foreach ($oldStatistic['user'] as $key => $value) {
-				$bytes_sum += $value["bytes"];
-				if($value['bytes.r'] >0) $value['bytes.r'] = floor($value['bytes.r'] / 2);
-				$bytes_r_sum += $value["bytes.r"];
+				$find = array(
+							'mac' => $value['mac'],
+							'assoc_time'=>$value["assoc_time"]
+							// '$and'=>array(
+							// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$value['mac']]["assoc_time"])),								
+							// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$value['mac']]["assoc_time"]))
+							// )
+						);
 
-				$onlineDevice[] = array(	"ip"				=>$value["ip"],
-											"mac"				=>$value["mac"],
-											"hostname"			=>$value["hostname"],
-											"tx_bytes_start"	=> new MongoInt64($value["tx_bytes_start"]),
-											"rx_bytes_start"	=> new MongoInt64($value["rx_bytes_start"]),
-											"tx_bytes"			=> new MongoInt64($value["tx_bytes"]),
-											"rx_bytes"			=> new MongoInt64($value["rx_bytes"]),
-											"bytes"				=> new MongoInt64($value["bytes"]),
-											"bytes.r"			=> new MongoInt64($value["bytes.r"]),
-											"assoc_time"		=> new MongoInt64($value["assoc_time"]),
-											"is_auth"			=> $value["is_auth"],
-											"google_id"			=> $value["google_id"],
-											"email"				=> $value["email"],
-											"name"				=> $value["name"]
-										);
+				$oldDeviceSession = $session->findOne($find);
+				if($oldDeviceSession){
+					$value['tx_bytes'] += $oldDeviceSession['tx_bytes'] - $value['tx_bytes_start'];
+					$value['rx_bytes'] += $oldDeviceSession['rx_bytes'] - $value['rx_bytes_start'];
+				}
+				$value['assoc_time'] = -1;
+				$value['bytes'] = $value['tx_bytes']  + $value['rx_bytes'];
+				$value['tx_bytes_start'] = -1;
+				$value['rx_bytes_start'] = -1;
+
+				$saveToDB[]=$value;
 			}
-			//if($bytes_r_sum>0)$bytes_r_sum = $bytes_r_sum/count($onlineDevice);
 		}
 		else{
 			echo "New record\n";
 		}
 	}
 
+	foreach ($saveToDB as $key => $value) {
+		$bytes_sum += $value["bytes"];
+		if($value['bytes.r'] >0) $value['bytes.r'] = floor($value['bytes.r'] / 2);
+		$bytes_r_sum += $value["bytes.r"];
+
+		$saveToDB[$key] = array(	"ip"				=>$value["ip"],
+										"mac"				=>$value["mac"],
+										"hostname"			=>$value["hostname"],
+										"tx_bytes_start"	=> new MongoInt64($value["tx_bytes_start"]),
+										"rx_bytes_start"	=> new MongoInt64($value["rx_bytes_start"]),
+										"tx_bytes"			=> new MongoInt64($value["tx_bytes"]),
+										"rx_bytes"			=> new MongoInt64($value["rx_bytes"]),
+										"bytes"				=> new MongoInt64($value["bytes"]),
+										"bytes.r"			=> new MongoInt64($value["bytes.r"]),
+										"assoc_time"		=> new MongoInt64($value["assoc_time"]),
+										"is_auth"			=> $value["is_auth"],
+										"google_id"			=> $value["google_id"],
+										"email"				=> $value["email"],
+										"name"				=> $value["name"]
+									);
+	}
+	//if($bytes_r_sum>0)$bytes_r_sum = $bytes_r_sum/count($saveToDB);
+
 	$insert = array(	"datetime"		=> new MongoDate($stamp),
 						"bytes"			=> new MongoInt64($bytes_sum),
 						"bytes.r"		=> new MongoInt64($bytes_r_sum),
-						"user_count"	=> count($onlineDevice),
-						"user"			=> $onlineDevice
+						"user_count"	=> count($saveToDB),
+						"user"			=> $saveToDB
 					);
 	$userStatistic->update(array("datetime"=>new MongoDate($stamp)),$insert,array('upsert'=>true));
 

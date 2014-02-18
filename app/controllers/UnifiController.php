@@ -12,7 +12,20 @@ class UnifiController extends Controller {
 		
 		
     }
+	public function getSumBytes(){
+
+		$unifi = new Unifi();
+		$device  = $unifi->getDevice(array('all'=>true));
+		$guest = array();
+		$sum = 0;
+		if($device){
+			foreach($device as $key => $value){
+				$sum += $value['tx_bytes']+$value['rx_bytes'];
+			}	
+		}
+		return $sum;
 	
+	}
 	public function getActiveSession()
 	{
 		$google_id = Input::get('google_id');
@@ -193,18 +206,18 @@ class UnifiController extends Controller {
 		$user = $db->user;
 
 		$unifi = new Unifi();
-		$ap = $unifi->getAp($mac);
-		if( $mac != null &&  $ap != false){
+		$device = $unifi->getDevice(array('all'=>true));
+
+		if( $mac != null &&  $device != false){
 			$find = array();
-			$tmp = array();
+			$normal = array();
+			$auth = array();
 			$result = array();
-			foreach($ap['vap_table'] as $key => $ssid){
-				if($ssid['is_guest']){
-					$device = $ssid['sta_table'];
-					for($i=0;$i<count($device);$i++){
-						array_push($find,$device[$i]['mac']);
-						$tmp[$device[$i]['mac']]=$device[$i];
-					}
+
+			foreach($device as $key => $value){
+				if($value['ap_mac']==$mac){
+					$find[] = $value['mac'];
+					$normal[$value['mac']]=$value;
 				}
 			}
 			if(count($find)>0){
@@ -212,27 +225,37 @@ class UnifiController extends Controller {
 				if($is_auth){
 					foreach($is_auth as $key => $device){
 						if(isset($device['google_id'])){
-							$tmp[$device['mac']]['google_id'] = $device['google_id'];
-							$tmp[$device['mac']]['email'] = $device['email'];
-							$tmp[$device['mac']]['auth_type'] = $device['auth_type'];
+							$normal[$device['mac']]['google_id'] = $device['google_id'];
+							$normal[$device['mac']]['email'] = $device['email'];
+							$normal[$device['mac']]['auth_type'] = $device['auth_type'];
 							if(!isset($device['name']) || $device['name'] == '-'){
 								if($device['fname'] != '-' && $device['lname'] != '-'){
-									$tmp[$device['mac']]['name'] = $device['fname'].' '.$device['lname'];
+									$normal[$device['mac']]['name'] = $device['fname'].' '.$device['lname'];
 								}
 							}
-							else $tmp[$device['mac']]['name'] = $device['name'];
-							array_push($result,$tmp[$device['mac']]);
-							unset($tmp[$device['mac']]);
+							else $normal[$device['mac']]['name'] = $device['name'];
+							$auth[]=$normal[$device['mac']];
+							unset($normal[$device['mac']]);
 						}
 					}
 				}
-				if(count($result)>0)return Response::json(array('code'=>200,'data'=>$result));
+				function fixem($a, $b){
+				  if ($a["bytes"] == $b["bytes"]) { return 0; }
+				  return ($a["bytes"] < $b["bytes"]) ? 1 : -1;
+				}
+				usort($auth, "fixem");
+				usort($normal, "fixem");
+				$result['auth']= $auth;
+				$result['not_auth'] = array();
+				foreach ($normal as $key => $value) {
+					$result['not_auth'][] = $value;
+				}
+				if(count($result['auth'])+count($result['not_auth'])>0)return Response::json(array('code'=>200,'data'=>$result));
 				else return Response::json(array('code'=>204 ,'data'=>array('message'=>'No user authorized to this AP.')));
 			}
 			else return Response::json(array('code'=>204 ,'data'=>array('message'=>'No user accessed to this AP.')));
 		}
 		else return Response::json(array('code'=>404));
-		
 	}
 	
 	public function getMapList()
