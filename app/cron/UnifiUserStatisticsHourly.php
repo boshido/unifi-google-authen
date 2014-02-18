@@ -78,32 +78,48 @@
 						echo "Online\n"; 
 						//Online
 						if($value["assoc_time"] == $onlineTmp[$i]["assoc_time"]){ // Old Session
-							echo "Old Session\n";
-							$value['tx_bytes'] += $onlineTmp[$i]['tx_bytes_start'] - $value['tx_bytes_start'];
-							$value['rx_bytes'] += $onlineTmp[$i]['rx_bytes_start'] - $value['rx_bytes_start'];
-							
+							if($onlineTmp[$i]["tx_bytes_start"] > $value["tx_bytes_start"]){ // Old Session
+								echo "Old Session\n";
+								$value['tx_bytes'] += $onlineTmp[$i]['tx_bytes_start'] - $value['tx_bytes_start'];
+								$value['rx_bytes'] += $onlineTmp[$i]['rx_bytes_start'] - $value['rx_bytes_start'];
+								
+							}
 						}
-						else{ // New Session
-							echo "New Session\n";
-							$find = array(
-										'mac' => $value['mac'],
-										'assoc_time'=>$value["assoc_time"]
-										// '$and'=>array(
-										// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$value['mac']]["assoc_time"])),								
-										// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$value['mac']]["assoc_time"]))
-										// )
-									);
+						
 
-							$oldDeviceSession = $session->findOne($find);
-							if($oldDeviceSession){
-								$value['tx_bytes'] += $oldDeviceSession['tx_bytes'] - $value['tx_bytes_start'] + $onlineTmp[$i]['tx_bytes_start'];
-								$value['rx_bytes'] += $oldDeviceSession['rx_bytes'] - $value['rx_bytes_start'] + $onlineTmp[$i]['rx_bytes_start'];
-							}
-							else{
-								$value['tx_bytes'] += $onlineTmp[$i]['tx_bytes_start'];
-							 	$value['rx_bytes'] += $onlineTmp[$i]['rx_bytes_start'];
-							}
-						}
+						// if($value["assoc_time"] == $onlineTmp[$i]["assoc_time"]){ // Old Session
+						// 	echo "Old Session\n";
+						// 	$value['tx_bytes'] += $onlineTmp[$i]['tx_bytes_start'] - $value['tx_bytes_start'];
+						// 	$value['rx_bytes'] += $onlineTmp[$i]['rx_bytes_start'] - $value['rx_bytes_start'];
+							
+						// }
+						// else{ // New Session
+						// 	echo "New Session\n";
+						// 	$find = array(
+						// 				'mac' => $value['mac'],
+						// 				'assoc_time'=>$value["assoc_time"]
+						// 				// '$and'=>array(
+						// 				// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$value['mac']]["assoc_time"])),								
+						// 				// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$value['mac']]["assoc_time"]))
+						// 				// )
+						// 			);
+
+						// 	$oldDeviceSession = $session->findOne($find);
+						// 	if($oldDeviceSession){
+						// 		$value['tx_bytes'] += $oldDeviceSession['tx_bytes'] - $value['tx_bytes_start'] + $onlineTmp[$i]['tx_bytes_start'];
+						// 		$value['rx_bytes'] += $oldDeviceSession['rx_bytes'] - $value['rx_bytes_start'] + $onlineTmp[$i]['rx_bytes_start'];
+						// 		echo "Found Session\n"; 
+						// 	}
+						// 	else{
+						// 		if($value['offline']){
+						// 			$value['tx_bytes'] += $onlineTmp[$i]['tx_bytes_start'];
+						// 		 	$value['rx_bytes'] += $onlineTmp[$i]['rx_bytes_start'];
+						// 		 	echo "Not Found Session Already Use\n";
+						// 		}
+						// 		else
+						// 			echo "Not Found Session Not Real Offline\n"; 
+						// 	}
+						// }
 
 						if(isset($onlineTmp[$i]["ip"]))	$value['ip'] = $onlineTmp[$i]["ip"];
 						$value['assoc_time'] = $onlineTmp[$i]['assoc_time'];
@@ -111,7 +127,7 @@
 						$value['bytes'] = $value['tx_bytes']  + $value['rx_bytes'];
 						$value['tx_bytes_start'] = $onlineTmp[$i]['tx_bytes_start'];
 						$value['rx_bytes_start'] = $onlineTmp[$i]['rx_bytes_start'];
-
+						$value['offline'] = false;
 						$onlineTmp[$i]['new'] = false;
 						
 						$offlineFlag = false;
@@ -125,24 +141,31 @@
 				if($offlineFlag){
 				    //Offline
 					echo "Offline\n";
-					$find = array(
-								'mac' => $value['mac'],
-								'assoc_time'=>$value["assoc_time"]
-								// '$and'=>array(
-								// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$i]["assoc_time"])),								
-								// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$i]["assoc_time"]))
-								// )
-							);
+					// $find = array(
+					// 			'mac' => $value['mac'],
+					// 			'assoc_time'=>$value["assoc_time"]
+					// 			// '$and'=>array(
+					// 			// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$i]["assoc_time"])),								
+					// 			// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$i]["assoc_time"]))
+					// 			// )
+					// 		);
 
-					$oldDeviceSession = $session->findOne($find);
-					if($oldDeviceSession){
-						$value['tx_bytes'] += $oldDeviceSession['tx_bytes'] - $value['tx_bytes_start'];
-						$value['rx_bytes'] += $oldDeviceSession['rx_bytes'] - $value['rx_bytes_start'];
-					}
-					$value['assoc_time'] = -1;
-					$value['bytes'] = $value['tx_bytes']  + $value['rx_bytes'];
-					$value['tx_bytes_start'] = -1;
-					$value['rx_bytes_start'] = -1;
+					// $oldDeviceSession = $session->findOne($find);
+					// if($oldDeviceSession){
+					// 	$value['tx_bytes'] += $oldDeviceSession['tx_bytes'] - $value['tx_bytes_start'];
+					// 	$value['rx_bytes'] += $oldDeviceSession['rx_bytes'] - $value['rx_bytes_start'];
+					// 	$value['offline'] = true;
+					// 	echo "Found Session\n"; 
+					// }
+					// else{
+					// 	$value['offline'] = false;
+					// 	echo "Not Found Session\n"; 
+					// }
+
+					// $value['assoc_time'] = -1;
+					// $value['bytes'] = $value['tx_bytes']  + $value['rx_bytes'];
+					// $value['tx_bytes_start'] = -1;
+					// $value['rx_bytes_start'] = -1;
 				}
 
 				$saveToDB[]=$value;
@@ -151,8 +174,10 @@
 			foreach ($onlineTmp as $key => $value) { // New Device
 				if($value['new']){
 					echo "New device \n";
+					echo $value['mac']."\n";
+					$value['offline'] = false;
 					$value['bytes.r'] = $value['bytes.r']*2;
-					$onlineDevice[]=$value;
+					$saveToDB[]=$value;
 				}
 			}
 
@@ -161,6 +186,7 @@
 			echo "New record\n";
 			foreach ($onlineTmp as $key => $value) { // New Device
 				echo "New device \n";
+				$value['offline'] = false;
 				$value['bytes.r'] = $value['bytes.r']*2;
 				$saveToDB[]=$value;
 			}
@@ -172,31 +198,39 @@
 		if($oldStatistic){
 			echo "Old record\n";
 			echo "Offline\n";
-			foreach ($oldStatistic['user'] as $key => $value) {
-				$find = array(
-							'mac' => $value['mac'],
-							'assoc_time'=>$value["assoc_time"]
-							// '$and'=>array(
-							// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$value['mac']]["assoc_time"])),								
-							// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$value['mac']]["assoc_time"]))
-							// )
-						);
+			// foreach ($oldStatistic['user'] as $key => $value) {
+			// 	$find = array(
+			// 				'mac' => $value['mac'],
+			// 				'assoc_time'=>$value["assoc_time"]
+			// 				// '$and'=>array(
+			// 				// 			array('assoc_time'=>array('$lte'=>$oldOnlineDevice[$value['mac']]["assoc_time"])),								
+			// 				// 			array('disassoc_time'=>array('$gte'=>$oldOnlineDevice[$value['mac']]["assoc_time"]))
+			// 				// )
+			// 			);
 
-				$oldDeviceSession = $session->findOne($find);
-				if($oldDeviceSession){
-					$value['tx_bytes'] += $oldDeviceSession['tx_bytes'] - $value['tx_bytes_start'];
-					$value['rx_bytes'] += $oldDeviceSession['rx_bytes'] - $value['rx_bytes_start'];
-				}
-				$value['assoc_time'] = -1;
-				$value['bytes'] = $value['tx_bytes']  + $value['rx_bytes'];
-				$value['tx_bytes_start'] = -1;
-				$value['rx_bytes_start'] = -1;
+			// 	$oldDeviceSession = $session->findOne($find);
+			// 	if($oldDeviceSession){
+			// 		$value['tx_bytes'] += $oldDeviceSession['tx_bytes'] - $value['tx_bytes_start'];
+			// 		$value['rx_bytes'] += $oldDeviceSession['rx_bytes'] - $value['rx_bytes_start'];
+			// 		$value['offline'] = true;
+			// 		echo "Found Session\n"; 
+			// 	}
+			// 	else{
+			// 		$value['offline'] = false;
+			// 		echo "Not Found Session\n"; 
+			// 	}
+			// 	$value['assoc_time'] = -1;
+			// 	$value['bytes'] = $value['tx_bytes']  + $value['rx_bytes'];
+			// 	$value['tx_bytes_start'] = -1;
+			// 	$value['rx_bytes_start'] = -1;
 
-				$saveToDB[]=$value;
-			}
+			// 	$saveToDB[]=$value;
+			// }
 		}
 		else{
 			echo "New record\n";
+
+
 		}
 	}
 
@@ -218,7 +252,8 @@
 										"is_auth"			=> $value["is_auth"],
 										"google_id"			=> $value["google_id"],
 										"email"				=> $value["email"],
-										"name"				=> $value["name"]
+										"name"				=> $value["name"],
+										"offline"			=> $value["offline"]
 									);
 	}
 	//if($bytes_r_sum>0)$bytes_r_sum = $bytes_r_sum/count($saveToDB);
