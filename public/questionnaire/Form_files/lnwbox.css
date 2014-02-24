@@ -1,0 +1,97 @@
+﻿/*--------------------------------------------------lnwbox----------------------------------------------------------*/
+.lnwbox-data{
+	display: none;
+}
+#lnwbox{
+	width: 99%;
+	z-index: 22222;
+}
+#lnwbox[position=absolute]{
+	position: absolute;
+}
+#lnwbox[position=fixed]{
+	position: fixed;
+}
+#lnwbox.position-absolute{
+	position: absolute;
+}
+#lnwbox.position-fixed{
+	position: fixed;
+}
+#lnwbox #lnwboxBody{
+	margin: 0px auto;
+	position: relative;
+}
+#lnwboxBack{
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	z-index: 22221;
+}
+
+#lnwbox .box9{
+	margin: 0px auto;
+	width: auto;
+	height: auto;
+}
+#lnwbox .box9 .boxTop .boxLeft,
+#lnwbox .box9 .boxTop .boxRight,
+#lnwbox .box9 .boxBottom .boxLeft,
+#lnwbox .box9 .boxBottom .boxRight{
+	background-image: url(../LnwForm%20-%20สร้างแบบฟอร์มฟรี%20ง่ายๆ%20เพียง%203%20ขั้นตอน%20คุณก็จะได้ฟอร์มสวยๆ%20ไปติดเว็บไซต์ของคุณ_files/images/simple_corner.png);
+	background-repeat: no-repeat;
+}
+#lnwbox .box9 .boxTop .boxLeft		{	background-position: left top;		}
+#lnwbox .box9 .boxTop .boxRight		{	background-position: right top;	}
+#lnwbox .box9 .boxBottom .boxLeft	{	background-position: left bottom;	}
+#lnwbox .box9 .boxBottom .boxRight	{	background-position: right bottom;	}
+#lnwbox .close{
+	background-image: url(../LnwForm%20-%20สร้างแบบฟอร์มฟรี%20ง่ายๆ%20เพียง%203%20ขั้นตอน%20คุณก็จะได้ฟอร์มสวยๆ%20ไปติดเว็บไซต์ของคุณ_files/images/close.png);
+	background-repeat: no-repeat;
+	background-position: right;
+	font-weight: bold;
+	font-size: 10px;
+	color: #999;
+	width: 0px;
+	padding-right: 16px;
+	margin: 0px 0px 0px 0px;
+	border: 7px solid black;
+	position: relative;
+	top: -18px;
+	right: -18px;
+	border-radius: 30px 30px;
+	-moz-border-radius: 30px 30px;
+	cursor: pointer;
+	float: right;
+}
+#lnwbox .box9 .boxTop .boxCenter,
+#lnwbox .box9 .boxBottom .boxCenter{
+	background-image: url(../LnwForm%20-%20สร้างแบบฟอร์มฟรี%20ง่ายๆ%20เพียง%203%20ขั้นตอน%20คุณก็จะได้ฟอร์มสวยๆ%20ไปติดเว็บไซต์ของคุณ_files/images/simple_center.png);
+	background-repeat: repeat-x;
+}
+#lnwbox .box9 .boxTop .boxCenter		{	background-position: center top;	height: 40px;	}
+#lnwbox .box9 .boxBottom .boxCenter		{	background-position: center bottom;	height: 20px;	}
+
+#lnwbox .box9 .boxMiddle .boxLeft,
+#lnwbox .box9 .boxMiddle .boxRight{
+	background-image: url(../_images/lnwbox/simple_middle.png);
+	background-repeat: repeat-y;
+}
+#lnwbox .box9 .boxMiddle .boxLeft		{	background-position: left center;	width: 20px;	}
+#lnwbox .box9 .boxMiddle .boxRight		{	background-position: right center;	width: 20px;	}
+#lnwbox .box9 .boxMiddle .boxCenter{
+	background: #ffffff none;
+}
+#lnwbox .loading{
+	background-position: center;
+	width: 300px;
+	height: 300px;
+}
+#lnwbox .box1 #lnwboxBody {
+	background-color: #ffffff;
+	border: 1px solid #000000;
+	width: 300px;
+	height: 100px;
+	text-align: center;
+	vertical-align: middle;
+}

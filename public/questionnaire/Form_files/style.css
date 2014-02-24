@@ -1,0 +1,194 @@
+.form_button_container{
+	height: 55px;
+	background-color: #666666;
+}
+.container_add_delete {
+/*	width: 53px;*/
+	height: 25px;
+	float: right;
+	position: relative;
+	top: -10px;
+	right: -10px;
+	padding: 0px 5px;
+	margin-top: 5px;
+}
+
+.select_element .container_add_delete {
+	background-color: #ffd00f;
+	margin-top: 0px;
+}
+
+.container_add_delete .icon-duplicate, .container_add_delete .icon-delete {
+	position: relative; top: -5px;
+	cursor: pointer; width: 19px; height: 19px; float: left; margin: 2px 0px 0px 2px;
+}
+.select_element .container_add_delete .icon-duplicate, .select_element .container_add_delete .icon-delete {
+	top: 0px;
+}
+
+.lnwform-unit .header .field_element{
+	background-color: white;
+	border: 1px solid white;
+	width: 100%;
+}
+.lnwform-unit .header .field_element:hover{
+	border: 1px dashed #ff0f0f;
+	background-color: #fff3f0;
+}
+.lnwform-unit .header .field_element.select_element{
+	background-color: #fff0e9;
+	border: 1px solid #ff0000;
+}
+.lnwform-unit .field_container .field_element {
+	width: 95%;
+	padding:10px;
+	margin-bottom:10px;
+	cursor: move;
+	border: 1px solid white;
+}
+.lnwform-unit .field_container .field_element:hover {
+	border:1px dashed #ffd00f;
+	background-color: #fffaf1;
+}
+
+.lnwform-unit .field_container .select_element { background-color: #ffffcc; border: 1px solid #ffcc00; }
+.lnwform-unit .field_container .select_element:hover { background-color: #ffffcc; }
+
+
+#edit_form{
+	display: inline;
+	float: left;
+	width: 141px;
+	height: 26px;
+	background: url(images/bar/edit.png) no-repeat;
+	cursor: pointer;
+}
+#preview_form{
+	display: inline;
+	float: left;
+	width: 141px;
+	height: 26px;
+	background: url(images/bar/preview.png) no-repeat;
+	cursor: pointer;
+}
+#edit_form:hover{
+	background: url(images/bar/edit_hover.png) no-repeat;
+}
+#preview_form:hover{
+	background: url(images/bar/preview_hover.png) no-repeat;
+}
+#save, #next, #previous{
+	display: inline;
+	width: 78px;
+	height: 26px;
+	cursor: pointer;
+}
+#previous {
+	width: 100px;
+	float: left;
+	background: url(images/bar/previous.png) no-repeat;
+}
+#next {
+	float: right;
+	background: url(images/bar/next.png) no-repeat;
+}
+#save:hover, #next:hover, #previous:hover{
+	display: inline;
+	width: 78px;
+	height: 26px;
+}
+#previous:hover{
+	width: 100px;
+	float: left;
+	background: url(images/bar/previous_hover.png) no-repeat;
+}
+#next:hover{
+	float: right;
+	background: url(images/bar/next_hover3.png) no-repeat;
+}
+#top_header {
+	height: 50px;
+	z-index: 1;
+}
+#top_menu {
+	left: 0px;
+	top: 100px;
+	width: 100%;
+	min-width: 980px;
+	height: 26px;
+	background-color: #FEFEFE;
+	background: url(images/bar/bg.png) repeat-x;
+	z-index: 1;
+}
+#top_menu ul{
+	display: inline;
+}
+#top_menu ul li{
+	display: block;
+	float: left;
+    cursor: pointer;
+}
+.desc {display:inline;float:left;padding-top:3px;padding-right :7px}
+.line { width: 2px; height: 26px; background-image: url(images/bar/line.png); background-repeat: no-repeat; display:inline;float:left;padding-top:3px;}
+.menu-b { height: 26px; background-image: url(images/bar/menu.png); background-repeat: no-repeat; }
+.menu-b_hover { height: 26px; background-image: url(images/bar/menu_hover.png); background-repeat: no-repeat; }
+.b-text { background-position: 0px 0; width: 29px;}
+.b-textarea { background-position: -29px 0; width: 32px;}
+.b-radio { background-position: -61px 0; width: 32px;}
+.b-checkbox { background-position: -93px 0; width: 33px;}
+.b-dropdown { background-position: -126px 0; width: 35px;}
+.b-file { background-position: -161px 0; width: 36px;}
+.b-date { background-position: -197px 0; width: 34px;}
+.b-time { background-position: -231px 0; width: 33px;}
+.b-number { background-position: -264px 0; width: 32px;}
+
+#right_menu, #form_menu {
+	width: 300px;;
+	padding: 10px 20px;
+}
+/*#right_menu > div {*/
+#right_menu .right_menu_element {
+	clear:both;
+}
+
+.choice { clear:both; }
+.small { width: 100px; }
+.medium { width: 200px;}
+.large { width: 300px; }
+
+.field_type_div {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	font-size: 20px;
+	font-weight: bold;
+}
+.stage {
+	font-size:30px;
+	padding-left: 30px;
+	float: left;
+}
+.main_logo img{
+	border: 0;
+}
+.member_bar{
+	width: 300px;
+}
+table.adminlist thead th{
+	background-color: #7F3B1F;
+	color: #FFF7F4;
+}
+#ajax-loading{
+    position:fixed;
+    left:500px;
+    top:0px;
+    padding:3px 10px 3px 10px;
+    background:#FFE7DE;
+    color:#000000;
+    font-weight:bold;
+    display: none;
+    z-index: 9999;
+}
+#show_download{
+	height: 100%;
+	width: 100%;
+}

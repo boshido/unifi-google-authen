@@ -941,7 +941,7 @@
 							};
 					for(var y in response){
 					
-						graph.date[y] = getDate(response[y].date*1000);
+						graph.date[y] = getDate(response[y].datetime.sec*1000);
 						graph.data.tx[y] = response[y].tx_bytes;
 						graph.data.rx[y] = response[y].rx_bytes;
 					}

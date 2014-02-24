@@ -127,7 +127,7 @@
 						$value['bytes'] = $value['tx_bytes']  + $value['rx_bytes'];
 						$value['tx_bytes_start'] = $onlineTmp[$i]['tx_bytes_start'];
 						$value['rx_bytes_start'] = $onlineTmp[$i]['rx_bytes_start'];
-						$value['offline'] = false;
+						//$value['offline'] = false;
 						$onlineTmp[$i]['new'] = false;
 						
 						$offlineFlag = false;
@@ -175,7 +175,7 @@
 				if($value['new']){
 					echo "New device \n";
 					echo $value['mac']."\n";
-					$value['offline'] = false;
+					//$value['offline'] = false;
 					$value['bytes.r'] = $value['bytes.r']*2;
 					$saveToDB[]=$value;
 				}
@@ -186,7 +186,7 @@
 			echo "New record\n";
 			foreach ($onlineTmp as $key => $value) { // New Device
 				echo "New device \n";
-				$value['offline'] = false;
+				//$value['offline'] = false;
 				$value['bytes.r'] = $value['bytes.r']*2;
 				$saveToDB[]=$value;
 			}
@@ -224,8 +224,8 @@
 			// 	$value['tx_bytes_start'] = -1;
 			// 	$value['rx_bytes_start'] = -1;
 
-			// 	$saveToDB[]=$value;
-			// }
+			$saveToDB=$oldStatistic['user'];
+
 		}
 		else{
 			echo "New record\n";

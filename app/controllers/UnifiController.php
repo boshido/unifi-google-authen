@@ -128,7 +128,15 @@ class UnifiController extends Controller {
 		$find['mac']=$mac;
 		$db = Database::Connect();
 		$user = $db->user;
-		
+		$userGroup = $db->usergroup;
+		$groupCursor = $userGroup->find();
+		$group=array();
+
+		foreach ($groupCursor as $key => $value) {
+			$value['_id'] = (string)$value['_id'];
+			$group[$value['_id']] = $value;
+		}
+
 		$unifi = new Unifi();
 		$device = $unifi->getDevice($find);
 		$is_auth =  $unifi->getCurrentGuest($mac);
@@ -136,11 +144,28 @@ class UnifiController extends Controller {
 		
 		// if($device != false && $device['is_guest']){
 		if($device != false ){
-			$result = array('code'=>200,'data'=>$device,'is_auth'=>$is_auth);
+			if(isset($device['usergroup_id'])){
+				$device['usergroup_name'] = $group[$device['usergroup_id']]['name'];
+			}
+			else{
+				$device['usergroup_name'] = 'Default';
+			}
+			$device['is_auth']=$is_auth;
+
+			$result = array('code'=>200,'data'=>$device);
+
 		}
 		else{
 			$device = $user->findOne($find);
-			$result = array('code'=>206,'data'=>$device,'is_auth'=>$is_auth);
+			if(isset($device['usergroup_id']) && $device['usergroup_id'] != 'null'){
+				$device['usergroup_name'] = $group[$device['usergroup_id']]['name'];
+			}
+			else{
+				$device['usergroup_name'] = 'Default';
+			}
+			$device['is_auth']=$is_auth;
+
+			$result = array('code'=>206,'data'=>$device);
 		}
 		
 		if($device != null)return Response::json($result);
@@ -256,6 +281,106 @@ class UnifiController extends Controller {
 			else return Response::json(array('code'=>204 ,'data'=>array('message'=>'No user accessed to this AP.')));
 		}
 		else return Response::json(array('code'=>404));
+	}
+
+	public function getApRatio()
+	{	
+		$db = Database::Connect();
+		$user = $db->user;
+
+		$unifi = new Unifi();
+		$ap = $unifi->getAp();
+		$device = $unifi->getDevice(array('all'=>true));
+
+		if($ap){
+
+			$count = array();
+			$traffic = array();
+			$wlan = array();
+			$result = array();
+
+			foreach($ap as $key => $value){
+				$count[$value['mac']]['name']=$value['name'];
+				$count[$value['mac']]['count']=0;
+				$traffic[$value['mac']]['name']=$value['name'];
+				$traffic[$value['mac']]['byes']=0;
+			}
+			foreach($device as $key => $value){
+				$count[$value['ap_mac']]['count']++;
+				$traffic[$value['ap_mac']]['byes']+=$value['bytes'];
+			}
+			
+			$result['count'] = $count;
+			$result['traffic'] = $traffic;
+			$result['wlan'] = $wlan;
+
+			if(count($result)>0)
+				return Response::json(array('code'=>200,'data'=>$result));
+			else
+				return Response::json(array('code'=>404));
+		}
+		else return Response::json(array('code'=>404));
+	}
+
+	public function getCurrentUsage()
+	{	
+		$db = Database::Connect();
+
+		$unifi = new Unifi();
+		$ap = $unifi->getAp();
+
+		function fixem($a, $b){
+		  if ($a['value'] == $b['value']) { return 0; }
+		  return ($a['value'] < $b['value']) ? 1 : -1;
+		}
+
+		$count = array();
+		$traffic = array();
+		$wlan = array();
+		$result = array();
+
+		if($ap){
+
+			$time = time();
+			$time = $time-($time%3600);
+			foreach($ap as $key => $value){
+				$cursor = $db->selectCollection('stat.hourly.ap.'.$value['mac'])->findOne(array('datetime'=> new MongoDate($time)));
+				if($cursor){
+					$count[] = array('name'=>$value['name'],
+									 'mac'=>$value['mac'],
+									 'value'=>isset($cursor['num_sta']) ? $cursor['num_sta'] : 0);
+					$traffic[] = array('name'=>$value['name'],
+									 'mac'=>$value['mac'],
+									 'value'=>$cursor['bytes']);
+				}
+			}
+
+		}
+
+		$device = $unifi->getDevice(array('all'=>true));
+		if($device){
+			$cursor = $db->wlanconf->find();
+			$tmp = array();
+			foreach ($cursor as $key => $value) {
+				$tmp[$value['name']] = array('name'=>$value['name'],
+											  'value'=>0);
+			}
+			foreach($device as $key => $value){
+				$tmp[$value['essid']]['value']++;
+			}
+			foreach ($tmp as $key => $value) {
+				$wlan[]=$value;
+			}
+		}
+
+		usort($count, 'fixem');
+		usort($traffic, 'fixem');
+		usort($wlan, 'fixem');		
+
+		$result['count'] = $count;
+		$result['traffic'] = $traffic;
+		$result['wlan'] = $wlan;
+		return Response::json(array('code'=>200,'data'=>$result));
 	}
 	
 	public function getMapList()
@@ -395,12 +520,63 @@ class UnifiController extends Controller {
 	
 	public function getStatDaily()
 	{	
-		$mac = Input::get('mac');
-		$at = Input::get('at') ;
-		$to = Input::get('to') ; 
-		$unifi = new Unifi();
 		
-		return Response::json(array('code'=>200,'data'=>$unifi->getStatDaily($mac,$at,$to)));
+		$mac = Input::get('mac');
+		$at = Input::get('at') != null ? Input::get('at') : time();
+		$to = Input::get('to') != null ? Input::get('to') : time(); 
+		
+		function fixem($a, $b){
+		  if ($a['datetime']->sec == $b['datetime']->sec) { return 0; }
+		  return ($a['datetime']->sec < $b['datetime']->sec) ? -1 : 1;
+		}
+
+		$db = Database::Connect();
+		$userStatistic = $db->stat->daily->user;
+		
+		$cursor = $userStatistic->find( 
+			array('$and' => 
+				array(
+					array('datetime' => array('$gte' => new MongoDate($at-($at%86400)))),
+					array('datetime' => array('$lte' => new MongoDate($to))),
+					array('user.mac' => $mac)
+				)
+			)
+		,array('user'=>1,'datetime'=>1));
+
+		$unifi = new Unifi();
+		$resultTmp = array();
+		while($at <= $to ){
+			$resultTmp[$at-($at%86400)] = array(
+				"_id"=>null,
+				"datetime"=>new MongoDate($at-($at%86400)),
+				'tx_bytes'=>0,
+				'rx_bytes'=>0,
+				"bytes"=>0,
+				"bytes.r"=>0,
+			);
+
+			$at = strtotime("next day",$at);
+		}
+		foreach ($cursor as $key => $value) {
+			;
+			for($i=0;$i<count($value['user']);$i++){
+				if($value['user'][$i]['mac'] == $mac){
+
+					$resultTmp[$value['datetime']->sec]['_id'] = (string)$value['_id'];
+					$resultTmp[$value['datetime']->sec]['datetime'] = 	$value['datetime'];
+					$resultTmp[$value['datetime']->sec]['tx_bytes'] = 	$value['user'][$i]['tx_bytes'];
+					$resultTmp[$value['datetime']->sec]['rx_bytes'] =	$value['user'][$i]['rx_bytes'];
+					$resultTmp[$value['datetime']->sec]['bytes']	=	$value['user'][$i]['bytes'];
+					$resultTmp[$value['datetime']->sec]['bytes.r']	=	$value['user'][$i]['bytes.r'];
+				}
+			}
+		}
+		foreach ($resultTmp as $key => $value) {
+			$result[]=$value;
+		}
+	
+		usort($result, "fixem");
+	    return Response::json(array('code'=>200,'data'=>$result));
 	}
 	
 	public function getStatSummary()
@@ -462,7 +638,7 @@ class UnifiController extends Controller {
 				$timeIndex = strtotime('-6 day',$time);
 				while($timeIndex <= $time){
 					$resultTmp[$timeIndex-($timeIndex%86400)] = array("_id"=>null,"datetime"=>new MongoDate($timeIndex-($timeIndex%86400)),"bytes"=>0,"bytes.r"=>0,"user_count"=>0);
-					$timeIndex = strtotime("next hours",$timeIndex);
+					$timeIndex = strtotime("next day",$timeIndex);
 				}
 				
 				$db = Database::Connect();
@@ -538,6 +714,66 @@ class UnifiController extends Controller {
 				}
 			}
 			usort($result, "fixem");
+			if(count($result)>0)return Response::json(array('code'=>200,'data'=>$result));
+			else return Response::json(array('code'=>404));
+		}
+		else return Response::json(array('code'=>404));
+	}
+
+	public function getTopTenUserReport()
+	{	
+		$time = (int)Input::get('time');
+		$type = Input::get('type');
+
+		function fixem($a, $b){
+		  if ($a['bytes'] == $b['bytes']) { return 0; }
+		  return ($a['bytes'] < $b['bytes']) ? 1 : -1;
+		}
+
+		if(($type == "hourly" || $type == "daily") && $time != 0){
+
+			$result = array();
+			$resultTmp = array();
+			$unifi = new Unifi();
+			//if($type == "daily") $time = strtotime("midnight", $time);
+			// return Response::json(array('code'=>200,'data'=>$unifi->getTrafficReport($time,$type)));
+
+			if($type=='hourly'){	
+				$db = Database::Connect();
+				$userStatistic = $db->stat->hourly->user;
+				
+				$cursor = $userStatistic->findOne( 
+					array( 'datetime' =>new MongoDate($time-($time%3600))
+					)
+				,array('user'=>1));
+				if(isset($cursor['user'])){
+					foreach ($cursor['user'] as $key => $value) {
+						$resultTmp[]=$value;
+					}
+				}
+			}
+			else{
+				$db = Database::Connect();
+				$userStatistic = $db->stat->daily->user;
+				
+				$cursor = $userStatistic->findOne( 
+					array( 'datetime' =>new MongoDate($time-($time%86400))
+					)
+				,array('user'=>1));
+				if(isset($cursor['user'])){
+					foreach ($cursor['user'] as $key => $value) {
+						$resultTmp[]=$value;
+					}
+				}
+			}
+			usort($resultTmp, "fixem");
+			$count=1;
+			foreach ($resultTmp as $key => $value) {
+				if($count>10)break;
+				$result[] = $value;
+				$count++;
+			}
+
 			if(count($result)>0)return Response::json(array('code'=>200,'data'=>$result));
 			else return Response::json(array('code'=>404));
 		}
@@ -998,58 +1234,39 @@ class UnifiController extends Controller {
 	}
 
 	public function getUserList(){
-	
+		
+		$search = Input::get('search');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+
 		$unifi = new Unifi();
+		$regex = new MongoRegex('/'.$search.'/i');
 		$db = Database::Connect();
 		$token = $db->token;
-		$cursor = $token->find();
-		$user = array();
+		$userCursor = $token->find(
+			array(
+				'$and'=>array(
+					array(
+						'$or'=>array(
+							array('fname'=>$regex),array('lname'=>$regex),
+							array('email'=>$regex)
+						)
+					)
+				)
+			)
+		);
+		$userCursor->skip($start);
+		$userCursor->limit($length);
+		$userCursor->sort(array('_id'=>-1));
 		$result = array();
-		$guest_tmp = $unifi->getCurrentGuest(null,false);
-		$online = $unifi->getDevice(array('all'=>true));
 		
-		foreach($guest_tmp as $key =>$value){
-			$guest[$value['mac']]=$value;
-		}
-		
-		if($online){ // Online check with       Online User  and  Guest table
-			foreach($online as $key => $value){
-				if($value['is_guest'] == 1){
-					if(isset($guest[$value['mac']])){
-						$guest[$value['mac']]['online']=true;
-					}
-				}
-			}	
-		}
-		
-		foreach($cursor as $key => $value){
+		foreach($userCursor as $key => $value){
 			if(!isset($value['name']) || $value['name'] == '-'){
 				if($value['fname'] != '-' && $value['lname'] != '-'){
 					$value['name'] = $value['fname'].' '.$value['lname'];
 				}
 			}
-			$value['online']=0;
-			$value['offline']=0;
-			$user[$value['google_id']] = $value;			
-		}
-		foreach($guest as $key =>$value){
-			if(isset($value['google_id'])){
-				$user[$value['google_id']]['authorized'] = true;
-				//$tmp = array('auth_type'=>$value['auth_type'],'mac'=>$value['mac'],'start'=>$value['start'],'end'=>$value['end']);	
-				//if(isset($value['hostname'])) $tmp['hostname'] = $value['hostname'];
-				//$tmp['picture'] = $value['hostname'];
-
-				if(isset($value['online'])){
-					$user[$value['google_id']]['status']=1;
-					$user[$value['google_id']]['online']++;
-				}
-				else{
-					$user[$value['google_id']]['offline']++;
-				}
-			}
-		}
-		foreach($user as $key =>$value){
-			$result[]=$value;
+			$result[] = $value;			
 		}
 		
 		return Response::json(array('code'=>200,'data'=>$result));
@@ -1464,6 +1681,66 @@ class UnifiController extends Controller {
 			return Response::json(array('code'=>404));
 		}
 	}
+
+	public function getDeviceSessionHistory(){
+		$mac = Input::get('mac');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+
+		$db = Database::Connect();
+		$session = $db->session;
+		$sessionCursor = $session->find(array('mac'=>$mac));
+		$sessionCursor->skip($start);
+		$sessionCursor->limit($length);
+		$sessionCursor->sort(array('_id'=>-1));
+
+		$result=array();
+		foreach($sessionCursor as $key => $value){
+			$value['_id'] = (string)$value['_id'];
+			$value['user_id'] = (string)$value['user_id'];
+			$value['start'] = (string)$value['assoc_time'];
+			$value['end'] = (string)$value['disassoc_time'];
+			$result[] =$value;
+		}
+
+		if(count($result)>0){
+			return Response::json(array('code'=>200,'data'=>$result));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+	}
+
+	public function getDeviceAuthHistory(){
+		$mac = Input::get('mac');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+
+		$db = Database::Connect();
+		$guest = $db->guest;
+	
+		
+		$guestCursor = $guest->find(array('mac' => $mac,'google_id'=>array('$exists'=>true)));
+		$guestCursor->skip($start);
+		$guestCursor->limit($length);
+		$guestCursor->sort(array('_id'=>-1));
+
+		$result=array();
+		foreach($guestCursor as $key => $value){
+			$value['_id'] = (string)$value['_id'];
+
+			$result[] =$value;
+		}
+
+		if(count($result)>0){
+			return Response::json(array('code'=>200,'data'=>$result));
+		}
+		else {
+			return Response::json(array('code'=>404));
+		}
+
+	}
+
 	public function postChangeDeviceToGroup(){
 		$group_id = Input::get('group_id') != "null" ? Input::get('group_id')  : null;
 		$user_id = Input::get('user_id');
