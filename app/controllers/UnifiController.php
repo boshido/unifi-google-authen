@@ -1019,6 +1019,45 @@ class UnifiController extends Controller {
 		return Response::json(array('code'=>200,'data'=>$result));
 	}
 
+	public function getBlockedDeviceList(){
+		$search = Input::get('search');
+		$start = Input::get('start');
+		$length = Input::get('length') != null ? Input::get('length') : 0;
+		
+		$unifi = new Unifi();
+	
+		$result=[];
+		$regex = new MongoRegex('/'.$search.'/i');
+		$db = Database::Connect();
+		$device = $db->user;
+		$deviceCursor = $device->find(
+			array(
+				'$and'=>array(
+					array(
+						'$or'=>array(
+							array('hostname'=>$regex),
+							array('mac'=>$regex)
+						)
+					),
+					array(
+						'blocked'=>true
+					)
+				)
+			)
+		);
+
+		$deviceCursor->skip($start);
+		$deviceCursor->limit($length);
+		$deviceCursor->sort(array('_id'=>-1));
+
+		$result=[];
+		foreach($deviceCursor as $key =>$value) {
+			$result[]=$value;
+		};
+
+		return Response::json(array('code'=>200,'data'=>$result));
+	}
+
 	public function getPendingDeviceList(){
 		$search = Input::get('search');
 		$start = Input::get('start') != null ? Input::get('start') : 0;
