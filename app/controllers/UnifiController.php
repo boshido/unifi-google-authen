@@ -1273,7 +1273,7 @@ class UnifiController extends Controller {
 	}
 
 	public function getUserList(){
-		
+
 		$search = Input::get('search');
 		$start = Input::get('start');
 		$length = Input::get('length') != null ? Input::get('length') : 0;
@@ -1297,19 +1297,58 @@ class UnifiController extends Controller {
 		$userCursor->skip($start);
 		$userCursor->limit($length);
 		$userCursor->sort(array('_id'=>-1));
+		$user = array();
 		$result = array();
-		
+		$guest_tmp = $unifi->getCurrentGuest(null,false);
+		$online = $unifi->getDevice(array('all'=>true));
+
+		foreach($guest_tmp as $key =>$value){
+			$guest[$value['mac']]=$value;
+		}
+
+		if($online){ // Online check with       Online User  and  Guest table
+			foreach($online as $key => $value){
+				if($value['is_guest'] == 1){
+					if(isset($guest[$value['mac']])){
+						$guest[$value['mac']]['online']=true;
+					}
+				}
+			}	
+		}
+
 		foreach($userCursor as $key => $value){
 			if(!isset($value['name']) || $value['name'] == '-'){
 				if($value['fname'] != '-' && $value['lname'] != '-'){
 					$value['name'] = $value['fname'].' '.$value['lname'];
 				}
 			}
-			$result[] = $value;			
+			$value['online']=0;
+			$value['offline']=0;
+			$user[$value['google_id']] = $value;			
 		}
-		
+		foreach($guest as $key =>$value){
+			if(isset($value['google_id'])){
+				$user[$value['google_id']]['authorized'] = true;
+				//$tmp = array('auth_type'=>$value['auth_type'],'mac'=>$value['mac'],'start'=>$value['start'],'end'=>$value['end']);	
+				//if(isset($value['hostname'])) $tmp['hostname'] = $value['hostname'];
+				//$tmp['picture'] = $value['hostname'];
+
+				if(isset($value['online'])){
+					$user[$value['google_id']]['status']=1;
+					$user[$value['google_id']]['online']++;
+				}
+				else{
+					$user[$value['google_id']]['offline']++;
+				}
+			}
+		}
+		foreach($user as $key =>$value){
+			$result[]=$value;
+		}
+
 		return Response::json(array('code'=>200,'data'=>$result));
 	}
+	
 	
 	public function getDeviceList(){
 	
