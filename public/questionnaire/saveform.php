@@ -6,7 +6,7 @@ if($_SESSION["valid"]=='yes')
     
     $domain=$_SERVER['HTTP_HOST'];
     
-    $str=$domain."/questionnaire/showform.php?formid=$formid";
+    $str=$domain."/showform.php?formid=$formid";
 ?>
 <!DOCTYPE html>
 <html lang="en">

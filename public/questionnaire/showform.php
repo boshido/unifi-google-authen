@@ -1,7 +1,7 @@
 ﻿<?php
     
 $formid=$_GET["formid"];
-$data_authen = "pang_@hotmail.com";
+$email = $_GET["email"];
 
 include("connect.php");
 
@@ -75,7 +75,7 @@ while($row = mysql_fetch_array($select))
 			<td class="center">
              <form action='savedata.php' method='post' >
               <input type="hidden" value="<?=$formid?>"  name="form_id">
-              <input type="hidden" value="<?=$data_authen?>"  name="email">   
+              <input type="hidden" value="<?=$email?>"  name="email">   
              <? echo $text ;?>
              
              </form>

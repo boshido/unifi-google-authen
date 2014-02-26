@@ -90,8 +90,9 @@ $str .=")";
 </div>
 <div class="container">
 	<div align="center" style="line-height:25px; font-size: 16px;padding: 100px 0px 50px;">
-		<b><? echo $message ;?></b><br />
+		<b><? echo $message ; ?></b><br />
 		ขอขอบคุณสำหรับการกรอกข้อมูลฟอร์ม <br />
+		<meta http-equiv="refresh" content="0;URL=<?= $_COOKIE["seturl"]; ?>">
 	
 	</div>
 	<div align="center" style="width: 100%;  margin: 0px; padding: 0px;">

@@ -2,8 +2,8 @@
 $formid=$_GET["formid"];
 
 $host="localhost";
-$user="root";
-$pass="root";
+$user="magatokung01";
+$pass="034623645";
 $dbname="querstion_questionnaire";
 $connect = mysql_connect($host,$user,$pass);
 mysql_select_db("querstion_questionnaire");

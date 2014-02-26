@@ -248,7 +248,7 @@
 
 	</script>
 </head>
-<body bgcolor = "#ffe587" >
+<body bgcolor="#ffe587">
 	<div id="graph" style="max-width: 700px; height: 700px; margin-left: auto; margin-right: auto; "  ></div>
 </body>
 </html>

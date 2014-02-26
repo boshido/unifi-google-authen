@@ -55,7 +55,7 @@
 				var serializedData = "";
 				serializedData += "&_rand="+encodeURIComponent(Math.random());
 				var request = $.ajax({
-						url: "http://202.44.47.47/unifi",
+						url: "http://fitmwifi.ap01.aws.af.cm/server/online.php",
 						type: "get",
 						data:serializedData
 				});	

@@ -51,6 +51,13 @@ $sql=" SELECT form_name,form_id FROM main_form";
     $show .="<b class=\"icon icon_embeded\"style=\"margin:10px 10px  0px; padding: 0px; \"></b>";
     $show .="<a href=\"saveform.php?formid=$row[form_id]\" target=\"_blank\" >Embeded Code</a>"; 
     $show .="</td>";
+
+
+    $show .="<td width=\"200px\" >";
+    $show .="<div class=\"seperator\"></div>";   
+    $show .="<b class=\"icon icon-add\"style=\"margin:10px 10px  0px; padding: 0px; \"></b>";
+    $show .="<a href=\"addform.php?formid=$row[form_id]\" target=\"_blank\" >Add Form</a>"; 
+    $show .="</td>";
   
      
 
