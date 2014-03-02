@@ -106,7 +106,7 @@ class GuestController extends Controller {
 				$set = array('$set'=>array('email'=>$email));
 				$user->update($find,$set);
 				$data = $user->findOne($find);
-				$unifi->sendAuthorization(Session::get('id'), Session::get('auth_type') == 0 ? 360 : 9999999, Session::get('ap')); //authorizing user for 6 hours(6*60)
+				$unifi->sendAuthorization(Session::get('id'), Session::get('auth_type') == 0 ? 180 : 9999999, Session::get('ap')); //authorizing user for 6 hours(6*60)
 				//$cookie_id = Cookie::forever('id',Session::get('id'));
 				$guestinfo = array('name'=>$name,'fname'=>$fname,'lname'=>$lname,'google_id'=>$google_id,'email'=>$email,'auth_type'=>Session::get('auth_type'));
 				if(isset($data['hostname']))$guestinfo['hostname']=$data['hostname'];
@@ -278,28 +278,47 @@ class GuestController extends Controller {
 		$qest_code 	= Input::get('quest_code');
 		$mac 		= Input::get('mac');
 		$ap 		= Input::get('ap');
-		$name 		= Input::get('name');
-		$fname 		= Input::get('fname');
-		$lname 		= Input::get('lname');
 		$google_id 	= Input::get('google_id');
-		$email 		= Input::get('email');
+		// $name 		= Input::get('name');
+		// $fname 		= Input::get('fname');
+		// $lname 		= Input::get('lname');
+		// $email 		= Input::get('email');
+
 		$auth_type 	= Input::get('auth_type');
 
-		if(Session::get('qest_code') == $qest_code && isset($mac) && $mac != ""){
+		if(Session::get('qest_code') == $qest_code && isset($mac) && $mac != "" && isset($google_id)){
 			$unifi = new Unifi();
 			$db = Database::Connect(); 
 			$user = $db->user;
-			$find = array('mac'=>$mac);
-			$set = array('$set'=>array('email'=>$email));
-			$user->update($find,$set);
-			$data = $user->findOne($find);
-			$unifi->sendAuthorization($mac,$auth_type == 0 ? 360 : 9999999, $ap); //authorizing user for 6 hours(6*60)
-			//$cookie_id = Cookie::forever('id',Session::get('id'));
-			$guestinfo = array('name'=>$name,'fname'=>$fname,'lname'=>$lname,'google_id'=>$google_id,'email'=>$email,'auth_type'=>$auth_type);
-			if(isset($data['hostname']))$guestinfo['hostname']=$data['hostname'];
-			$unifi->setCurrentGuest($mac,$guestinfo);
-			return Redirect::to('guest/userinfo');
+			$token = $db->token;
+			$googleAccount = $token->findOne(array('google_id'=>$google_id));
+
+			if($googleAccount){
+				$name = $googleAccount['name'];
+				$fname = $googleAccount['fname'];
+				$lname = $googleAccount['lname'];
+				$email = $googleAccount['email'];
+
+				$find = array('mac'=>$mac);
+				$set = array('$set'=>array('email'=>$email));
+				$user->update($find,$set);
+
+				$unifi->sendAuthorization($mac,$auth_type == 0 ? 180 : 9999999, $ap); //authorizing user for 6 hours(6*60)
+				//$cookie_id = Cookie::forever('id',Session::get('id'));
+				$data = $user->findOne($find);
+				$guestinfo = array('name'=>$name,'fname'=>$fname,'lname'=>$lname,'google_id'=>$google_id,'email'=>$email,'auth_type'=>$auth_type);
+				if(isset($data['hostname']))$guestinfo['hostname']=$data['hostname'];
+				$unifi->setCurrentGuest($mac,$guestinfo);
+				return Redirect::to('guest/userinfo');
+			}
+			else{
+				return Redirect::action('GuestController@getSignin');
+			}
 		}
+		else{
+			return Redirect::action('GuestController@getSignin');
+		}
+
 	}
 	
 	protected function setupLayout()
