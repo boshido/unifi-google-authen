@@ -366,7 +366,12 @@ class UnifiController extends Controller {
 											  'value'=>0);
 			}
 			foreach($device as $key => $value){
-				$tmp[$value['essid']]['value']++;
+				if(isset($tmp[$value['essid']]))
+					$tmp[$value['essid']]['value']++;
+				else{
+					$tmp[$value['essid']]['name']=$value['essid'];
+					$tmp[$value['essid']]['value']=1;
+				}
 			}
 			foreach ($tmp as $key => $value) {
 				$wlan[]=$value;
@@ -873,6 +878,9 @@ class UnifiController extends Controller {
 				$result['online'][]=$value;
 			}
 			else{
+				$value['bytes']=0;
+				$value['rx_bytes']=0;
+				$value['tx_bytes']=0;
 				$result['offline'][]=$value;
 			}
 		}
