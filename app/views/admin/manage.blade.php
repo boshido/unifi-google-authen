@@ -873,7 +873,7 @@
 						if(typeof(device.mac)!='undefined')info.append('<dt>MAC : </dt><dd >'+device.mac+'</dd>');
 						if(typeof(device.last_seen)!='undefined')info.append('<dt>Last Seen : </dt><dd >'+getDate(device.last_seen*1000)+' '+getTime(device.last_seen*1000)+'</dd>');
 						
-						if(response.is_auth)footer.append('<button class="pure-button" onclick="unauthorize(\''+device.mac+'\')">Unauthorize</button>');
+						if(device.is_auth)footer.append('<button class="pure-button" onclick="unauthorize(\''+device.mac+'\')">Unauthorize</button>');
 						if(typeof(device.blocked)!='undefined'){
 							if(device.blocked)footer.append('<button class="pure-button " onclick="block(\''+device.mac+'\',0)" >Unblock</button>');
 							else footer.append('<button class="pure-button" onclick="block(\''+device.mac+'\',1)">Block</button>');
@@ -904,7 +904,7 @@
 						if(typeof(device.ip)!='undefined')info.append('<dt>IP Address : </dt><dd >'+device.ip+'</dd>');
 						if(typeof(device.uptime)!='undefined')info.append('<dt>Uptime : </dt><dd >'+getDuration(device.uptime*1000)+'</dd>');
 						
-						if(response.is_auth)footer.append('<button class="pure-button" onclick="unauthorize(\''+device.mac+'\')">Unauthorize</button>');
+						if(device.is_auth)footer.append('<button class="pure-button" onclick="unauthorize(\''+device.mac+'\')">Unauthorize</button>');
 						footer.append('<button class="pure-button" onclick="reconnect(\''+device.mac+'\')">Reconnect</button>');
 						footer.append('<button class="pure-button" onclick="block(\''+device.mac+'\',1)">Block</button>');
 					}

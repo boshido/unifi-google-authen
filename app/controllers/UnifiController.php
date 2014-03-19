@@ -123,6 +123,10 @@ class UnifiController extends Controller {
 	
 	public function getDevice()
 	{
+		header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept');
+        header('Access-Control-Request-Method:POST, PUT, DELETE');
+		
 		$mac = Input::get('mac');
 		
 		$find['mac']=$mac;
@@ -935,9 +939,10 @@ class UnifiController extends Controller {
 		       if (stristr($value['hostname'] , $find)) {
 		          	$resultArray[]=$value;
 		       }
-		       else if(stristr($value['ip'] , $find)){
-					$resultArray[]=$value;
-		       }
+		       else if(isset($value['ip'])){
+					if(stristr($value['ip'] , $find))
+						$resultArray[]=$value;
+			   }
 		       else if(stristr($value['mac'] , $find)){
 		       		$resultArray[]=$value;
 		       }
@@ -1028,6 +1033,10 @@ class UnifiController extends Controller {
 	}
 
 	public function getBlockedDeviceList(){
+		header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept');
+        header('Access-Control-Request-Method:POST, PUT, DELETE');
+		
 		$search = Input::get('search');
 		$start = Input::get('start');
 		$length = Input::get('length') != null ? Input::get('length') : 0;
@@ -1102,9 +1111,10 @@ class UnifiController extends Controller {
 		       if (stristr($value['hostname'] , $find)) {
 		          	$resultArray[]=$value;
 		       }
-		       else if(stristr($value['ip'] , $find)){
-					$resultArray[]=$value;
-		       }
+		       else if(isset($value['ip'])){
+					if(stristr($value['ip'] , $find))
+						$resultArray[]=$value;
+			   }
 		       else if(stristr($value['mac'] , $find)){
 		       		$resultArray[]=$value;
 		       }
@@ -1991,6 +2001,9 @@ class UnifiController extends Controller {
 	
 	public function postDeactiveSession()
 	{
+		header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept');
+        header('Access-Control-Request-Method:POST, PUT, DELETE');
 		$mac = Input::get('mac');
 		$unifi = new Unifi();
 		$unifi->sendUnAuthorization($mac);
@@ -1998,6 +2011,9 @@ class UnifiController extends Controller {
 	}
 	public function postReconnect()
 	{
+		header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept');
+        header('Access-Control-Request-Method:POST, PUT, DELETE');
 		$mac = Input::get('mac');
 		$unifi = new Unifi();
 		$unifi->sendReconnect($mac);
@@ -2023,6 +2039,9 @@ class UnifiController extends Controller {
 	}
 	public function postBlock()
 	{
+		header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept');
+        header('Access-Control-Request-Method:POST, PUT, DELETE');
 		$mac = Input::get('mac');
 		$unifi = new Unifi();
 		$unifi->sendBlock($mac);
@@ -2030,10 +2049,180 @@ class UnifiController extends Controller {
 	}
 	public function postUnBlock()
 	{
+		header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept');
+        header('Access-Control-Request-Method:POST, PUT, DELETE');
 		$mac = Input::get('mac');
 		$unifi = new Unifi();
 		$unifi->sendUnBlock($mac);
 		return 1;
+	}
+
+	/* -----------------------  DHCP MANAGEMENT ----------------------*/
+
+public function getWifiOnlineDevice(){
+
+		$rowPerPage = Input::get('rowPerPage');
+		$page 		= Input::get('page');
+		$searchKey 	= Input::get('searchKey');
+		$orderMode 	= Input::get('orderMode');
+		
+		header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept');
+        header('Access-Control-Request-Method:POST, PUT, DELETE');
+		
+		if(isset($rowPerPage) && isset($page) && isset($searchKey) && isset($orderMode))
+		{
+			
+			$unifi = new Unifi();
+			$authorizedCursor = $unifi->getCurrentGuest(null,false);
+			$authorizedDevice = array();
+			if($authorizedCursor){
+				foreach($authorizedCursor as $key =>$value){
+					if(isset($value['google_id']))
+						$authorizedDevice[$value['mac']]=$value;
+				}
+			}
+
+			$result=[];
+			$allOnlineDevice = $unifi->getDevice(array('all'=>true));
+			if($allOnlineDevice){
+				foreach($allOnlineDevice as $key => $value){
+					if(isset($authorizedDevice[$value['mac']])){
+
+						$value['google_id']=$authorizedDevice[$value['mac']]['google_id'];
+						if(isset($authorizedDevice[$value['mac']]['name']))$value['name']=$authorizedDevice[$value['mac']]['name'];
+						
+						$value['email']=$authorizedDevice[$value['mac']]['email'];
+						$value['is_auth']=true;
+						$result[]=$value;
+					}
+					else{
+						$value['is_auth']=false;
+						$result[]=$value;
+					}
+				}		
+			}
+
+			function fixem($a, $b){
+			  if ($a["assoc_time"] == $b["assoc_time"]) { return 0; }
+			  return ($a["assoc_time"] < $b["assoc_time"]) ? -1 : 1;
+			}
+			function search($find, $originalArray) {
+				$resultArray=[];
+			   	foreach ($originalArray as $key => $value) {
+			       if (stristr($value['hostname'] , $find)) {
+			          	$resultArray[]=$value;
+			       }
+			       else if(isset($value['ip'])){
+						if(stristr($value['ip'] , $find))
+							$resultArray[]=$value;
+			       }
+			       else if(stristr($value['mac'] , $find)){
+			       		$resultArray[]=$value;
+			       }
+			       else if(isset($value['name'])){
+			       		if(stristr($value['name'] , $find)){
+			       			$resultArray[]=$value;
+			       		}
+			       }
+			   }
+			 
+			    return $resultArray;
+			}
+			if($searchKey != null)
+				$result = search($searchKey,$result);
+
+			// Our Call to Sort the Data
+			usort($result, "fixem");
+			
+			$totalpage = (int)((count($result)/$rowPerPage)+0.99);
+
+			$result = array_slice($result,($page-1)*$rowPerPage,$rowPerPage);
+
+			return Response::json(array('code'=>200,'data'=>array('page'=>$page,'totalpage'=>$totalpage,'content'=>$result)));
+		}
+		else{
+			return Response::json(array('code'=>302,'data'=>''));
+		}
+	}
+
+	public function getWifiOfflineDevice(){
+		$rowPerPage = Input::get('rowPerPage');
+		$page 		= Input::get('page');
+		$searchKey 	= Input::get('searchKey');
+		$orderMode 	= Input::get('orderMode');
+		
+		header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Headers: X-Requested-With, Origin, X-Csrftoken, Content-Type, Accept');
+        header('Access-Control-Request-Method:POST, PUT, DELETE');
+		if(isset($rowPerPage) && isset($page) && isset($searchKey) && isset($orderMode))
+		{
+			$unifi = new Unifi();
+			
+			$authorizedCursor = $unifi->getCurrentGuest(null,false);
+			$authorizedDevice = array();
+			if($authorizedCursor){
+				foreach($authorizedCursor as $key =>$value){
+					if(isset($value['google_id']))
+						$authorizedDevice[$value['mac']]=$value;
+				}
+			}
+
+			$result=[];
+			$allOnlineDevice = $unifi->getDevice(array('all'=>true));
+			$onlineMac = array();
+			if($allOnlineDevice){
+				foreach($allOnlineDevice as $key => $value){
+					$onlineMac[] = $value['mac'];
+				}		
+			}
+
+			
+			$regex = new MongoRegex('/'.$searchKey.'/i');
+			$db = Database::Connect();
+			$device = $db->user;
+			$deviceCursor = $device->find(
+				array(
+					'$and'=>array(
+						array(
+							'$or'=>array(
+								array('hostname'=>$regex),
+								array('mac'=>$regex)
+							)
+						),
+						array(
+							'mac'=>array('$nin' => $onlineMac)
+						)
+					)
+				)
+			);
+			$totalpage = (int)(($deviceCursor->count()/$rowPerPage)+0.99);
+			$deviceCursor->skip(($page-1)*$rowPerPage);
+			$deviceCursor->limit($rowPerPage);
+			$deviceCursor->sort(array('_id'=>-1));
+
+			$result=[];
+			foreach($deviceCursor as $key =>$value) {
+				if(isset($authorizedDevice[$value['mac']])){
+
+					$value['google_id']=$authorizedDevice[$value['mac']]['google_id'];
+					$value['name']=$authorizedDevice[$value['mac']]['name'];
+					$value['email']=$authorizedDevice[$value['mac']]['email'];
+					$value['is_auth']=true;
+					$result[]=$value;
+				}
+				else{
+					$value['is_auth']=false;
+					$result[]=$value;
+				}
+			};
+
+			return Response::json(array('code'=>200,'data'=>array('page'=>$page,'totalpage'=>$totalpage,'content'=>$result)));
+		}
+		else{
+			return Response::json(array('code'=>302,'data'=>''));
+		}
 	}
 
 	protected function setupLayout()
