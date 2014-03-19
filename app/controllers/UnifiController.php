@@ -1893,7 +1893,7 @@ class UnifiController extends Controller {
 	}
 
 	public function postGroup(){
-		$id 					= Input::get('id');
+		$id 					= Input::get('id') != '' ? Input::get('id') : null;
 		$name   				= Input::get('name') != null ? Input::get('name') : 'Unknown';
 		$qos_rate_max_down 		= (int)Input::get('qos_rate_max_down') > 0 ? (int)Input::get('qos_rate_max_down') : -1;
 		$qos_rate_max_up		= (int)Input::get('qos_rate_max_up') > 0 ? (int)Input::get('qos_rate_max_up') : -1;
@@ -1901,21 +1901,39 @@ class UnifiController extends Controller {
 		$unifi = new Unifi();
 		$db = Database::Connect();
 		$usergroup = $db->usergroup;
-		$usergroupCursor = $usergroup->findOne(array('_id'=> new MongoId($id)));
-		if($usergroupCursor){
-			$result = $unifi->sendEditGroup($id,array(
-							"name"=>$name,
-							"downRate_enabled"=>$qos_rate_max_down != -1,
-							"qos_rate_max_down"=>$qos_rate_max_down ,
-							"upRate_enabled"=>$qos_rate_max_up != -1,
-							"qos_rate_max_up"=>$qos_rate_max_up
-					));
+		if(isset($id)){
+			$usergroupCursor = $usergroup->findOne(array('_id'=> new MongoId($id)));
+			if($usergroupCursor){
+				$result = $unifi->sendEditGroup($id,array(
+								"name"=>$name,
+								"downRate_enabled"=>$qos_rate_max_down != -1,
+								"qos_rate_max_down"=>$qos_rate_max_down ,
+								"upRate_enabled"=>$qos_rate_max_up != -1,
+								"qos_rate_max_up"=>$qos_rate_max_up
+						));
 
-			if(count($result['data'])>0){
-				return Response::json(array('code'=>200,'data'=>array('message'=>'Update UserGroup.')));
+				if(count($result['data'])>0){
+					return Response::json(array('code'=>200,'data'=>array('message'=>'Update UserGroup.')));
+				}
+				else {
+					return Response::json(array('code'=>404));
+				}
 			}
-			else {
-				return Response::json(array('code'=>404));
+			else{
+				$result = $unifi->sendAddGroup(array(
+								"name"=>$name,
+								"downRate_enabled"=>$qos_rate_max_down != -1,
+								"qos_rate_max_down"=>$qos_rate_max_down ,
+								"upRate_enabled"=>$qos_rate_max_up != -1,
+								"qos_rate_max_up"=>$qos_rate_max_up
+						));
+
+				if(count($result['data'])>0){
+					return Response::json(array('code'=>200,'data'=>array('message'=>'Insert UserGroup.')));
+				}
+				else {
+					return Response::json(array('code'=>404));
+				}
 			}
 		}
 		else{
