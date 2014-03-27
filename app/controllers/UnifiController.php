@@ -1390,10 +1390,12 @@ class UnifiController extends Controller {
 				if($value['is_guest'] == 1){
 					$value['is_online'] = 1;
 					if(isset($authorized[$value['mac']])){
-						$value['is_auth'] = 1;
 						if(isset($authorized[$value['mac']]['google_id'])){
-							$value['google_id']=$authorized[$value['mac']]['google_id'];
+							$value['is_auth'] = 1;
+							$value['google_id'] = $authorized[$value['mac']]['google_id'];
+							$value['email'] = $authorized[$value['mac']]['email'];
 							$google = $user[$value['google_id']];
+								
 							if(!isset($google['name']) || $google['name'] == '-'){
 								if($google['fname'] != '-' && $google['lname'] != '-'){
 									$value['name'] = $google['fname'].' '.$google['lname'];
@@ -1401,9 +1403,14 @@ class UnifiController extends Controller {
 							}
 							else $value['name'] = $google['name'];
 						}
+						else{
+							$value['is_auth']=0;
+							$value['email']='';
+						}
 					}
 					else{
 						$value['is_auth']=0;
+						$value['email']='';
 					}
 					$result[] = $value;
 				}
