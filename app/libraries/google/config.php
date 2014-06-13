@@ -21,15 +21,15 @@ $apiConfig = array(
     'use_objects' => false,
   
     // The application_name is included in the User-Agent HTTP header.
-    'application_name' => 'FITM Wifi Authentication Application',
+    'application_name' => '',
 
     // OAuth2 Settings, you can get these keys at https://code.google.com/apis/console
-    'oauth2_client_id' => '255353714074-lrv1ni4nujj39f9j4hs26m4cg3fkbvhr.apps.googleusercontent.com',
+    'oauth2_client_id' => '',
     'oauth2_client_secret' => '2-erec_7lC_1bisTI6QRELqe',
-    'oauth2_redirect_uri' => 'http://fitmwifi.ap01.aws.af.cm/auth',
+    'oauth2_redirect_uri' => '',
 
     // The developer key, you get this at https://code.google.com/apis/console
-    'developer_key' => '255353714074-lrv1ni4nujj39f9j4hs26m4cg3fkbvhr@developer.gserviceaccount.com',
+    'developer_key' => '',
   
     // Site name to show in the Google's OAuth 1 authentication screen.
     'site_name' => 'www.example.org',
